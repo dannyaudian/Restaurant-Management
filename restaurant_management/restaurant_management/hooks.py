@@ -183,6 +183,13 @@ fixtures = [
     {"dt": "Property Setter", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "Print Format", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "Role", "filters": [["name", "like", "Restaurant%"]]},
-    {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]}
+    {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]}
 ]
+
+# Override standard doctype autoname
+override_doctype_class = {
+    "Sales Invoice": "restaurant_management.overrides.sales_invoice.CustomSalesInvoice",
+    "Sales Order": "restaurant_management.overrides.sales_order.CustomSalesOrder",
+    "POS Invoice": "restaurant_management.overrides.pos_invoice.CustomPOSInvoice",
+    "Payment Entry": "restaurant_management.overrides.payment_entry.CustomPaymentEntry"
+}
