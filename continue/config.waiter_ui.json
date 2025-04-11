@@ -1,0 +1,10 @@
+{
+  "name": "Waiter Order UI",
+  "description": "Build the web interface for waiters to create and update POS Orders.",
+  "tasks": [
+    {
+      "name": "Create Waiter Order Page",
+      "prompt": "Build a Web Page `waiter_order` where waiters can: select table, choose items, resolve variants (if template), and send orders to kitchen. Include `Send to Kitchen` and `Send Additional Items` buttons."
+    }
+  ]
+}

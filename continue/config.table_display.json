@@ -1,0 +1,10 @@
+{
+  "name": "Table Overview Display",
+  "description": "Create branch-wide table overview page for supervisors and waiters.",
+  "tasks": [
+    {
+      "name": "Build Table Display Page",
+      "prompt": "Create Web Page `table_display` that shows all tables and their order/item statuses per branch. For each table, show items and kitchen status (Waiting, In Progress, Done)."
+    }
+  ]
+}
