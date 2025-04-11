@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:station_name",
  "creation": "2023-11-01 10:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -21,8 +20,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Station Name",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "default": "1",
@@ -62,7 +60,6 @@
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "Kitchen Station",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

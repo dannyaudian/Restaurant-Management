@@ -1,6 +1,49 @@
 [
   {
     "doctype": "Custom Field",
+    "name": "Branch-branch_code",
+    "dt": "Branch",
+    "fieldname": "branch_code",
+    "fieldtype": "Data",
+    "label": "Branch Code",
+    "insert_after": "branch",
+    "reqd": 1,
+    "unique": 1,
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Branch-restaurant_settings",
+    "dt": "Branch",
+    "fieldname": "restaurant_settings",
+    "fieldtype": "Section Break",
+    "label": "Restaurant Settings",
+    "insert_after": "disabled",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Branch-is_restaurant",
+    "dt": "Branch",
+    "fieldname": "is_restaurant",
+    "fieldtype": "Check",
+    "label": "Is Restaurant",
+    "insert_after": "restaurant_settings",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Branch-default_printer",
+    "dt": "Branch",
+    "fieldname": "default_printer",
+    "fieldtype": "Data",
+    "label": "Default Printer",
+    "insert_after": "is_restaurant",
+    "depends_on": "is_restaurant",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
     "name": "POS Profile-restaurant_mode",
     "dt": "POS Profile",
     "fieldname": "restaurant_mode",
@@ -22,12 +65,25 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-branch",
+    "dt": "POS Profile",
+    "fieldname": "branch",
+    "fieldtype": "Link",
+    "options": "Branch",
+    "label": "Branch",
+    "insert_after": "select_table_first",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
     "name": "POS Profile-branch_code",
     "dt": "POS Profile",
     "fieldname": "branch_code",
     "fieldtype": "Data",
     "label": "Branch Code",
-    "insert_after": "select_table_first",
+    "fetch_from": "branch.branch_code",
+    "read_only": 1,
+    "insert_after": "branch",
     "module": "Restaurant Management"
   },
   {
@@ -71,6 +127,131 @@
     "fieldtype": "Check",
     "label": "Allow Adding Items After Sent to Kitchen",
     "insert_after": "allowed_kitchen_stations",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Invoice-branch",
+    "dt": "Sales Invoice",
+    "fieldname": "branch",
+    "fieldtype": "Link",
+    "options": "Branch",
+    "label": "Branch",
+    "insert_after": "company",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Invoice-branch_code",
+    "dt": "Sales Invoice",
+    "fieldname": "branch_code",
+    "fieldtype": "Data",
+    "label": "Branch Code",
+    "fetch_from": "branch.branch_code",
+    "read_only": 1,
+    "insert_after": "branch",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Order-branch",
+    "dt": "Sales Order",
+    "fieldname": "branch",
+    "fieldtype": "Link",
+    "options": "Branch",
+    "label": "Branch",
+    "insert_after": "company",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Order-branch_code",
+    "dt": "Sales Order",
+    "fieldname": "branch_code",
+    "fieldtype": "Data",
+    "label": "Branch Code",
+    "fetch_from": "branch.branch_code",
+    "read_only": 1,
+    "insert_after": "branch",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "POS Invoice-branch",
+    "dt": "POS Invoice",
+    "fieldname": "branch",
+    "fieldtype": "Link",
+    "options": "Branch",
+    "label": "Branch",
+    "insert_after": "company",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "POS Invoice-branch_code",
+    "dt": "POS Invoice",
+    "fieldname": "branch_code",
+    "fieldtype": "Data",
+    "label": "Branch Code",
+    "fetch_from": "branch.branch_code",
+    "read_only": 1,
+    "insert_after": "branch",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payment Entry-branch",
+    "dt": "Payment Entry",
+    "fieldname": "branch",
+    "fieldtype": "Link",
+    "options": "Branch",
+    "label": "Branch",
+    "insert_after": "company",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payment Entry-branch_code",
+    "dt": "Payment Entry",
+    "fieldname": "branch_code",
+    "fieldtype": "Data",
+    "label": "Branch Code",
+    "fetch_from": "branch.branch_code",
+    "read_only": 1,
+    "insert_after": "branch",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Kitchen Station-branch",
+    "dt": "Kitchen Station",
+    "fieldname": "branch",
+    "fieldtype": "Link",
+    "options": "Branch",
+    "label": "Branch",
+    "insert_after": "printer_name",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Kitchen Station-branch_code",
+    "dt": "Kitchen Station",
+    "fieldname": "branch_code",
+    "fieldtype": "Data",
+    "label": "Branch Code",
+    "fetch_from": "branch.branch_code",
+    "read_only": 1,
+    "insert_after": "branch",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Item-branch_specific_pricing",
+    "dt": "Item",
+    "fieldname": "branch_specific_pricing",
+    "fieldtype": "Check",
+    "label": "Branch Specific Pricing",
+    "insert_after": "item_group",
     "module": "Restaurant Management"
   }
 ]
