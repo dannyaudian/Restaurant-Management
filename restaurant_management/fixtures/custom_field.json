@@ -1,0 +1,62 @@
+[
+  {
+    "dt": "POS Profile",
+    "fieldname": "restaurant_mode",
+    "fieldtype": "Check",
+    "label": "Restaurant Mode",
+    "insert_after": "customer",
+    "module": "Restaurant Management"
+  },
+  {
+    "dt": "POS Profile",
+    "fieldname": "select_table_first",
+    "fieldtype": "Check",
+    "label": "Select Table First",
+    "insert_after": "restaurant_mode",
+    "module": "Restaurant Management",
+    "depends_on": "restaurant_mode"
+  },
+  {
+    "dt": "POS Profile",
+    "fieldname": "branch_code",
+    "fieldtype": "Data",
+    "label": "Branch Code",
+    "insert_after": "select_table_first",
+    "module": "Restaurant Management"
+  },
+  {
+    "dt": "POS Profile",
+    "fieldname": "restaurant_settings_section",
+    "fieldtype": "Section Break",
+    "label": "Restaurant Settings",
+    "insert_after": "branch_code",
+    "module": "Restaurant Management",
+    "depends_on": "restaurant_mode"
+  },
+  {
+    "dt": "POS Profile",
+    "fieldname": "allowed_item_groups",
+    "fieldtype": "Table MultiSelect",
+    "label": "Allowed Item Groups",
+    "options": "POS Item Group",
+    "insert_after": "restaurant_settings_section",
+    "module": "Restaurant Management"
+  },
+  {
+    "dt": "POS Profile",
+    "fieldname": "allowed_kitchen_stations",
+    "fieldtype": "Table MultiSelect",
+    "label": "Allowed Kitchen Stations",
+    "options": "POS Kitchen Station",
+    "insert_after": "allowed_item_groups",
+    "module": "Restaurant Management"
+  },
+  {
+    "dt": "POS Profile",
+    "fieldname": "allow_add_item_post_kitchen",
+    "fieldtype": "Check",
+    "label": "Allow Adding Items After Sent to Kitchen",
+    "insert_after": "allowed_kitchen_stations",
+    "module": "Restaurant Management"
+  }
+]
