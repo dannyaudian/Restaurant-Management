@@ -10,10 +10,12 @@ setup(
     name="restaurant_management",
     version=version,
     description="Restaurant Management System for ERPNext",
-    author="Danny Audian Pratama"
-    author_email="danny.a.pratama@cao-group.co.id",
+    author="Danny Audian Pratama",
+    author_email="your.email@example.com",
     packages=find_packages(),
     zip_safe=False,
     include_package_data=True,
     install_requires=install_requires
 )
+)
+
