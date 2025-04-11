@@ -1,6 +1,7 @@
 [
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-restaurant_mode",
     "dt": "POS Profile",
     "fieldname": "restaurant_mode",
     "fieldtype": "Check",
@@ -10,6 +11,7 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-select_table_first",
     "dt": "POS Profile",
     "fieldname": "select_table_first",
     "fieldtype": "Check",
@@ -20,6 +22,7 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-branch_code",
     "dt": "POS Profile",
     "fieldname": "branch_code",
     "fieldtype": "Data",
@@ -29,6 +32,7 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-restaurant_settings_section",
     "dt": "POS Profile",
     "fieldname": "restaurant_settings_section",
     "fieldtype": "Section Break",
@@ -39,6 +43,7 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-allowed_item_groups",
     "dt": "POS Profile",
     "fieldname": "allowed_item_groups",
     "fieldtype": "Table MultiSelect",
@@ -49,6 +54,7 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-allowed_kitchen_stations",
     "dt": "POS Profile",
     "fieldname": "allowed_kitchen_stations",
     "fieldtype": "Table MultiSelect",
@@ -59,6 +65,7 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-allow_add_item_post_kitchen",
     "dt": "POS Profile",
     "fieldname": "allow_add_item_post_kitchen",
     "fieldtype": "Check",
@@ -67,4 +74,3 @@
     "module": "Restaurant Management"
   }
 ]
-
