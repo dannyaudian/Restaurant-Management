@@ -1,0 +1,133 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Frappe specific
+*.pyc
+*.swp
+*.orig
+*.rej
+*~
+.DS_Store
+node_modules/
+dist/
+site_config.json
+sites/**/private/files/**
+sites/**/private/backups/**
+sites/**/public/files/**
+sites/**/apps/frappe
+sites/.task-status/*
+.coverage
+*.pid
+*.log
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# PyCharm/IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+out/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment
+.env
+.venv
+venv/
+ENV/
+
+# Compiled JavaScript
+restaurant_management/public/dist/
+restaurant_management/public/js/**/*.min.js
+
+# Built CSS
+restaurant_management/public/css/**/*.min.css
+
+# Temporary/Local development files
+tmp/
+temp/
+.bench/
+local/
+*.local.*
+local.py
+
+# Test
+coverage/
+.nyc_output/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Translations
+*.pot
+
+# Documentation
+docs/_build/
+docs/API/
+
+# Logs
+logs/
+yarn-error.log
+npm-debug.log
+
+# Database backup/migrations
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Compiled site
+public/
+
+# Custom fixture exports
+*.export
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
