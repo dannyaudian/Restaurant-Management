@@ -15,9 +15,9 @@ app_license = "MIT"
 # app_include_js = "/assets/restaurant_management/js/restaurant_management.js"
 
 # include js, css files in header of web template
-web_include_css = "/assets/restaurant_management/css/dummy.css"
-web_include_js = [
-    "/assets/restaurant_management/js/waiter_order.js",
+# web_include_css = "/assets/restaurant_management/css/dummy.css"
+# web_include_js = [
+#    "/assets/restaurant_management/js/waiter_order.js",
 ]
 
 # include custom scss in every website theme (without file extension ".scss")
