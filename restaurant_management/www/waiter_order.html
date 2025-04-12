@@ -610,9 +610,6 @@ Copy
     }
   }
 </style>
-{% endblock %}
-
-{% block content %}
 <div class="waiter-order-container">
   <!-- Left Column: Pilihan Meja & Menu Items -->
   <div class="left-column">
@@ -702,9 +699,7 @@ Copy
     csrfToken: "{{ frappe.session.csrf_token }}",
   };
 </script>
-{% endblock %}
 
-{% block content %}
 <div class="waiter-order-container">
   <!-- Left Column: Table Selection & Menu Items -->
   <div class="left-column">
@@ -803,8 +798,6 @@ Copy
     csrfToken: "{{ frappe.session.csrf_token }}"
   };
 </script>
-{% endblock %}
 
-{% block script %}
 <script src="/assets/restaurant_management/js/waiter_order.js"></script>
 {% endblock %}
