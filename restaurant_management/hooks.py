@@ -1,21 +1,24 @@
 app_name = "restaurant_management"
 app_title = "Restaurant Management"
-app_publisher = "PT. Innovasi Terbaik Bangsa"
+app_publisher = "Danny Audian Pratama"
 app_description = "Restaurant Management System for ERPNext"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
-app_email = "info@itb.cao-group.co,id"
+app_email = "your.email@example.com"
 app_license = "MIT"
 
 # Includes in <head>
 # ------------------
+
 # include js, css files in header of desk.html
 # app_include_css = "/assets/restaurant_management/css/restaurant_management.css"
 # app_include_js = "/assets/restaurant_management/js/restaurant_management.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/restaurant_management/css/restaurant_management.css"
-# web_include_js = "/assets/restaurant_management/js/restaurant_management.js"
+web_include_js = [
+    "/assets/restaurant_management/js/waiter_order.js",
+]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "restaurant_management/public/scss/website"
@@ -41,7 +44,7 @@ app_license = "MIT"
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+#   "Role": "home_page"
 # }
 
 # Generators
@@ -56,12 +59,6 @@ app_license = "MIT"
 # before_install = "restaurant_management.install.before_install"
 # after_install = "restaurant_management.install.after_install"
 
-# Uninstallation
-# ------------
-
-# before_uninstall = "restaurant_management.uninstall.before_uninstall"
-# after_uninstall = "restaurant_management.uninstall.after_uninstall"
-
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
@@ -73,11 +70,11 @@ app_license = "MIT"
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+#   "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
 # has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
+#   "Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # DocType Class
@@ -85,40 +82,39 @@ app_license = "MIT"
 # Override standard doctype classes
 
 # override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
+#   "ToDo": "custom_app.overrides.CustomToDo"
 # }
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
-# }
+doc_events = {
+   "Waiter Order": {
+      "before_save": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.update_table_status",
+      "on_trash": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.on_trash",
+   }
+}
 
 # Scheduled Tasks
 # ---------------
 
 # scheduler_events = {
-# 	"all": [
-# 		"restaurant_management.tasks.all"
-# 	],
-# 	"daily": [
-# 		"restaurant_management.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"restaurant_management.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"restaurant_management.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"restaurant_management.tasks.monthly"
-# 	]
+#   "all": [
+#       "restaurant_management.tasks.all"
+#   ],
+#   "daily": [
+#       "restaurant_management.tasks.daily"
+#   ],
+#   "hourly": [
+#       "restaurant_management.tasks.hourly"
+#   ],
+#   "weekly": [
+#       "restaurant_management.tasks.weekly"
+#   ]
+#   "monthly": [
+#       "restaurant_management.tasks.monthly"
+#   ]
 # }
 
 # Testing
@@ -130,59 +126,65 @@ app_license = "MIT"
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "restaurant_management.event.get_events"
+#   "frappe.desk.doctype.event.event.get_events": "restaurant_management.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-# 	"Task": "restaurant_management.task.get_dashboard_data"
+#   "Task": "restaurant_management.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
+# Document Events
+# ---------------
+# Hook on document methods and events
 
-# User Data Protection
-# --------------------
+# doc_events = {
+#   "*": {
+#       "on_update": "method",
+#       "on_cancel": "method",
+#       "on_trash": "method"
+#   }
+# }
 
-user_data_fields = [
-	{
-		"doctype": "{doctype_1}",
-		"filter_by": "{filter_by}",
-		"redact_fields": ["{field_1}", "{field_2}"],
-		"partial": 1,
-	},
-	{
-		"doctype": "{doctype_2}",
-		"filter_by": "{filter_by}",
-		"partial": 1,
-	},
-	{
-		"doctype": "{doctype_3}",
-		"strict": False,
-	},
-	{
-		"doctype": "{doctype_4}"
-	}
+# Scheduled Tasks
+# ---------------
+
+# scheduler_events = {
+#   "all": [
+#       "restaurant_management.tasks.all"
+#   ],
+#   "daily": [
+#       "restaurant_management.tasks.daily"
+#   ],
+#   "hourly": [
+#       "restaurant_management.tasks.hourly"
+#   ],
+#   "weekly": [
+#       "restaurant_management.tasks.weekly"
+#   ]
+#   "monthly": [
+#       "restaurant_management.tasks.monthly"
+#   ]
+# }
+
+# Web Routes
+# ----------
+
+website_route_rules = [
+   {"from_route": "/waiter_order", "to_route": "restaurant_management/www/waiter_order"},
 ]
-
-# Authentication and authorization
-# --------------------------------
-
-# auth_hooks = [
-# 	"restaurant_management.auth.validate"
-# ]
 
 # Fixtures
 # --------
 fixtures = [
-    {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Property Setter", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Print Format", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Role", "filters": [["name", "like", "Restaurant%"]]},
-    {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]}
+   {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]},
+   {"dt": "Property Setter", "filters": [["module", "=", "Restaurant Management"]]},
+   {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
+   {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]}
 ]
