@@ -34,7 +34,8 @@
   },
   {
    "fieldname": "branch_code",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
+   "Options": "branch_code",
    "label": "Branch Code"
   },
   {

@@ -1,15 +1,137 @@
+      <!-- Order items akan ditampilkan di sini -->
+      <div class="empty-order-message">No items added to order</div>
+    </div>
+
+    <div class="order-actions">
+      <div class="order-total">
+        <span>Total:</span>
+        <span id="order-total-amount">₹0.00</span>
+      </div>
+
+      <div class="action-buttons">
+        <!-- Tombol-tombol untuk aksi order -->
+        <button id="send-to-kitchen-btn" class="action-btn btn-kitchen disabled-btn">Send to Kitchen</button>
+        <button id="send-additional-btn" class="action-btn btn-additional disabled-btn">Send Additional Items</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- (Modal Modal dan overlay tetap seperti sebelumnya) -->
+
+<script>
+  // Data context dari server
+  window.waiterOrderData = {
+    csrfToken: "{{ frappe.session.csrf_token }}"
+  };
+
+  /* Contoh pseudocode JavaScript (di file waiter_order.js atau inline script)
+  
+  1. Saat halaman load, lakukan fetch data daftar meja.
+     - Filter meja berdasarkan status:
+         * "editing": meja dengan order yang sedang diedit
+         * "available": meja yang available untuk order baru
+  2. Render tombol meja dengan data-status (misal: data-status="editing" atau "available")
+     - Jika status "editing", tombol boleh diklik untuk mengedit order.
+     - Jika status "available", tombol bisa men-trigger notifikasi "use New Order button" atau langsung memilihnya.
+  3. Event listener untuk tombol "New Order":
+     - Saat ditekan, baca input field #new-order-table-number.
+     - Cek melalui database (atau validasi di front-end) apakah meja dengan nomor tersebut berstatus "available".
+     - Jika available, buat order baru dan update tampilan "selected-table-display".
+     - Jika tidak, beri peringatan bahwa meja tidak available.
+  
+  Contoh kode sederhana (tidak lengkap):
+  
+  document.getElementById("new-order-btn").addEventListener("click", function(){
+    let tableNo = document.getElementById("new-order-table-number").value.trim();
+    if(!tableNo){
+      alert("Please enter a table number");
+      return;
+    }
+    // Misalnya, cek status meja melalui fungsi cekStatusMeja(tableNo)
+    if(cekStatusMeja(tableNo) !== "available"){
+      alert("Table is not available for new order");
+      return;
+    }
+    // Jika available, set selected table dan buat order baru
+    document.getElementById("selected-table-display").innerText = "Table " + tableNo;
+    // Lanjutkan logika untuk create new order...
+  });
+  
+  */
+</script>
+{% endblock %}
+
+{% block script %}
+<script src="/assets/restaurant_management/js/waiter_order.js"></script>
+{% endblock %}
+Penjelasan Perubahan:
+Bagian New Order Section:
+Ditambahkan div dengan kelas new-order-section di atas grid tabel untuk memasukkan nomor meja baru dan tombol "New Order".
+Pengguna dapat memasukkan nomor meja secara manual dan klik tombol tersebut.
+
+Modifikasi Daftar Meja:
+Di bagian <div class="tables-grid" id="tables-container"> kamu dapat memodifikasi JavaScript (pada file waiter_order.js) sehingga hanya memuat meja yang statusnya "editing" (untuk order yang sudah aktif) atau "available" (untuk membuat order baru).
+Tombol meja yang tidak available (misalnya sedang dipakai) bisa diberi kelas occupied atau dinonaktifkan.
+
+Logika Validasi:
+Pada event listener tombol "New Order", lakukan validasi agar hanya dapat membuat order baru jika status meja "available".
+Jika tidak available, tampilkan notifikasi/pesan error.
+
+Modifikasi kode JavaScript (pada file waiter_order.js) perlu disesuaikan untuk:
+
+Fetch status meja dari server.
+
+Filter dan render tombol meja dengan data-status yang benar.
+
+Menangani event klik pada tombol meja untuk edit order maupun tombol "New Order".
+
+Kamu bisa mengadaptasi contoh pseudocode di atas ke dalam implementasi sesuai dengan struktur data kamu.
+Apakah penjelasan dan contoh kode ini sudah sesuai dengan yang kamu maksud? Jika perlu penyesuaian lebih lanjut atau contoh implementasi JavaScript lebih rinci, silakan kabari!
+
+
+
+
+
+
+You said:
+waiter_order.js
+JavaScript
+mohon sesuai kan dan rewrite ulang
+
+
+ChatGPT said:
+Reasoned about waiter order management logic for 43 seconds
+Berikut saya lampirkan versi terintegrasi dari file HTML dan JS yang sudah saya modifikasi sesuai permintaan. Modifikasi utama yaitu:
+
+Di tampilan (HTML):
+
+Di bagian table selection, ditambahkan “New Order Section” dengan input nomor meja dan tombol “New Order”.
+
+Tampilan grid tabel hanya menampilkan meja yang sedang aktif (yaitu meja dengan order aktif) untuk diedit.
+
+Di logic JavaScript (waiter_order.js):
+
+Fungsi renderTables diubah sehingga hanya menampilkan tabel dengan order aktif (misalnya, properti current_pos_order ada).
+
+Ditambahkan event listener untuk tombol “New Order”. Saat tombol ditekan, script akan membaca nilai input nomor meja, mencari data meja (berdasarkan properti table_number atau name), dan memeriksa apakah meja tersebut tersedia (tidak ada order aktif). Jika tersedia, maka meja tersebut akan dipilih dan (secara simulasi) ditandai dengan order baru; jika tidak tersedia, maka akan tampil pesan error.
+
+Di bawah ini saya tampilkan contohnya:
+
+File: waiter_order.html
+html
+Copy
 {% extends "templates/web.html" %}
 
 {% block title %}Waiter Order Interface{% endblock %}
 
 {% block style %}
 <style>
-  /* Main layout */
+  /* Layout utama */
   .waiter-order-container {
     display: flex;
     margin: 0 -15px;
   }
-  
   .left-column {
     flex: 2;
     padding: 0 15px;
@@ -17,7 +139,6 @@
     flex-direction: column;
     min-height: 80vh;
   }
-  
   .right-column {
     flex: 1;
     padding: 0 15px;
@@ -27,19 +148,41 @@
     display: flex;
     flex-direction: column;
   }
-  
-  /* Table selection */
+  /* Section pemilihan meja */
   .table-selection {
     margin-bottom: 20px;
   }
-  
+  /* New Order Section: input nomor meja dan tombol */
+  .new-order-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .new-order-section input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  .btn-new-order {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #5e64ff;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-new-order:hover {
+    background-color: #455ecc;
+  }
+  /* Tampilan grid meja */
   .tables-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 10px;
     margin-top: 15px;
   }
-  
   .table-button {
     padding: 10px;
     text-align: center;
@@ -49,17 +192,14 @@
     background-color: #ffffff;
     transition: all 0.2s ease;
   }
-  
   .table-button:hover {
     border-color: #8a8aff;
   }
-  
   .table-button.selected {
     background-color: #5e64ff;
     color: white;
     font-weight: bold;
   }
-  
   .table-button.occupied {
     background-color: #ff5858;
     color: white;
@@ -474,57 +614,57 @@
 
 {% block content %}
 <div class="waiter-order-container">
-  <!-- Left Column: Tables and Items -->
+  <!-- Left Column: Pilihan Meja & Menu Items -->
   <div class="left-column">
-    <!-- Table Selection -->
+    <!-- Bagian Pemilihan Meja -->
     <div class="table-selection">
-      <h4>Select Table</h4>
+      <h3>Select Table for Edit Order</h3>
+      
+      <!-- New Order Section untuk tambah order baru -->
+      <div class="new-order-section">
+        <input type="text" id="new-order-table-number" placeholder="Enter Table Number" />
+        <button id="new-order-btn" class="btn-new-order">New Order</button>
+      </div>
+      
+      <!-- Grid Meja aktif (hanya yang sedang ada order aktif) -->
       <div class="tables-grid" id="tables-container">
-        <!-- Tables will be loaded here -->
         <div class="loading-message">Loading tables...</div>
       </div>
     </div>
     
-    <!-- Item Selection -->
+    <!-- Bagian Pemilihan Menu Items -->
     <div class="items-selection">
-      <h4>Select Items</h4>
-      <input type="text" class="search-box" id="item-search" placeholder="Search items...">
-      
+      <h3>Select Items</h3>
+      <input type="text" class="search-box" id="item-search" placeholder="Search items..." />
       <div class="item-categories" id="item-categories">
-        <div class="category-button active" data-category="all">All</div>
-        <!-- Item categories will be loaded here -->
+        <div class="category-button active" data-group="all">All</div>
+        <!-- Kategori item ditampilkan secara dinamis -->
       </div>
-      
       <div class="item-list" id="items-container">
-        <!-- Items will be loaded here -->
         <div class="loading-message">Loading items...</div>
       </div>
     </div>
   </div>
   
-  <!-- Right Column: Order Summary -->
+  <!-- Right Column: Ringkasan Order -->
   <div class="right-column">
     <div class="order-header">
-    <h4>Order Summary</h4>
+      <h3>Order Summary</h3>
       <div class="selected-table" id="selected-table-display">No table selected</div>
     </div>
-    
     <div class="order-items" id="order-items-container">
-      <!-- Order items will be displayed here -->
       <div class="empty-order-message">No items added to order</div>
     </div>
-
     <div class="order-actions">
       <div class="order-total">
         <span>Total:</span>
         <span id="order-total-amount">₹0.00</span>
-  </div>
-
+      </div>
       <div class="action-buttons">
         <button id="send-to-kitchen-btn" class="action-btn btn-kitchen disabled-btn">Send to Kitchen</button>
         <button id="send-additional-btn" class="action-btn btn-additional disabled-btn">Send Additional Items</button>
-</div>
-  </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -659,10 +799,12 @@
 
 {% block script %}
 <script>
-  window.waiterOrderContext = {
+  window.waiterOrderData = {
     csrfToken: "{{ frappe.session.csrf_token }}"
   };
 </script>
+{% endblock %}
 
+{% block script %}
 <script src="/assets/restaurant_management/js/waiter_order.js"></script>
 {% endblock %}
