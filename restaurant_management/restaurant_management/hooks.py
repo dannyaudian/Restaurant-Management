@@ -178,7 +178,7 @@ doc_events = {
 
  website_route_rules = [
    {"from_route": "/waiter_order", "to_route": "restaurant_management/www/waiter_order"},
-# ]
+]
 
 # Fixtures
 # --------
