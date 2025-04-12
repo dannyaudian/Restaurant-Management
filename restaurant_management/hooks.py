@@ -17,7 +17,7 @@ app_license = "MIT"
 # include js, css files in header of web template
 # web_include_css = "/assets/restaurant_management/css/dummy.css"
 # web_include_js = [
-    "/assets/restaurant_management/js/waiter_order.js",
+#    "/assets/restaurant_management/js/waiter_order.js",
 ]
 
 # include custom scss in every website theme (without file extension ".scss")
@@ -176,9 +176,9 @@ doc_events = {
 # Web Routes
 # ----------
 
- website_route_rules = [
-   {"from_route": "/waiter_order", "to_route": "restaurant_management/www/waiter_order"},
- ]
+# website_route_rules = [
+#   {"from_route": "/waiter_order", "to_route": "restaurant_management/www/waiter_order"},
+#]
 
 # Fixtures
 # --------
