@@ -61,7 +61,7 @@
     "fieldname": "allowed_item_groups",
     "fieldtype": "Table MultiSelect",
     "label": "Allowed Item Groups",
-    "options": "POS Item Group",
+    "options": "Item Group",
     "insert_after": "restaurant_settings_section",
     "module": "Restaurant Management"
   },
