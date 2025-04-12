@@ -18,7 +18,7 @@ app_license = "MIT"
 # web_include_css = "/assets/restaurant_management/css/dummy.css"
 # web_include_js = [
 #    "/assets/restaurant_management/js/waiter_order.js",
-]
+#]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "restaurant_management/public/scss/website"
