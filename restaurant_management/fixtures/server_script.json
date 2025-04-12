@@ -1,0 +1,11 @@
+[
+  {
+    "doctype": "Server Script",
+    "name": "Branch Code Validation",
+    "script_type": "Validation",
+    "reference_doctype": "Branch",
+    "module": "Restaurant Management",
+    "disabled": 0,
+    "script": "if doc.branch_code:\n    # Convert to uppercase and remove leading/trailing spaces\n    doc.branch_code = doc.branch_code.upper().strip()\n    \n    # Check length\n    if len(doc.branch_code) < 2 or len(doc.branch_code) > 4:\n        frappe.throw('Branch Code must be 2-4 characters long')"
+  }
+]
