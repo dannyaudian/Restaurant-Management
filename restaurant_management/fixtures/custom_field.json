@@ -180,29 +180,6 @@
   },
   {
     "doctype": "Custom Field",
-    "name": "Kitchen Station-branch",
-    "dt": "Kitchen Station",
-    "fieldname": "branch",
-    "fieldtype": "Link",
-    "options": "Branch",
-    "label": "Branch",
-    "insert_after": "printer_name",
-    "module": "Restaurant Management"
-  },
-  {
-    "doctype": "Custom Field",
-    "name": "Kitchen Station-branch_code",
-    "dt": "Kitchen Station",
-    "fieldname": "branch_code",
-    "fieldtype": "Data",
-    "label": "Branch Code",
-    "fetch_from": "branch.branch_code",
-    "read_only": 1,
-    "insert_after": "branch",
-    "module": "Restaurant Management"
-  },
-  {
-    "doctype": "Custom Field",
     "name": "Item-branch_specific_pricing",
     "dt": "Item",
     "fieldname": "branch_specific_pricing",
