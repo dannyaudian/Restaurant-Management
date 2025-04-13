@@ -83,10 +83,11 @@ app_license = "MIT"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-#   "ToDo": "custom_app.overrides.CustomToDo"
-# }
-
+override_doctype_class = {
+    "Sales Invoice": "restaurant_management.restaurant_management.overrides.sales_invoice.RestaurantSalesInvoice",
+    "POS Invoice": "restaurant_management.restaurant_management.overrides.pos_invoice.RestaurantPOSInvoice",
+    "Sales Order": "restaurant_management.restaurant_management.overrides.sales_order.RestaurantSalesOrder"
+}
 # Document Events
 # ---------------
 # Hook on document methods and events
@@ -95,9 +96,29 @@ doc_events = {
    "Waiter Order": {
       "before_save": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.update_table_status",
       "on_trash": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.on_trash",
-   }
+    },
+   "Sales Invoice": {
+      "on_submit": "restaurant_management.restaurant_management.overrides.sales_invoice.update_restaurant_status",
+      "on_cancel": "restaurant_management.restaurant_management.overrides.sales_invoice.revert_restaurant_status",
+      "validate": "restaurant_management.restaurant_management.overrides.sales_invoice.validate_restaurant_fields"
+    },
+    "POS Invoice": {
+      "on_submit": [
+         "restaurant_management.restaurant_management.overrides.pos_invoice.update_restaurant_status",
+         "restaurant_management.restaurant_management.overrides.pos_invoice.link_to_sales_order"
+      ],
+      "on_cancel": "restaurant_management.restaurant_management.overrides.pos_invoice.revert_restaurant_status",
+      "validate": "restaurant_management.restaurant_management.overrides.pos_invoice.validate_restaurant_fields"
+    },
+    "Sales Order": {
+      "on_update_after_submit": "restaurant_management.restaurant_management.overrides.sales_order.update_restaurant_status",
+      "validate": "restaurant_management.restaurant_management.overrides.sales_order.validate_restaurant_fields"
+    },
+    "Payment Entry": {
+      "on_submit": "restaurant_management.restaurant_management.overrides.payment_entry.update_restaurant_status",
+      "on_cancel": "restaurant_management.restaurant_management.overrides.payment_entry.revert_restaurant_status"
+    }
 }
-
 # Scheduled Tasks
 # ---------------
 
@@ -113,7 +134,7 @@ doc_events = {
 #   ],
 #   "weekly": [
 #       "restaurant_management.tasks.weekly"
-#   ]
+#   ],
 #   "monthly": [
 #       "restaurant_management.tasks.monthly"
 #   ]
@@ -142,48 +163,6 @@ doc_events = {
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
-# Document Events
-# ---------------
-# Hook on document methods and events
-
-# doc_events = {
-#   "*": {
-#       "on_update": "method",
-#       "on_cancel": "method",
-#       "on_trash": "method"
-#   }
-# }
-
-# Scheduled Tasks
-# ---------------
-
-# scheduler_events = {
-#   "all": [
-#       "restaurant_management.tasks.all"
-#   ],
-#   "daily": [
-#       "restaurant_management.tasks.daily"
-#   ],
-#   "hourly": [
-#       "restaurant_management.tasks.hourly"
-#   ],
-#   "weekly": [
-#       "restaurant_management.tasks.weekly"
-#   ]
-#   "monthly": [
-#       "restaurant_management.tasks.monthly"
-#   ]
-# }
-
-# Web Routes
-# ----------
-
-# website_route_rules = [
-#   {"from_route": "/waiter_order", "to_route": "www/waiter_order"},
-#   {"from_route": "/station_display", "to_route": "www/station_display"},
-#   {"from_route": "/table_display", "to_route": "www/table_display"}
-#]
-
 # Fixtures
 # --------
 fixtures = [
@@ -191,4 +170,81 @@ fixtures = [
    {"dt": "Property Setter", "filters": [["module", "=", "Restaurant Management"]]},
    {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
    {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]}
+]
+
+# Whitelisted Methods
+# ------------------
+# These methods can be called from the frontend without login
+whitelist_methods = [
+    # KDS Display APIs
+    "restaurant_management.api.kds_display.get_kitchen_item_queue",
+    "restaurant_management.api.kds_display.update_item_status",
+    "restaurant_management.api.kds_display.get_kitchen_stations",
+    "restaurant_management.api.kds_display.get_branches",
+    "restaurant_management.api.kds_display.get_kds_config",
+    
+    # Kitchen Routing APIs
+    "restaurant_management.api.kitchen_routing.route_order_to_kitchen_stations",
+    
+    # POS Restaurant APIs
+    "restaurant_management.api.pos_restaurant.get_tables",
+    "restaurant_management.api.pos_restaurant.get_waiter_order",
+    "restaurant_management.api.pos_restaurant.get_item_details",
+    "restaurant_management.api.pos_restaurant.get_items",
+    "restaurant_management.api.pos_restaurant.update_waiter_order_status",
+    "restaurant_management.api.pos_restaurant.create_sales_order_from_waiter_order",
+    "restaurant_management.api.pos_restaurant.update_sales_order_from_waiter_order",
+    
+    # Table Display APIs
+    "restaurant_management.api.table_display.get_table_overview",
+    "restaurant_management.api.table_display.get_branches",
+    "restaurant_management.api.table_display.get_table_display_config",
+    
+    # Waiter Order APIs
+    "restaurant_management.api.waiter_order.get_available_tables",
+    "restaurant_management.api.waiter_order.get_item_templates",
+    "restaurant_management.api.waiter_order.get_item_groups",
+    "restaurant_management.api.waiter_order.get_item_variant_attributes",
+    "restaurant_management.api.waiter_order.resolve_item_variant",
+    "restaurant_management.api.waiter_order.send_order_to_kitchen",
+    "restaurant_management.api.waiter_order.send_additional_items",
+    "restaurant_management.api.waiter_order.mark_items_as_served",
+    "restaurant_management.api.waiter_order.get_print_url",
+    
+    # Branch Permissions Utils
+    "restaurant_management.restaurant_management.utils.branch_permissions.assign_all_branches_to_user",
+    "restaurant_management.restaurant_management.utils.branch_permissions.get_allowed_branches_query"
+]
+
+# Add to Frappe's whitelisted methods
+whitelisted_methods = whitelist_methods
+
+# Guest Methods (allowed without login)
+# These methods can be called without any login
+guest_methods = [
+    "restaurant_management.api.kds_display.get_kitchen_item_queue",
+    "restaurant_management.api.kds_display.update_item_status",
+    "restaurant_management.api.kds_display.get_kitchen_stations",
+    "restaurant_management.api.kds_display.get_branches",
+    "restaurant_management.api.kds_display.get_kds_config",
+    "restaurant_management.api.table_display.get_table_overview",
+    "restaurant_management.api.table_display.get_branches",
+    "restaurant_management.api.table_display.get_table_display_config"
+]
+
+# Add to Frappe's allowed guest methods
+allow_guest_methods = guest_methods
+
+# Website Rules
+# ------------------
+website_route_rules = [
+    {"from_route": "/waiter_order", "to_route": "www/waiter_order"},
+    {"from_route": "/station_display", "to_route": "www/station_display", "no_cache": 1},
+    {"from_route": "/table_display", "to_route": "www/table_display", "no_cache": 1}
+]
+
+# Pages that can be accessed without login
+website_guest_routes = [
+    "station_display",
+    "table_display"
 ]

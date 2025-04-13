@@ -3,8 +3,48 @@ from frappe import _
 from frappe.utils import flt
 import json
 
+
 @frappe.whitelist()
 def get_tables(pos_profile=None):
+    """
+    Get tables for POS interface
+    
+    Args:
+        pos_profile (str): POS Profile name to filter tables by branch
+        
+    Returns:
+        List of tables with status
+    """
+    from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user, user_has_branch_access
+    
+    if not pos_profile:
+        return []
+    
+    # Get branch code from POS profile
+    branch_code = frappe.db.get_value("POS Profile", pos_profile, "branch_code")
+    
+    # Check if user has access to this branch
+    if branch_code and not user_has_branch_access(branch_code):
+        frappe.throw(_("You don't have permission to access this branch"))
+    
+    filters = {}
+    if branch_code:
+        filters["branch_code"] = branch_code
+    else:
+        # If no specific branch in POS profile, filter by all allowed branches
+        allowed_branches = get_allowed_branches_for_user()
+        if allowed_branches:
+            filters["branch_code"] = ["in", allowed_branches]
+    
+    # Get tables
+    tables = frappe.get_all(
+        "Table",
+        filters=filters,
+        fields=["name", "table_number", "status", "current_pos_order", "branch_code"],
+        order_by="table_number"
+    )
+    
+    return tables
     """
     Get tables for POS interface
     

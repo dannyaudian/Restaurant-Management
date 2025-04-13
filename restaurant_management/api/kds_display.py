@@ -4,6 +4,16 @@ from frappe.utils import now_datetime, time_diff_in_seconds
 from datetime import datetime
 import json
 
+def validate_kds_token(token):
+    """Validate a KDS access token"""
+    # Get the valid token from system settings or a custom DocType
+    valid_token = frappe.db.get_single_value("Restaurant Settings", "kds_access_token")
+    
+    if not valid_token or token != valid_token:
+        frappe.throw(_("Invalid access token"))
+    
+    return True
+
 @frappe.whitelist()
 def get_kitchen_item_queue(kitchen_station=None, branch_code=None):
     """
@@ -72,18 +82,23 @@ def get_kitchen_item_queue(kitchen_station=None, branch_code=None):
     
     return expanded_items
 
-@frappe.whitelist()
-def update_item_status(item_id, new_status):
+@frappe.whitelist(allow_guest=True)
+def update_item_status(item_id, new_status, access_token=None):
     """
     Update the status of a kitchen item
-    
+
     Args:
         item_id (str): ID of the Waiter Order Item
         new_status (str): New status (Waiting, Cooking, Ready)
-        
+        access_token (str, optional): Token for authentication when accessed as guest
+
     Returns:
         dict: Success status and message
     """
+    # Validate token for guest access
+    if frappe.session.user == "Guest":
+        validate_kds_token(access_token)
+
     if new_status not in ["Waiting", "Cooking", "Ready"]:
         return {"success": False, "error": _("Invalid status")}
     
@@ -108,24 +123,47 @@ def update_item_status(item_id, new_status):
 
 @frappe.whitelist()
 def get_kitchen_stations():
-    """Get list of kitchen stations"""
-    stations = frappe.get_all(
-        "Kitchen Station",
-        fields=["name", "station_name"],
-        filters={"is_active": 1},
-        order_by="station_name"
-    )
+    """Get list of kitchen stations the user has access to"""
+    from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user
+    
+    # Get allowed branches for current user
+    allowed_branch_codes = get_allowed_branches_for_user()
+    
+    if allowed_branch_codes:
+        # Filter kitchen stations by allowed branches
+        stations = frappe.get_all(
+            "Kitchen Station",
+            filters={
+                "is_active": 1,
+                "branch_code": ["in", allowed_branch_codes]
+            },
+            fields=["name", "station_name"],
+            order_by="station_name"
+        )
+    else:
+        # If user doesn't have access to any branches (shouldn't happen, but fallback)
+        stations = []
     
     return stations
 
 @frappe.whitelist()
 def get_branches():
-    """Get list of branches"""
-    branches = frappe.get_all(
-        "Branch",
-        fields=["branch_code", "branch_name"],
-        order_by="branch_name"
-    )
+    """Get list of branches the user has access to"""
+    from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user
+    
+    # Get allowed branches for current user
+    allowed_branch_codes = get_allowed_branches_for_user()
+    
+    if allowed_branch_codes:
+        branches = frappe.get_all(
+            "Branch",
+            filters={"branch_code": ["in", allowed_branch_codes]},
+            fields=["branch_code", "branch_name"],
+            order_by="branch_name"
+        )
+    else:
+        # If no specific branches allowed (shouldn't happen, but fallback)
+        branches = []
     
     return branches
 
@@ -133,7 +171,7 @@ def get_branches():
 def get_kds_config():
     """Get KDS configuration"""
     config_path = frappe.get_app_path("restaurant_management", "config", "kds_display.json")
-    
+
     try:
         with open(config_path, 'r') as f:
             config = json.load(f)

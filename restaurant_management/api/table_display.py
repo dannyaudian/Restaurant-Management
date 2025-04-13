@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 import json
 
+
 @frappe.whitelist()
 def get_table_overview(branch_code=None):
     """
@@ -13,7 +14,23 @@ def get_table_overview(branch_code=None):
     Returns:
         List of tables with order summary and items
     """
+    from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user
+    
     filters = {}
+    
+    # Get allowed branches for current user
+    allowed_branches = get_allowed_branches_for_user()
+    
+    if branch_code:
+        # If specific branch requested, check if user has access
+        if branch_code in allowed_branches:
+            filters["branch_code"] = branch_code
+        else:
+            frappe.throw(_("You don't have permission to access this branch"))
+    else:
+        # Otherwise filter by all allowed branches
+        if allowed_branches:
+            filters["branch_code"] = ["in", allowed_branches]
     
     if branch_code:
         filters["branch_code"] = branch_code
@@ -85,8 +102,27 @@ def get_table_overview(branch_code=None):
     
     return result
 
+
 @frappe.whitelist()
 def get_branches():
+    """Get list of branches the user has access to"""
+    from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user
+    
+    # Get allowed branches for current user
+    allowed_branch_codes = get_allowed_branches_for_user()
+    
+    if allowed_branch_codes:
+        branches = frappe.get_all(
+            "Branch",
+            filters={"branch_code": ["in", allowed_branch_codes]},
+            fields=["branch_code", "branch_name"],
+            order_by="branch_name"
+        )
+    else:
+        # If no specific branches allowed (shouldn't happen, but fallback)
+        branches = []
+    
+    return branches
     """Get list of branches"""
     branches = frappe.get_all(
         "Branch",

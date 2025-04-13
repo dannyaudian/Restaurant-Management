@@ -334,5 +334,39 @@
     "label": "Branch Specific Pricing",
     "insert_after": "item_group",
     "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "User-branch_section",
+    "dt": "User",
+    "fieldname": "branch_section",
+    "fieldtype": "Section Break",
+    "label": "Branch Settings",
+    "insert_after": "time_zone",
+    "module": "Restaurant Management",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "User-all_branches_access",
+    "dt": "User",
+    "fieldname": "all_branches_access",
+    "fieldtype": "Check",
+    "label": "Access All Branches",
+    "insert_after": "branch_section",
+    "module": "Restaurant Management",
+    "description": "If checked, user can access all branches regardless of specific branch assignments"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "User-assigned_branches",
+    "dt": "User",
+    "fieldname": "assigned_branches",
+    "fieldtype": "Table",
+    "options": "User Branch Assignment",
+    "label": "Assigned Branches",
+    "insert_after": "all_branches_access",
+    "module": "Restaurant Management",
+    "depends_on": "eval:!doc.all_branches_access"
   }
 ]

@@ -110,3 +110,17 @@ class CustomPaymentEntry(PaymentEntry):
             self.naming_series = self.naming_series.replace("{branch_code}", self.branch_code)
         # Call parent autoname
         super().autoname()
+
+class RestaurantSalesInvoice:
+def validate(self):
+    super(RestaurantSalesInvoice, self).validate()
+    self.validate_restaurant_fields()
+    self.set_branch_from_waiter_order()
+    self.validate_branch_permission()
+    
+def validate_branch_permission(self):
+    """Validate that user has permission to access this branch"""
+    if self.branch_code:
+        from restaurant_management.restaurant_management.utils.branch_permissions import user_has_branch_access
+        if not user_has_branch_access(self.branch_code):
+            frappe.throw(_("You don't have permission to access branch {0}").format(self.branch_code))
