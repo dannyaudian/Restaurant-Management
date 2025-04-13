@@ -5,7 +5,7 @@
     "dt": "Branch",
     "script_type": "Client",
     "module": "Restaurant Management",
-    "script": "frappe.ui.form.on('Branch', {\n    validate: function(frm) {\n        // Ensure branch code is properly formatted\n        if (frm.doc.branch_code) {\n            let branch_code = frm.doc.branch_code.toUpperCase().trim();\n            \n            // Check length\n            if (branch_code.length < 2 || branch_code.length > 4) {\n                frappe.msgprint(__('Branch Code must be 2-4 characters long'));\n                frappe.validated = false;\n                return;\n            }\n            \n            // Update with formatted value\n            frm.set_value('branch_code', branch_code);\n        }\n    }\n});"
+    "script": "frappe.ui.form.on('Branch', {\n    branch_code: function(frm) {\n        // Format branch code\n        if (frm.doc.branch_code) {\n            // Convert to uppercase\n            let formattedCode = frm.doc.branch_code.toUpperCase().trim();\n            \n            // Remove any special characters\n            formattedCode = formattedCode.replace(/[^A-Z0-9]/g, '');\n            \n            // Update the field if changed\n            if (formattedCode !== frm.doc.branch_code) {\n                frm.set_value('branch_code', formattedCode);\n            }\n            \n            // Validation\n            if (formattedCode.length < 2 || formattedCode.length > 4) {\n                frappe.show_alert({\n                    message: __('Branch Code must be 2-4 characters long'),\n                    indicator: 'orange'\n                });\n            }\n        }\n    }\n});"
   },
   {
     "doctype": "Client Script",

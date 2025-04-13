@@ -368,5 +368,55 @@
     "insert_after": "all_branches_access",
     "module": "Restaurant Management",
     "depends_on": "eval:!doc.all_branches_access"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Branch-branch_code",
+    "dt": "Branch",
+    "fieldname": "branch_code",
+    "fieldtype": "Data",
+    "label": "Branch Code",
+    "insert_after": "branch",
+    "reqd": 1,
+    "unique": 1,
+    "description": "A unique 2-4 character code to identify the branch (used in document naming and filtering)",
+    "translatable": 0,
+    "in_list_view": 1,
+    "in_standard_filter": 1,
+    "in_global_search": 1,
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Branch-branch_settings_section",
+    "dt": "Branch",
+    "fieldname": "branch_settings_section",
+    "fieldtype": "Section Break",
+    "label": "Restaurant Settings",
+    "insert_after": "branch_code",
+    "collapsible": 0,
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Branch-is_restaurant",
+    "dt": "Branch",
+    "fieldname": "is_restaurant",
+    "fieldtype": "Check",
+    "label": "Is Restaurant",
+    "insert_after": "branch_settings_section",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Branch-default_pos_profile",
+    "dt": "Branch",
+    "fieldname": "default_pos_profile",
+    "fieldtype": "Link",
+    "options": "POS Profile",
+    "label": "Default POS Profile",
+    "insert_after": "is_restaurant",
+    "depends_on": "is_restaurant",
+    "module": "Restaurant Management"
   }
 ]

@@ -49,7 +49,12 @@ doc_events = {
     },
     "Waiter Order": {
         "on_update": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.update_table_status"
+    },
+    "Branch": {
+        "after_insert": "restaurant_management.restaurant_management.doc_events.branch.after_insert",
+        "on_update": "restaurant_management.restaurant_management.doc_events.branch.on_update"
     }
+}
 }
 
 # Fixtures
