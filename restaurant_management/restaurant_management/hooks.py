@@ -106,10 +106,11 @@ guest_methods = [
 ]
 
 # Website Route Rules
-website_route_rules = [
-    {"from_route": "/waiter_order", "to_route": "www/waiter_order"},
-    {"from_route": "/station_display", "to_route": "www/station_display", "no_cache": 1},
-    {"from_route": "/table_display", "to_route": "www/table_display", "no_cache": 1}
+web_include_js = [
+    "/assets/restaurant_management/js/waiter_order.js",
+    "/assets/restaurant_management/js/station_display.js",
+    "/assets/restaurant_management/js/table_display.js",
+    "/assets/restaurant_management/js/pos_restaurant_custom.js"
 ]
 
 # Website pages accessible without login
