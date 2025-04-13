@@ -10,6 +10,7 @@
     "is_standard": 1,
     "developer_mode_only": 0,
     "public": 1,
+    "content": "[]",
     "roles": [
       { "role": "Restaurant Manager" },
       { "role": "Restaurant User" },
@@ -41,7 +42,6 @@
       { "label": "Branch", "icon": "branch", "type": "DocType", "document_type": "Branch", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
       { "label": "POS Profile", "icon": "point-of-sale", "type": "DocType", "document_type": "POS Profile", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 }
     ],
-    "onboarding": "Restaurant Management",
-    "content": []
+    "onboarding": "Restaurant Management"
   }
 ]
