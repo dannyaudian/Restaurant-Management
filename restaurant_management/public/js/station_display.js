@@ -31,6 +31,17 @@ frappe.ready(function() {
     loadingOverlay: document.getElementById('kds-loading')
   };
 
+  function checkElements() {
+    if (!elements.loadingOverlay) {
+      const loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'loading-overlay';
+      loadingOverlay.className = 'loading-overlay';
+      loadingOverlay.innerHTML = '<div class="spinner"></div><div>Loading...</div>';
+      document.body.appendChild(loadingOverlay);
+      elements.loadingOverlay = loadingOverlay;
+    }
+  };
+
   // Sound for notifications
   let readySound = null;
   if (state.config.enable_sound_on_ready) {

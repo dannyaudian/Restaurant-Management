@@ -35,6 +35,17 @@ frappe.ready(function() {
     newOrderTableNumber: document.getElementById('new-order-table-number')
   };
 
+  function checkElements() {
+    if (!elements.loadingOverlay) {
+      const loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'loading-overlay';
+      loadingOverlay.className = 'loading-overlay';
+      loadingOverlay.innerHTML = '<div class="spinner"></div><div>Loading...</div>';
+      document.body.appendChild(loadingOverlay);
+      elements.loadingOverlay = loadingOverlay;
+    }
+  };
+
   // Initialize the page
   init();
 
