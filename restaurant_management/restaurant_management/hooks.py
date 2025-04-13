@@ -55,7 +55,6 @@ doc_events = {
         "on_update": "restaurant_management.restaurant_management.doc_events.branch.on_update"
     }
 }
-}
 
 # Fixtures
 fixtures = [
