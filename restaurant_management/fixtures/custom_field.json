@@ -88,6 +88,18 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "POS Profile-auto_create_sales_order",
+    "dt": "POS Profile",
+    "fieldname": "auto_create_sales_order",
+    "fieldtype": "Check",
+    "label": "Auto Create Sales Order",
+    "insert_after": "restaurant_mode",
+    "module": "Restaurant Management",
+    "depends_on": "restaurant_mode",
+    "description": "Automatically create or update Sales Order when processing POS Invoice"
+  },
+  {
+    "doctype": "Custom Field",
     "name": "Sales Invoice-branch",
     "dt": "Sales Invoice",
     "fieldname": "branch",
@@ -111,6 +123,51 @@
   },
   {
     "doctype": "Custom Field",
+    "name": "Sales Invoice-restaurant_section",
+    "dt": "Sales Invoice",
+    "fieldname": "restaurant_section",
+    "fieldtype": "Section Break",
+    "label": "Restaurant Information",
+    "insert_after": "customer_name",
+    "module": "Restaurant Management",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Invoice-restaurant_waiter_order",
+    "dt": "Sales Invoice",
+    "fieldname": "restaurant_waiter_order",
+    "fieldtype": "Link",
+    "options": "Waiter Order",
+    "label": "Waiter Order",
+    "insert_after": "restaurant_section",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Invoice-restaurant_table",
+    "dt": "Sales Invoice",
+    "fieldname": "restaurant_table",
+    "fieldtype": "Link",
+    "options": "Table",
+    "label": "Restaurant Table",
+    "insert_after": "restaurant_waiter_order",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Invoice-restaurant_table_number",
+    "dt": "Sales Invoice",
+    "fieldname": "restaurant_table_number",
+    "fieldtype": "Data",
+    "label": "Table Number",
+    "insert_after": "restaurant_table",
+    "module": "Restaurant Management",
+    "read_only": 1,
+    "fetch_from": "restaurant_table.table_number"
+  },
+  {
+    "doctype": "Custom Field",
     "name": "Sales Order-branch",
     "dt": "Sales Order",
     "fieldname": "branch",
@@ -131,6 +188,51 @@
     "read_only": 1,
     "insert_after": "branch",
     "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Order-restaurant_section",
+    "dt": "Sales Order",
+    "fieldname": "restaurant_section",
+    "fieldtype": "Section Break",
+    "label": "Restaurant Information",
+    "insert_after": "customer_name",
+    "module": "Restaurant Management",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Order-restaurant_waiter_order",
+    "dt": "Sales Order",
+    "fieldname": "restaurant_waiter_order",
+    "fieldtype": "Link",
+    "options": "Waiter Order",
+    "label": "Waiter Order",
+    "insert_after": "restaurant_section",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Order-restaurant_table",
+    "dt": "Sales Order",
+    "fieldname": "restaurant_table",
+    "fieldtype": "Link",
+    "options": "Table",
+    "label": "Restaurant Table",
+    "insert_after": "restaurant_waiter_order",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Order-restaurant_table_number",
+    "dt": "Sales Order",
+    "fieldname": "restaurant_table_number",
+    "fieldtype": "Data",
+    "label": "Table Number",
+    "insert_after": "restaurant_table",
+    "module": "Restaurant Management",
+    "read_only": 1,
+    "fetch_from": "restaurant_table.table_number"
   },
   {
     "doctype": "Custom Field",
@@ -177,6 +279,51 @@
     "read_only": 1,
     "insert_after": "branch",
     "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "POS Invoice-restaurant_section",
+    "dt": "POS Invoice",
+    "fieldname": "restaurant_section",
+    "fieldtype": "Section Break",
+    "label": "Restaurant Information",
+    "insert_after": "customer_name",
+    "module": "Restaurant Management",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "POS Invoice-restaurant_waiter_order",
+    "dt": "POS Invoice",
+    "fieldname": "restaurant_waiter_order",
+    "fieldtype": "Link",
+    "options": "Waiter Order",
+    "label": "Waiter Order",
+    "insert_after": "restaurant_section",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "POS Invoice-restaurant_table",
+    "dt": "POS Invoice",
+    "fieldname": "restaurant_table",
+    "fieldtype": "Link",
+    "options": "Table",
+    "label": "Restaurant Table",
+    "insert_after": "restaurant_waiter_order",
+    "module": "Restaurant Management"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "POS Invoice-restaurant_table_number",
+    "dt": "POS Invoice",
+    "fieldname": "restaurant_table_number",
+    "fieldtype": "Data",
+    "label": "Table Number",
+    "insert_after": "restaurant_table",
+    "module": "Restaurant Management",
+    "read_only": 1,
+    "fetch_from": "restaurant_table.table_number"
   },
   {
     "doctype": "Custom Field",

@@ -1,0 +1,10 @@
+{
+  "refresh_interval": 10,
+  "default_kitchen_station": "",
+  "status_color_map": {
+    "Waiting": "#e74c3c",
+    "Cooking": "#f39c12",
+    "Ready": "#2ecc71"
+  },
+  "enable_sound_on_ready": true
+}

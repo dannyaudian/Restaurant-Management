@@ -18,6 +18,8 @@ app_license = "MIT"
 # web_include_css = "/assets/restaurant_management/css/dummy.css"
 # web_include_js = [
 #    "/assets/restaurant_management/js/waiter_order.js",
+#    "/assets/restaurant_management/js/station_display.js",
+#    "/assets/restaurant_management/js/table_display.js"
 #]
 
 # include custom scss in every website theme (without file extension ".scss")
@@ -93,7 +95,28 @@ doc_events = {
    "Waiter Order": {
       "before_save": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.update_table_status",
       "on_trash": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.on_trash",
-   }
+    },
+   "Sales Invoice": {
+      "on_submit": "restaurant_management.restaurant_management.overrides.sales_invoice.update_restaurant_status",
+      "on_cancel": "restaurant_management.restaurant_management.overrides.sales_invoice.revert_restaurant_status",
+      "validate": "restaurant_management.restaurant_management.overrides.sales_invoice.validate_restaurant_fields"
+    },
+    "POS Invoice": {
+      "on_submit": [
+         "restaurant_management.restaurant_management.overrides.pos_invoice.update_restaurant_status",
+         "restaurant_management.restaurant_management.overrides.pos_invoice.link_to_sales_order"
+      ],
+      "on_cancel": "restaurant_management.restaurant_management.overrides.pos_invoice.revert_restaurant_status",
+      "validate": "restaurant_management.restaurant_management.overrides.pos_invoice.validate_restaurant_fields"
+    },
+    "Sales Order": {
+      "on_update_after_submit": "restaurant_management.restaurant_management.overrides.sales_order.update_restaurant_status",
+      "validate": "restaurant_management.restaurant_management.overrides.sales_order.validate_restaurant_fields"
+    },
+    "Payment Entry": {
+      "on_submit": "restaurant_management.restaurant_management.overrides.payment_entry.update_restaurant_status",
+      "on_cancel": "restaurant_management.restaurant_management.overrides.payment_entry.revert_restaurant_status"
+    }
 }
 
 # Scheduled Tasks
@@ -116,7 +139,12 @@ doc_events = {
 #       "restaurant_management.tasks.monthly"
 #   ]
 # }
-
+# Override standard doctype classes
+override_doctype_class = {
+    "Sales Invoice": "restaurant_management.restaurant_management.overrides.sales_invoice.RestaurantSalesInvoice",
+    "POS Invoice": "restaurant_management.restaurant_management.overrides.pos_invoice.RestaurantPOSInvoice",
+    "Sales Order": "restaurant_management.restaurant_management.overrides.sales_order.RestaurantSalesOrder"
+}
 # Testing
 # -------
 
@@ -177,7 +205,9 @@ doc_events = {
 # ----------
 
 # website_route_rules = [
-#   {"from_route": "/waiter_order", "to_route": "restaurant_management/www/waiter_order"},
+#   {"from_route": "/waiter_order", "to_route": "www/waiter_order"},
+#   {"from_route": "/station_display", "to_route": "www/station_display"},
+#   {"from_route": "/table_display", "to_route": "www/table_display"}
 #]
 
 # Fixtures

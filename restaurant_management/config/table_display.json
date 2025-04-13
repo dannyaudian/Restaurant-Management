@@ -1,0 +1,10 @@
+{
+  "refresh_interval": 30,
+  "default_branch_code": "",
+  "status_color_map": {
+    "Waiting": "#e74c3c",
+    "Cooking": "#f39c12",
+    "Ready": "#2ecc71",
+    "Served": "#95a5a6"
+  }
+}

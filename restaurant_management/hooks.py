@@ -18,6 +18,8 @@ app_license = "MIT"
 # web_include_css = "/assets/restaurant_management/css/dummy.css"
 # web_include_js = [
 #    "/assets/restaurant_management/js/waiter_order.js",
+#    "/assets/restaurant_management/js/station_display.js",
+#    "/assets/restaurant_management/js/table_display.js"
 #]
 
 # include custom scss in every website theme (without file extension ".scss")
@@ -177,7 +179,9 @@ doc_events = {
 # ----------
 
 # website_route_rules = [
-#   {"from_route": "/waiter_order", "to_route": "restaurant_management/www/waiter_order"},
+#   {"from_route": "/waiter_order", "to_route": "www/waiter_order"},
+#   {"from_route": "/station_display", "to_route": "www/station_display"},
+#   {"from_route": "/table_display", "to_route": "www/table_display"}
 #]
 
 # Fixtures
