@@ -102,7 +102,7 @@ npm-debug.log
 *.db
 
 # Compiled site
-public/
+#public/
 
 # Custom fixture exports
 *.export
@@ -131,3 +131,4 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
+restaurant_management/public/css/dummy.css
