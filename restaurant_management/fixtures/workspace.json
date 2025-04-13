@@ -2,6 +2,7 @@
   {
     "doctype": "Workspace",
     "name": "Restaurant Management",
+    "label": "Restaurant Management",
     "title": "Restaurant Management",
     "icon": "restaurant",
     "module": "Restaurant Management",
