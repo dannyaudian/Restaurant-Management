@@ -11,162 +11,37 @@
     "developer_mode_only": 0,
     "public": 1,
     "roles": [
-      {
-        "role": "Restaurant Manager"
-      },
-      {
-        "role": "Restaurant User"
-      },
-      {
-        "role": "System Manager"
-      }
+      { "role": "Restaurant Manager" },
+      { "role": "Restaurant User" },
+      { "role": "System Manager" }
     ],
-    "extends": "POS", 
+    "extends": "POS",
     "extends_another_page": 1,
     "for_user": "",
     "charts": [
-      {
-        "chart_name": "Daily Sales",
-        "label": "Daily Restaurant Sales"
-      },
-      {
-        "chart_name": "Monthly Sales Trend",
-        "label": "Monthly Sales Trend"
-      }
+      { "chart_name": "Daily Sales", "label": "Daily Restaurant Sales" },
+      { "chart_name": "Monthly Sales Trend", "label": "Monthly Sales Trend" }
     ],
     "shortcuts": [
-      {
-        "label": "New Waiter Order",
-        "url": "/waiter_order",
-        "icon": "edit",
-        "type": "Link",
-        "document_type": ""
-      },
-      {
-        "label": "Kitchen Display",
-        "url": "/station_display",
-        "icon": "list",
-        "type": "Link",
-        "document_type": ""
-      },
-      {
-        "label": "Table Overview",
-        "url": "/table_display",
-        "icon": "grid",
-        "type": "Link",
-        "document_type": ""
-      },
-      {
-        "label": "Open POS",
-        "url": "/app/point-of-sale",
-        "icon": "point-of-sale",
-        "type": "Link",
-        "document_type": ""
-      }
+      { "label": "New Waiter Order", "url": "/waiter_order", "icon": "edit", "type": "Link", "document_type": "" },
+      { "label": "Kitchen Display", "url": "/station_display", "icon": "list", "type": "Link", "document_type": "" },
+      { "label": "Table Overview", "url": "/table_display", "icon": "grid", "type": "Link", "document_type": "" },
+      { "label": "Open POS", "url": "/app/point-of-sale", "icon": "point-of-sale", "type": "Link", "document_type": "" }
     ],
     "links": [
-      {
-        "label": "Restaurant Operations",
-        "icon": "restaurant",
-        "type": "Card Break",
-        "hidden": 0
-      },
-      {
-        "label": "Waiter Order",
-        "icon": "edit",
-        "type": "DocType",
-        "document_type": "Waiter Order",
-        "onboard": 1,
-        "dependencies": "",
-        "is_query_report": 0,
-        "hidden": 0
-      },
-      {
-        "label": "Table",
-        "icon": "table",
-        "type": "DocType",
-        "document_type": "Table",
-        "onboard": 1,
-        "dependencies": "",
-        "is_query_report": 0,
-        "hidden": 0
-      },
-      {
-        "label": "Kitchen Station",
-        "icon": "list",
-        "type": "DocType",
-        "document_type": "Kitchen Station",
-        "onboard": 1,
-        "dependencies": "",
-        "is_query_report": 0,
-        "hidden": 0
-      },
-      {
-        "label": "Analytics",
-        "icon": "graph",
-        "type": "Card Break",
-        "hidden": 0
-      },
-      {
-        "label": "Restaurant Sales Analytics",
-        "icon": "graph",
-        "type": "Report",
-        "document_type": "Sales Invoice",
-        "name": "Restaurant Sales Analytics",
-        "onboard": 0,
-        "dependencies": "",
-        "is_query_report": 1,
-        "hidden": 0
-      },
-      {
-        "label": "Item Consumption Analytics",
-        "icon": "graph",
-        "type": "Report",
-        "document_type": "Sales Invoice Item",
-        "name": "Restaurant Item Consumption",
-        "onboard": 0,
-        "dependencies": "",
-        "is_query_report": 1,
-        "hidden": 0
-      },
-      {
-        "label": "Table Turnover Analysis",
-        "icon": "graph",
-        "type": "Report",
-        "document_type": "Waiter Order",
-        "name": "Table Turnover Analytics",
-        "onboard": 0,
-        "dependencies": "",
-        "is_query_report": 1,
-        "hidden": 0
-      },
-      {
-        "label": "Setup",
-        "icon": "setting",
-        "type": "Card Break",
-        "hidden": 0
-      },
-      {
-        "label": "Branch",
-        "icon": "branch",
-        "type": "DocType",
-        "document_type": "Branch",
-        "onboard": 1,
-        "dependencies": "",
-        "is_query_report": 0,
-        "hidden": 0
-      },
-      {
-        "label": "POS Profile",
-        "icon": "point-of-sale",
-        "type": "DocType",
-        "document_type": "POS Profile",
-        "onboard": 1,
-        "dependencies": "",
-        "is_query_report": 0,
-        "hidden": 0
-      }
+      { "label": "Restaurant Operations", "icon": "restaurant", "type": "Card Break", "hidden": 0 },
+      { "label": "Waiter Order", "icon": "edit", "type": "DocType", "document_type": "Waiter Order", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
+      { "label": "Table", "icon": "table", "type": "DocType", "document_type": "Table", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
+      { "label": "Kitchen Station", "icon": "list", "type": "DocType", "document_type": "Kitchen Station", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
+      { "label": "Analytics", "icon": "graph", "type": "Card Break", "hidden": 0 },
+      { "label": "Restaurant Sales Analytics", "icon": "graph", "type": "Report", "document_type": "Sales Invoice", "name": "Restaurant Sales Analytics", "onboard": 0, "dependencies": "", "is_query_report": 1, "hidden": 0 },
+      { "label": "Item Consumption Analytics", "icon": "graph", "type": "Report", "document_type": "Sales Invoice Item", "name": "Restaurant Item Consumption", "onboard": 0, "dependencies": "", "is_query_report": 1, "hidden": 0 },
+      { "label": "Table Turnover Analysis", "icon": "graph", "type": "Report", "document_type": "Waiter Order", "name": "Table Turnover Analytics", "onboard": 0, "dependencies": "", "is_query_report": 1, "hidden": 0 },
+      { "label": "Setup", "icon": "setting", "type": "Card Break", "hidden": 0 },
+      { "label": "Branch", "icon": "branch", "type": "DocType", "document_type": "Branch", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
+      { "label": "POS Profile", "icon": "point-of-sale", "type": "DocType", "document_type": "POS Profile", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 }
     ],
-    "onboarding": "Restaurant Management"
+    "onboarding": "Restaurant Management",
+    "content": []
   }
 ]
