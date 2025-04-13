@@ -1,0 +1,42 @@
+{
+ "creation": "2023-11-15 15:30:00.000000",
+ "docstatus": 0,
+ "doctype": "Onboarding",
+ "document_type": "",
+ "idx": 0,
+ "is_complete": 0,
+ "modified": "2023-11-15 15:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Restaurant Management",
+ "name": "Restaurant Management",
+ "owner": "Administrator",
+ "steps": [
+  {
+   "title": "Create Branch",
+   "description": "Set up your restaurant branches with unique branch codes",
+   "is_complete": 0,
+   "step": "Create Branch"
+  },
+  {
+   "title": "Create Tables",
+   "description": "Set up your restaurant tables",
+   "is_complete": 0,
+   "step": "Create Tables"
+  },
+  {
+   "title": "Configure Kitchen Stations",
+   "description": "Set up kitchen stations to route orders to the right place",
+   "is_complete": 0,
+   "step": "Configure Kitchen Stations"
+  },
+  {
+   "title": "Configure POS Profile",
+   "description": "Set up your POS Profile with restaurant settings",
+   "is_complete": 0,
+   "step": "Configure POS Profile"
+  }
+ ],
+ "subtitle": "Configure tables, kitchen stations, and POS settings",
+ "success_message": "Restaurant Management is now configured and ready to use!",
+ "title": "Set up Restaurant Management"
+}

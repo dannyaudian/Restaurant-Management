@@ -1,0 +1,35 @@
+{
+    "chart_name": "Monthly Sales Trend",
+    "chart_type": "Report",
+    "creation": "2023-11-15 15:30:00.000000",
+    "custom_options": "{\"colors\": [\"#4290F5\", \"#47C1BF\", \"#5CDD9A\", \"#28a745\", \"#007bff\", \"#6c757d\"], \"axisOptions\": {\"shortenYAxisNumbers\": 1, \"xAxisMode\": \"Tick\", \"xIsSeries\": 1}}",
+    "docstatus": 0,
+    "doctype": "Dashboard Chart",
+    "dynamic_filters_json": "{}",
+    "filters_json": "{\"company\":\"Your Company\",\"from_date\":\"2023-01-01\",\"to_date\":\"2023-12-31\",\"branch_code\":[]}",
+    "group_by_type": "Sum",
+    "idx": 0,
+    "is_public": 1,
+    "is_standard": 1,
+    "last_synced_on": "2023-11-15 15:30:00.000000",
+    "modified": "2023-11-15 15:30:00.000000",
+    "modified_by": "Administrator",
+    "module": "Restaurant Management",
+    "name": "Monthly Sales Trend",
+    "number_of_groups": 0,
+    "owner": "Administrator",
+    "parent_document_type": "",
+    "report_name": "Restaurant Sales Analytics",
+    "time_interval": "Monthly",
+    "timeseries": 1,
+    "timespan": "Last Year",
+    "type": "Line",
+    "use_report_chart": 0,
+    "x_field": "posting_date",
+    "y_axis": [
+        {
+            "y_field": "restaurant_sales",
+            "color": "#4290F5"
+        }
+    ]
+}

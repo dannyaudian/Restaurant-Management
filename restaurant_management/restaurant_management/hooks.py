@@ -60,10 +60,14 @@ doc_events = {
 fixtures = [
     {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "Property Setter", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Print Format", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Role", "filters": [["name", "like", "Restaurant%"]]},
     {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]}
+    {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Workspace", "filters": [["name", "=", "Restaurant Management"]]},
+    {"dt": "Dashboard", "filters": [["name", "=", "Restaurant Management"]]},
+    {"dt": "Dashboard Chart", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Number Card", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Onboarding", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Onboarding Step", "filters": [["module", "=", "Restaurant Management"]]}
 ]
 
 # Whitelisted Methods (can be called from frontend)
