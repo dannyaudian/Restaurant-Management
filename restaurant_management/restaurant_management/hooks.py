@@ -16,11 +16,12 @@ app_license = "MIT"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/restaurant_management/css/dummy.css"
-# web_include_js = [
-#    "/assets/restaurant_management/js/waiter_order.js",
-#    "/assets/restaurant_management/js/station_display.js",
-#    "/assets/restaurant_management/js/table_display.js"
-#]
+ web_include_js = [
+    "/assets/restaurant_management/js/waiter_order.js",
+    "/assets/restaurant_management/js/station_display.js",
+    "/assets/restaurant_management/js/table_display.js"
+     "/assets/restaurant_management/js/pos_restaurant_customjs"
+]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "restaurant_management/public/scss/website"
@@ -86,37 +87,38 @@ app_license = "MIT"
 override_doctype_class = {
     "Sales Invoice": "restaurant_management.restaurant_management.overrides.sales_invoice.RestaurantSalesInvoice",
     "POS Invoice": "restaurant_management.restaurant_management.overrides.pos_invoice.RestaurantPOSInvoice",
-    "Sales Order": "restaurant_management.restaurant_management.overrides.sales_order.RestaurantSalesOrder"
+    "Sales Order": "restaurant_management.restaurant_management.overrides.sales_order.RestaurantSalesOrder",
+    "Payment Entry": "restaurant_management.restaurant_management.overrides.payment_entry.CustomPaymentEntry"
 }
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-   "Waiter Order": {
-      "before_save": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.update_table_status",
-      "on_trash": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.on_trash",
-    },
-   "Sales Invoice": {
-      "on_submit": "restaurant_management.restaurant_management.overrides.sales_invoice.update_restaurant_status",
-      "on_cancel": "restaurant_management.restaurant_management.overrides.sales_invoice.revert_restaurant_status",
-      "validate": "restaurant_management.restaurant_management.overrides.sales_invoice.validate_restaurant_fields"
+oc_events = {
+    "Sales Invoice": {
+        "validate": "restaurant_management.restaurant_management.overrides.sales_invoice.validate_restaurant_fields",
+        "on_submit": "restaurant_management.restaurant_management.overrides.sales_invoice.update_restaurant_status",
+        "on_cancel": "restaurant_management.restaurant_management.overrides.sales_invoice.revert_restaurant_status"
     },
     "POS Invoice": {
-      "on_submit": [
-         "restaurant_management.restaurant_management.overrides.pos_invoice.update_restaurant_status",
-         "restaurant_management.restaurant_management.overrides.pos_invoice.link_to_sales_order"
-      ],
-      "on_cancel": "restaurant_management.restaurant_management.overrides.pos_invoice.revert_restaurant_status",
-      "validate": "restaurant_management.restaurant_management.overrides.pos_invoice.validate_restaurant_fields"
+        "validate": "restaurant_management.restaurant_management.overrides.pos_invoice.validate_restaurant_fields",
+        "on_submit": [
+            "restaurant_management.restaurant_management.overrides.pos_invoice.update_restaurant_status",
+            "restaurant_management.restaurant_management.overrides.pos_invoice.link_to_sales_order"
+        ],
+        "on_cancel": "restaurant_management.restaurant_management.overrides.pos_invoice.revert_restaurant_status"
     },
     "Sales Order": {
-      "on_update_after_submit": "restaurant_management.restaurant_management.overrides.sales_order.update_restaurant_status",
-      "validate": "restaurant_management.restaurant_management.overrides.sales_order.validate_restaurant_fields"
+        "validate": "restaurant_management.restaurant_management.overrides.sales_order.validate_restaurant_fields",
+        "on_update_after_submit": "restaurant_management.restaurant_management.overrides.sales_order.update_restaurant_status"
     },
     "Payment Entry": {
-      "on_submit": "restaurant_management.restaurant_management.overrides.payment_entry.update_restaurant_status",
-      "on_cancel": "restaurant_management.restaurant_management.overrides.payment_entry.revert_restaurant_status"
+        "validate": "restaurant_management.restaurant_management.overrides.payment_entry.set_branch_from_reference",
+        "on_submit": "restaurant_management.restaurant_management.overrides.payment_entry.update_restaurant_status",
+        "on_cancel": "restaurant_management.restaurant_management.overrides.payment_entry.revert_restaurant_status"
+    },
+    "Waiter Order": {
+        "on_update": "restaurant_management.restaurant_management.doctype.waiter_order.waiter_order.update_table_status"
     }
 }
 # Scheduled Tasks
@@ -166,16 +168,18 @@ doc_events = {
 # Fixtures
 # --------
 fixtures = [
-   {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]},
-   {"dt": "Property Setter", "filters": [["module", "=", "Restaurant Management"]]},
-   {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
-   {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]}
+    {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Property Setter", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Print Format", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Role", "filters": [["name", "like", "Restaurant%"]]},
+    {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]}
 ]
 
 # Whitelisted Methods
 # ------------------
 # These methods can be called from the frontend without login
-whitelist_methods = [
+whitelisted_methods = [
     # KDS Display APIs
     "restaurant_management.api.kds_display.get_kitchen_item_queue",
     "restaurant_management.api.kds_display.update_item_status",
