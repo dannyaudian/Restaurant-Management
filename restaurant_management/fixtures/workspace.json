@@ -11,14 +11,15 @@
     "is_standard": 1,
     "developer_mode_only": 0,
     "public": 1,
+    "sequence_id": 1,
     "content": "[]",
     "roles": [
       { "role": "Restaurant Manager" },
       { "role": "Restaurant User" },
       { "role": "System Manager" }
     ],
-    "extends": "POS",
-    "extends_another_page": 1,
+    "extends": "",
+    "extends_another_page": 0,
     "for_user": "",
     "charts": [
       { "chart_name": "Daily Sales", "label": "Daily Restaurant Sales" },
