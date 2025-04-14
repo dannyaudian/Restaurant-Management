@@ -98,7 +98,8 @@ whitelisted_methods = [
     "restaurant_management.api.waiter_order.mark_items_as_served",
     "restaurant_management.api.waiter_order.get_print_url",
     "restaurant_management.restaurant_management.utils.branch_permissions.assign_all_branches_to_user",
-    "restaurant_management.restaurant_management.utils.branch_permissions.get_allowed_branches_query"
+    "restaurant_management.restaurant_management.utils.branch_permissions.get_allowed_branches_query",
+    "restaurant_management.api.waiter_order.get_menu_items",
 ]
 
 # Guest Methods (can be called without login)

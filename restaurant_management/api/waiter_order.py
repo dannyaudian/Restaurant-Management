@@ -323,3 +323,86 @@ def get_kitchen_station_for_item(item_code):
                 return station.name
     
     return None
+# Add this function to your existing waiter_order.py file
+
+@frappe.whitelist()
+def get_menu_items():
+    """
+    Get list of menu items for waiter order screen
+    Returns both regular items and item templates that have variants
+    """
+    try:
+        # Get all sellable items that are either standalone or templates
+        items = frappe.get_all(
+            "Item",
+            filters={
+                "disabled": 0,
+                "is_sales_item": 1,
+                "is_stock_item": 1,
+                "has_variants": ["in", [0, 1]]  # Include both regular items and templates
+            },
+            fields=[
+                "name as item_code", 
+                "item_name", 
+                "item_group", 
+                "has_variants", 
+                "standard_rate",
+                "description",
+                "image"
+            ],
+            order_by="item_name"
+        )
+        
+        # Get price list rates if applicable
+        price_list_name = frappe.db.get_single_value("Selling Settings", "selling_price_list")
+        
+        if price_list_name:
+            for item in items:
+                price = frappe.db.get_value(
+                    "Item Price",
+                    {
+                        "price_list": price_list_name,
+                        "item_code": item.item_code,
+                        "selling": 1
+                    },
+                    "price_list_rate"
+                )
+                
+                if price:
+                    item.standard_rate = price
+                
+                # Check if item belongs to any kitchen station
+                item.kitchen_station = frappe.db.sql("""
+                    SELECT ks.name 
+                    FROM `tabKitchen Station` ks
+                    INNER JOIN `tabKitchen Station Item Group` ksig ON ksig.parent = ks.name
+                    WHERE ksig.item_group = %s
+                    LIMIT 1
+                """, item.item_group)
+                
+                item.kitchen_station = item.kitchen_station[0][0] if item.kitchen_station else None
+        
+        # Get available stock if configured to show
+        pos_profile = frappe.db.get_value(
+            "POS Profile User",
+            {"user": frappe.session.user},
+            "parent"
+        )
+        
+        if pos_profile:
+            warehouse = frappe.db.get_value("POS Profile", pos_profile, "warehouse")
+            if warehouse:
+                for item in items:
+                    if not item.has_variants:  # Skip templates
+                        actual_qty = frappe.db.get_value(
+                            "Bin",
+                            {"item_code": item.item_code, "warehouse": warehouse},
+                            "actual_qty"
+                        ) or 0
+                        item.actual_qty = actual_qty
+        
+        return items
+    
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Error in get_menu_items")
+        return []
