@@ -326,7 +326,87 @@ def get_kitchen_station_for_item(item_code):
 # Add this function to your existing waiter_order.py file
 
 @frappe.whitelist()
-def get_menu_items():
+def get_active_orders(table_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Get active orders for a specific table or all active orders if table_id is not provided
+
+    Args:
+        table_id: Optional ID of the table to get orders for
+
+    Returns:
+        List of active orders with their items and status
+    """
+    try:
+        filters = {"status": ["in", ["In Progress", "Partially Served"]]}
+
+        if table_id:
+            filters["table"] = table_id
+
+        orders = frappe.get_all(
+            "Waiter Order",
+            filters=filters,
+            fields=[
+                "name",
+                "table",
+                "order_time",
+                "status",
+                "ordered_by",
+                "branch_code"
+            ],
+            order_by="order_time desc"
+        )
+
+        # Fetch items for each order
+        for order in orders:
+            order_items = frappe.get_all(
+                "Waiter Order Item",
+                filters={"parent": order.name},
+                fields=[
+                    "name",
+                    "item_code",
+                    "item_name",
+                    "qty",
+                    "price",
+                    "status",
+                    "notes",
+                    "kitchen_station",
+                    "ordered_by",
+                    "last_update_by",
+                    "last_update_time"
+                ]
+            )
+
+            # Calculate some helper values
+            order_total = sum(item.qty * item.price for item in order_items)
+            items_ready = sum(1 for item in order_items if item.status == "Ready")
+            items_served = sum(1 for item in order_items if item.status == "Served")
+            items_total = len(order_items)
+
+            # Add items and calculated fields to order
+            order.items = order_items
+            order.order_total = order_total
+            order.items_ready = items_ready
+            order.items_served = items_served
+            order.items_total = items_total
+
+            # Get table information
+            table_info = frappe.db.get_value(
+                "Table",
+                order.table,
+                ["table_number", "description"],
+                as_dict=True
+            )
+            if table_info:
+                order.table_number = table_info.table_number
+                order.table_description = table_info.description
+
+        return orders
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), f"Error in get_active_orders: {str(e)}")
+        return []
+@frappe.whitelist()
+def get_menu_items() -> List[Dict[str, Any]]:
     """
     Get list of menu items for waiter order screen
     Returns both regular items and item templates that have variants
@@ -358,6 +438,7 @@ def get_menu_items():
         
         if price_list_name:
             for item in items:
+                # Get price from Item Price
                 price = frappe.db.get_value(
                     "Item Price",
                     {
@@ -367,33 +448,35 @@ def get_menu_items():
                     },
                     "price_list_rate"
                 )
-                
+        
+                # Update standard_rate if price exists
                 if price:
                     item.standard_rate = price
-                
-                # Check if item belongs to any kitchen station
-                item.kitchen_station = frappe.db.sql("""
-                    SELECT ks.name 
+
+                # Get kitchen station for the item's item group
+                kitchen_station_result = frappe.db.sql("""
+                    SELECT ks.name
                     FROM `tabKitchen Station` ks
                     INNER JOIN `tabKitchen Station Item Group` ksig ON ksig.parent = ks.name
-                    WHERE ksig.item_group = %s
+                    WHERE ksig.item_group = %s AND ks.is_active = 1
                     LIMIT 1
                 """, item.item_group)
-                
-                item.kitchen_station = item.kitchen_station[0][0] if item.kitchen_station else None
-        
-        # Get available stock if configured to show
+
+                item.kitchen_station = kitchen_station_result[0][0] if kitchen_station_result else None
+
+        # Get available stock from configured warehouse (if applicable)
         pos_profile = frappe.db.get_value(
             "POS Profile User",
             {"user": frappe.session.user},
             "parent"
         )
-        
+
         if pos_profile:
             warehouse = frappe.db.get_value("POS Profile", pos_profile, "warehouse")
             if warehouse:
                 for item in items:
-                    if not item.has_variants:  # Skip templates
+                    # Skip templates as they don't have stock
+                    if not item.has_variants:
                         actual_qty = frappe.db.get_value(
                             "Bin",
                             {"item_code": item.item_code, "warehouse": warehouse},
@@ -404,5 +487,5 @@ def get_menu_items():
         return items
     
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Error in get_menu_items")
+        frappe.log_error(frappe.get_traceback(), f"Error in get_menu_items: {str(e)}")
         return []
