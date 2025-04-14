@@ -251,7 +251,7 @@ frappe.ready(function() {
     if (state.branches && state.branches.length) {
       state.branches.forEach(branch => {
         if (branch && branch.branch_code) {
-          options += `<option value="${branch.branch_code}" ${state.selectedBranch === branch.branch_code ? 'selected' : ''}>${branch.branch_name || branch.branch_code} (${branch.branch_code})</option>`;
+          options += `<option value="${branch.branch_code}" ${state.selectedBranch === branch.branch_code ? 'selected' : ''}>${branch.name || branch.branch_code} (${branch.branch_code})</option>`;
         }
       });
     }

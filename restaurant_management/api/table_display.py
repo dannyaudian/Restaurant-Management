@@ -115,8 +115,8 @@ def get_branches():
         branches = frappe.get_all(
             "Branch",
             filters={"branch_code": ["in", allowed_branch_codes]},
-            fields=["branch_code", "branch_name"],
-            order_by="branch_name"
+            fields=["branch_code", "name"],
+            order_by="name"
         )
     else:
         # If no specific branches allowed (shouldn't happen, but fallback)
@@ -126,8 +126,8 @@ def get_branches():
     """Get list of branches"""
     branches = frappe.get_all(
         "Branch",
-        fields=["branch_code", "branch_name"],
-        order_by="branch_name"
+        fields=["branch_code", "name"],
+        order_by="name"
     )
     
     return branches

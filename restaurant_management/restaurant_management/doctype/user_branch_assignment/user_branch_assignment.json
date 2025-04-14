@@ -29,7 +29,7 @@
   {
    "fieldname": "branch_name",
    "fieldtype": "Data",
-   "fetch_from": "branch.branch_name",
+   "fetch_from": "branch.name",
    "in_list_view": 1,
    "label": "Branch Name",
    "read_only": 1

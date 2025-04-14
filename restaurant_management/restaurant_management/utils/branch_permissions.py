@@ -157,7 +157,7 @@ def get_allowed_branches_query(doctype, txt, searchfield, start, page_len, filte
     # Build the query
     conditions = []
     if txt:
-        conditions.append(f"(`tabBranch`.`branch_name` LIKE '%{txt}%' OR `tabBranch`.`branch_code` LIKE '%{txt}%')")
+        conditions.append(f"(`tabBranch`.`name` LIKE '%{txt}%' OR `tabBranch`.`branch_code` LIKE '%{txt}%')")
 
     if allowed_branch_codes:
         # Convert list to SQL-safe format
@@ -170,11 +170,9 @@ def get_allowed_branches_query(doctype, txt, searchfield, start, page_len, filte
     results = frappe.db.sql(f"""
         SELECT
             `tabBranch`.`name`,
-            `tabBranch`.`branch_name`,
             `tabBranch`.`branch_code`
         FROM `tabBranch`
         WHERE {where_clause}
-        ORDER BY `tabBranch`.`branch_name`
         LIMIT {start}, {page_len}
     """)
 
