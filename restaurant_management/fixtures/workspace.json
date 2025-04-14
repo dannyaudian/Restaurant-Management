@@ -17,32 +17,31 @@
       { "role": "Restaurant User" },
       { "role": "System Manager" }
     ],
-    "extends": "",
-    "extends_another_page": 0,
     "for_user": "",
     "charts": [
       { "chart_name": "Daily Sales", "label": "Daily Restaurant Sales" },
       { "chart_name": "Monthly Sales Trend", "label": "Monthly Sales Trend" }
     ],
     "shortcuts": [
-      { "label": "New Waiter Order", "url": "/waiter_order", "icon": "edit", "type": "Link", "document_type": "" },
-      { "label": "Kitchen Display", "url": "/station_display", "icon": "list", "type": "Link", "document_type": "" },
-      { "label": "Table Overview", "url": "/table_display", "icon": "grid", "type": "Link", "document_type": "" },
-      { "label": "Open POS", "url": "/app/point-of-sale", "icon": "point-of-sale", "type": "Link", "document_type": "" }
+      { "label": "New Waiter Order", "name": "Waiter Order", "icon": "edit", "type": "DocType" },
+      { "label": "Kitchen Display", "name": "station_display", "icon": "list", "type": "Page" },
+      { "label": "Table Overview", "name": "table_display", "icon": "grid", "type": "Page" },
+      { "label": "Open POS", "name": "point-of-sale", "icon": "point-of-sale", "type": "Page" },
+      { "label": "Restaurant Dashboard", "name": "restaurant_dashboard", "icon": "dashboard", "type": "Dashboard" }
     ],
     "links": [
-      { "label": "Restaurant Operations", "icon": "restaurant", "type": "Card Break", "hidden": 0 },
-      { "label": "Waiter Order", "icon": "edit", "type": "DocType", "document_type": "Waiter Order", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
-      { "label": "Table", "icon": "table", "type": "DocType", "document_type": "Table", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
-      { "label": "Kitchen Station", "icon": "list", "type": "DocType", "document_type": "Kitchen Station", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
-      { "label": "Analytics", "icon": "graph", "type": "Card Break", "hidden": 0 },
-      { "label": "Restaurant Sales Analytics", "icon": "graph", "type": "Report", "document_type": "Sales Invoice", "name": "Restaurant Sales Analytics", "onboard": 0, "dependencies": "", "is_query_report": 1, "hidden": 0 },
-      { "label": "Item Consumption Analytics", "icon": "graph", "type": "Report", "document_type": "Sales Invoice Item", "name": "Restaurant Item Consumption", "onboard": 0, "dependencies": "", "is_query_report": 1, "hidden": 0 },
-      { "label": "Table Turnover Analysis", "icon": "graph", "type": "Report", "document_type": "Waiter Order", "name": "Table Turnover Analytics", "onboard": 0, "dependencies": "", "is_query_report": 1, "hidden": 0 },
-      { "label": "Setup", "icon": "setting", "type": "Card Break", "hidden": 0 },
-      { "label": "Branch", "icon": "branch", "type": "DocType", "document_type": "Branch", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 },
-      { "label": "POS Profile", "icon": "point-of-sale", "type": "DocType", "document_type": "POS Profile", "onboard": 1, "dependencies": "", "is_query_report": 0, "hidden": 0 }
-    ],
-    "onboarding": "Restaurant Management"
+      { "label": "Operations", "icon": "restaurant", "type": "Card Break" },
+      { "label": "Waiter Order", "type": "Link", "link_type": "DocType", "link_to": "Waiter Order", "icon": "edit" },
+      { "label": "Kitchen Station", "type": "Link", "link_type": "DocType", "link_to": "Kitchen Station", "icon": "list" },
+      { "label": "Table", "type": "Link", "link_type": "DocType", "link_to": "Table", "icon": "table" },
+      { "label": "Branch", "type": "Link", "link_type": "DocType", "link_to": "Branch", "icon": "branch" },
+      { "label": "POS Profile", "type": "Link", "link_type": "DocType", "link_to": "POS Profile", "icon": "point-of-sale" },
+      { "label": "Reports", "icon": "bar-chart", "type": "Card Break" },
+      { "label": "Restaurant Sales Analytics", "type": "Link", "link_type": "Report", "link_to": "Restaurant Sales Analytics", "icon": "bar-chart" },
+      { "label": "Item Consumption Analytics", "type": "Link", "link_type": "Report", "link_to": "Restaurant Item Consumption", "icon": "bar-chart" },
+      { "label": "Table Turnover Analytics", "type": "Link", "link_type": "Report", "link_to": "Table Turnover Analytics", "icon": "bar-chart" },
+      { "label": "Dashboards", "icon": "dashboard", "type": "Card Break" },
+      { "label": "Restaurant Dashboard", "type": "Link", "link_type": "Dashboard", "link_to": "restaurant_dashboard", "icon": "dashboard" }
+    ]
   }
 ]
