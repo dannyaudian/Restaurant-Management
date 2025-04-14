@@ -114,11 +114,11 @@ guest_methods = [
 ]
 
 # Website routes
-website_route_rules = [
-    {"from_route": "/waiter_order", "to_route": "www/waiter_order"},
-    {"from_route": "/station_display", "to_route": "www/station_display", "no_cache": 1},
-    {"from_route": "/table_display", "to_route": "www/table_display", "no_cache": 1}
-]
+#website_route_rules = [
+#    {"from_route": "/waiter_order", "to_route": "www/waiter_order"},
+#    {"from_route": "/station_display", "to_route": "www/station_display", "no_cache": 1},
+#    {"from_route": "/table_display", "to_route": "www/table_display", "no_cache": 1}
+#]
 
 # Website pages accessible without login
 website_guest_routes = [
