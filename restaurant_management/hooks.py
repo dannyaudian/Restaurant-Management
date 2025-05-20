@@ -9,10 +9,10 @@ app_license = "MIT"
 
 # Web Assets
 web_include_js = [
-    "/assets/restaurant_management/public/js/waiter_order.js",
-    "/assets/restaurant_management/public/js/station_display.js",
-    "/assets/restaurant_management/public/js/table_display.js",
-    "/assets/restaurant_management/public/js/pos_restaurant_custom.js"
+    "/assets/restaurant_management/js/waiter_order.js",
+    "/assets/restaurant_management/js/station_display.js",
+    "/assets/restaurant_management/js/table_display.js",
+    "/assets/restaurant_management/js/pos_restaurant_custom.js"
 ]
 
 # Override Doctype Classes
