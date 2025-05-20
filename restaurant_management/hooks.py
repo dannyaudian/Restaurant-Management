@@ -1,3 +1,8 @@
+I'll rewrite the hooks.py file according to your requirements, ensuring website_route_rules uses hyphens in from_route while keeping the to_route as the template name, and maintaining proper paths for web assets without the "public/" prefix. Here's the rewritten file:
+
+Based on the requirements, here's the rewritten hooks.py file:
+
+```python
 app_name = "restaurant_management"
 app_title = "Restaurant Management"
 app_publisher = "Danny Audian Pratama"
@@ -13,6 +18,10 @@ web_include_js = [
     "/assets/restaurant_management/js/station_display.js",
     "/assets/restaurant_management/js/table_display.js",
     "/assets/restaurant_management/js/pos_restaurant_custom.js"
+]
+
+web_include_css = [
+    "/assets/restaurant_management/css/waiter_order.css"
 ]
 
 # Override Doctype Classes
@@ -100,7 +109,7 @@ whitelisted_methods = [
     "restaurant_management.restaurant_management.utils.branch_permissions.assign_all_branches_to_user",
     "restaurant_management.restaurant_management.utils.branch_permissions.get_allowed_branches_query",
     "restaurant_management.api.waiter_order.get_menu_items",
-       "restaurant_management.api.waiter_order.get_active_orders"
+    "restaurant_management.api.waiter_order.get_active_orders"
 ]
 
 # Guest Methods (can be called without login)
@@ -117,9 +126,9 @@ guest_methods = [
 
 # Website routes
 website_route_rules = [
-    {"from_route": "/waiter_order", "to_route": "/waiter_order"},
-    {"from_route": "/station_display", "to_route": "/station_display"},
-    {"from_route": "/table_display", "to_route": "/table_display"}
+    {"from_route": "/waiter-order", "to_route": "waiter_order"},
+    {"from_route": "/station-display", "to_route": "station_display"},
+    {"from_route": "/table-display", "to_route": "table_display"}
 ]
 
 # Website pages accessible without login
@@ -127,3 +136,4 @@ website_guest_routes = [
     "station_display",
     "table_display"
 ]
+```
