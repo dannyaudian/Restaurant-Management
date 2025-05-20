@@ -2,7 +2,7 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": "[{\"id\":\"wd653Rf8Lp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"qP7i2C6mRs\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"FbK8Zx9n4W\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"New Waiter Order\",\"col\":3}},{\"id\":\"jG3tQs5Lp2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Kitchen Display\",\"col\":3}},{\"id\":\"hR8zP5vKm6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Table Overview\",\"col\":3}},{\"id\":\"nT4wCs9Jk7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Open POS\",\"col\":3}},{\"id\":\"gS5vD3rMt8\",\"type\":\"card\",\"data\":{\"card_name\":\"Operations\",\"col\":4}},{\"id\":\"yP2mH7qKs9\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"xF4nC8pLr2\",\"type\":\"card\",\"data\":{\"card_name\":\"Dashboards\",\"col\":4}}]",
+  "content": "[{\"id\":\"wd653Rf8Lp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"qP7i2C6mRs\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
   "creation": "2025-05-20 06:26:00",
   "docstatus": 0,
   "icon": "restaurant",
@@ -65,6 +65,40 @@
     {
       "hidden": 0,
       "is_query_report": 0,
+      "label": "Web Interfaces",
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Kitchen Display System",
+      "link_to": "/station_display",
+      "link_type": "URL",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Table Overview",
+      "link_to": "/table_display",
+      "link_type": "URL",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Waiter Order Interface",
+      "link_to": "/waiter_order",
+      "link_type": "URL",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
       "label": "Reports",
       "onboard": 0,
       "type": "Card Break"
@@ -113,7 +147,7 @@
       "type": "Link"
     }
   ],
-  "modified": "2025-05-20 09:35:00",
+  "modified": "2025-05-20 10:25:30",
   "modified_by": "dannyaudian",
   "module": "Restaurant Management",
   "owner": "dannyaudian",
@@ -158,17 +192,24 @@
     },
     {
       "color": "Green",
-      "doc_view": "List",
+      "doc_view": "",
       "label": "Kitchen Display",
-      "link_to": "station_display",
-      "type": "Page"
+      "link_to": "/station_display",
+      "type": "URL"
     },
     {
       "color": "Yellow",
-      "doc_view": "List",
+      "doc_view": "",
       "label": "Table Overview",
-      "link_to": "table_display",
-      "type": "Page"
+      "link_to": "/table_display",
+      "type": "URL"
+    },
+    {
+      "color": "Purple",
+      "doc_view": "",
+      "label": "Waiter Order Interface",
+      "link_to": "/waiter_order",
+      "type": "URL"
     },
     {
       "color": "Red",
@@ -178,7 +219,7 @@
       "type": "Page"
     },
     {
-      "color": "Purple",
+      "color": "Grey",
       "doc_view": "List",
       "label": "Restaurant Dashboard",
       "link_to": "restaurant_dashboard",
