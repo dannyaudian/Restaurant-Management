@@ -1,5 +1,7 @@
-frappe.ready(function() {
-  // State management with default values
+'use strict';
+
+frappe.ready(() => {
+  // State management
   const state = {
     tables: [],
     items: [],
@@ -13,218 +15,105 @@ frappe.ready(function() {
     loading: false
   };
 
-  // Initialize element references safely using a function to prevent null errors
-  const elements = {};
-  
-  /**
-   * Safely gets DOM elements and creates fallbacks when needed
-   * This helps prevent "Cannot read property 'style' of null" errors
-   */
-  function initializeElements() {
-    // Main containers
-    elements.tablesContainer = document.getElementById('tables-container') || createFallbackElement('tables-container', 'div', 'tables-grid');
-    elements.itemList = document.getElementById('item-list') || createFallbackElement('item-list', 'div', 'item-list');
-    elements.orderItems = document.getElementById('order-items') || createFallbackElement('order-items', 'div', 'order-items');
-    elements.itemCategories = document.getElementById('item-categories') || createFallbackElement('item-categories', 'div', 'item-categories');
-    
-    // UI Controls
-    elements.itemSearch = document.getElementById('item-search');
-    elements.selectedTableDisplay = document.getElementById('selected-table-display') || createFallbackElement('selected-table-display', 'div', 'selected-table');
-    
-    // Action buttons
-    elements.btnSendKitchen = document.getElementById('btn-send-kitchen') || createFallbackElement('btn-send-kitchen', 'button', 'action-btn btn-kitchen disabled-btn', 'Send to Kitchen');
-    elements.btnSendAdditional = document.getElementById('btn-send-additional') || createFallbackElement('btn-send-additional', 'button', 'action-btn btn-additional disabled-btn', 'Send Additional Items');
-    elements.btnMarkServedAll = document.getElementById('btn-mark-served-all') || createFallbackElement('btn-mark-served-all', 'button', 'action-btn btn-served disabled-btn', 'Mark All as Served');
-    elements.btnPrintOrder = document.getElementById('btn-print-order') || createFallbackElement('btn-print-order', 'button', 'action-btn btn-print disabled-btn', 'Print Order');
-    
-    // Modals and overlays
-    elements.variantModal = document.getElementById('variant-modal') || createModalElement('variant-modal', 'Select Variant Options');
-    elements.variantOverlay = document.getElementById('variant-overlay') || createOverlayElement('variant-overlay');
-    elements.notesModal = document.getElementById('notes-modal') || createModalElement('notes-modal', 'Add Notes');
-    elements.notesOverlay = document.getElementById('notes-overlay') || createOverlayElement('notes-overlay');
-    elements.loadingOverlay = document.getElementById('loading-overlay') || createLoadingOverlay();
-    
-    // Modal elements
-    elements.variantAttributes = document.getElementById('variant-attributes') || createFallbackElement('variant-attributes', 'div', 'variant-attributes');
-    elements.btnCancelVariant = document.getElementById('btn-cancel-variant') || createButtonElement('btn-cancel-variant', 'Cancel', 'modal-btn btn-cancel');
-    elements.btnAddVariant = document.getElementById('btn-add-variant') || createButtonElement('btn-add-variant', 'Add to Order', 'modal-btn btn-add');
-    
-    // Notes modal elements
-    elements.itemNotesTextarea = document.getElementById('item-notes-textarea') || createTextareaElement('item-notes-textarea', 'Add special instructions...');
-    elements.btnCancelNotes = document.getElementById('btn-cancel-notes') || createButtonElement('btn-cancel-notes', 'Cancel', 'modal-btn btn-cancel');
-    elements.btnSaveNotes = document.getElementById('btn-save-notes') || createButtonElement('btn-save-notes', 'Save Notes', 'modal-btn btn-add');
-    
-    // Attach parent-child relationships for modals
-    if (!elements.variantModal.parentElement) {
-      document.body.appendChild(elements.variantOverlay);
-      document.body.appendChild(elements.variantModal);
-    }
-    
-    if (!elements.notesModal.parentElement) {
-      document.body.appendChild(elements.notesOverlay);
-      document.body.appendChild(elements.notesModal);
-    }
-    
-    if (!elements.loadingOverlay.parentElement) {
-      document.body.appendChild(elements.loadingOverlay);
-    }
-  }
-  
-  /**
-   * Creates a fallback element when the original is not found
-   * @param {string} id - Element id
-   * @param {string} tagName - HTML tag name
-   * @param {string} className - CSS class names
-   * @param {string} [text] - Optional inner text
-   * @returns {HTMLElement} - The created element
-   */
-  function createFallbackElement(id, tagName, className, text) {
-    console.log(`Element '${id}' not found, creating fallback`);
-    const element = document.createElement(tagName);
-    element.id = id;
-    element.className = className;
-    if (text) element.textContent = text;
-    return element;
-  }
-  
-  /**
-   * Creates a modal element
-   * @param {string} id - Modal id
-   * @param {string} title - Modal title
-   * @returns {HTMLElement} - The modal element
-   */
-  function createModalElement(id, title) {
-    const modal = document.createElement('div');
-    modal.id = id;
-    modal.className = id.includes('variant') ? 'variant-modal' : 'notes-modal';
-    
-    const header = document.createElement('div');
-    header.className = 'modal-header';
-    header.id = id + '-title';
-    header.textContent = title;
-    
-    const content = document.createElement('div');
-    content.className = id.includes('variant') ? 'variant-attributes' : '';
-    content.id = id.includes('variant') ? 'variant-attributes' : '';
-    
-    const actions = document.createElement('div');
-    actions.className = 'modal-actions';
-    
-    modal.appendChild(header);
-    modal.appendChild(content);
-    modal.appendChild(actions);
-    
-    return modal;
-  }
-  
-  /**
-   * Creates an overlay element
-   * @param {string} id - Overlay id
-   * @returns {HTMLElement} - The overlay element
-   */
-  function createOverlayElement(id) {
-    const overlay = document.createElement('div');
-    overlay.id = id;
-    overlay.className = 'modal-overlay';
-    return overlay;
-  }
-  
-  /**
-   * Creates a loading overlay
-   * @returns {HTMLElement} - The loading overlay element
-   */
-  function createLoadingOverlay() {
-    const overlay = document.createElement('div');
-    overlay.id = 'loading-overlay';
-    overlay.className = 'loading-overlay';
-    
-    const spinner = document.createElement('div');
-    spinner.className = 'spinner';
-    
-    overlay.appendChild(spinner);
-    return overlay;
-  }
-  
-  /**
-   * Creates a button element
-   * @param {string} id - Button id
-   * @param {string} text - Button text
-   * @param {string} className - CSS class names
-   * @returns {HTMLElement} - The button element
-   */
-  function createButtonElement(id, text, className) {
-    const button = document.createElement('button');
-    button.id = id;
-    button.className = className;
-    button.textContent = text;
-    return button;
-  }
-  
-  /**
-   * Creates a textarea element
-   * @param {string} id - Textarea id
-   * @param {string} placeholder - Placeholder text
-   * @returns {HTMLElement} - The textarea element
-   */
-  function createTextareaElement(id, placeholder) {
-    const textarea = document.createElement('textarea');
-    textarea.id = id;
-    textarea.className = 'notes-textarea';
-    textarea.placeholder = placeholder;
-    return textarea;
-  }
+  // DOM Elements
+  const elements = {
+    tablesContainer: document.getElementById('tables-container'),
+    itemsContainer: document.getElementById('item-list'),
+    itemSearch: document.getElementById('item-search'),
+    navTabs: document.querySelector('.nav-tabs'),
+    orderItemsContainer: document.getElementById('order-items'),
+    selectedTableDisplay: document.getElementById('selected-table-display'),
+    sendToKitchenBtn: document.getElementById('send-to-kitchen-btn'),
+    sendAdditionalBtn: document.getElementById('send-additional-btn'),
+    variantModal: document.getElementById('variant-modal'),
+    modalOverlay: document.getElementById('modal-overlay'),
+    variantItemName: document.getElementById('variant-item-name'),
+    variantAttributes: document.getElementById('variant-attributes'),
+    cancelVariantBtn: document.getElementById('cancel-variant-btn'),
+    addVariantBtn: document.getElementById('add-variant-btn'),
+    loadingOverlay: document.getElementById('loading-overlay'),
+    // New Order Elements
+    newOrderBtn: document.getElementById('new-order-btn'),
+    newOrderTableNumber: document.getElementById('new-order-table-number')
+  };
 
-  /**
-   * Initialize the application
-   */
+  // Ensure all elements exist before using them
+  const ensureElements = () => {
+    if (!elements.loadingOverlay) {
+      const loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'loading-overlay';
+      loadingOverlay.className = 'loading-overlay';
+      loadingOverlay.innerHTML = '<div class="spinner"></div><div>Loading...</div>';
+      document.body.appendChild(loadingOverlay);
+      elements.loadingOverlay = loadingOverlay;
+    }
+
+    if (!elements.itemsContainer) {
+      const itemsContainer = document.createElement('div');
+      itemsContainer.id = 'item-list';
+      document.querySelector('#items-section')?.appendChild(itemsContainer);
+      elements.itemsContainer = itemsContainer;
+    }
+
+    if (!elements.orderItemsContainer) {
+      const orderItemsContainer = document.createElement('div');
+      orderItemsContainer.id = 'order-items';
+      document.querySelector('#order-section')?.appendChild(orderItemsContainer);
+      elements.orderItemsContainer = orderItemsContainer;
+    }
+
+    if (!elements.variantAttributes) {
+      const variantAttributes = document.createElement('div');
+      variantAttributes.id = 'variant-attributes';
+      elements.variantModal?.appendChild(variantAttributes);
+      elements.variantAttributes = variantAttributes;
+    }
+  };
+
+  // Minimal logging helper
+  const log = (level, msg, data) => {
+    const levels = {
+      debug: 0,
+      info: 1,
+      warn: 2,
+      error: 3
+    };
+    
+    const currentLevel = levels.info; // Change to set minimum log level
+    
+    if (levels[level] >= currentLevel) {
+      if (data) {
+        console[level](msg, data);
+      } else {
+        console[level](msg);
+      }
+    }
+  };
+
+  // Initialize the page
+  document.addEventListener('DOMContentLoaded', init);
+
   async function init() {
+    ensureElements();
     try {
-      // Create elements first to avoid null references
-      initializeElements();
-      
       showLoading();
-      
-      // Load data in parallel
       await Promise.all([
         loadTables(),
         loadItems(),
         loadItemGroups()
       ]);
-      
-      renderItemCategories();
+      renderItemGroupTabs();
       setupEventListeners();
       hideLoading();
     } catch (error) {
-      console.error('Initialization error:', error);
-      hideLoading();
+      log('error', 'Initialization error:', error);
       frappe.throw(__('Failed to initialize waiter order page'));
+      hideLoading();
     }
   }
 
-  /**
-   * Show loading overlay
-   */
-  function showLoading() {
-    state.loading = true;
-    if (elements.loadingOverlay) {
-      elements.loadingOverlay.style.display = 'flex';
-    }
-  }
-
-  /**
-   * Hide loading overlay
-   */
-  function hideLoading() {
-    state.loading = false;
-    if (elements.loadingOverlay) {
-      elements.loadingOverlay.style.display = 'none';
-    }
-  }
-
-  /**
-   * Load table data from server
-   */
-  async function loadTables() {
+  // Data loading functions
+  const loadTables = async () => {
     try {
       const result = await frappe.call({
         method: 'restaurant_management.api.waiter_order.get_available_tables',
@@ -234,15 +123,12 @@ frappe.ready(function() {
       state.tables = result.message || [];
       renderTables();
     } catch (error) {
-      console.error('Error loading tables:', error);
+      log('error', 'Error loading tables:', error);
       frappe.throw(__('Failed to load tables'));
     }
-  }
+  };
 
-  /**
-   * Load menu items from server
-   */
-  async function loadItems() {
+  const loadItems = async () => {
     try {
       const result = await frappe.call({
         method: 'restaurant_management.api.waiter_order.get_menu_items',
@@ -252,15 +138,12 @@ frappe.ready(function() {
       state.items = result.message || [];
       renderItems();
     } catch (error) {
-      console.error('Error loading items:', error);
+      log('error', 'Error loading items:', error);
       frappe.throw(__('Failed to load menu items'));
     }
-  }
+  };
 
-  /**
-   * Load item groups from server
-   */
-  async function loadItemGroups() {
+  const loadItemGroups = async () => {
     try {
       const result = await frappe.call({
         method: 'restaurant_management.api.waiter_order.get_item_groups',
@@ -269,52 +152,44 @@ frappe.ready(function() {
       
       state.itemGroups = result.message || [];
     } catch (error) {
-      console.error('Error loading item groups:', error);
+      log('error', 'Error loading item groups:', error);
       frappe.throw(__('Failed to load item groups'));
     }
-  }
+  };
 
-  /**
-   * Render tables to UI
-   */
-  function renderTables() {
+  // Rendering functions
+  const renderTables = () => {
     if (!elements.tablesContainer) return;
     
-    const tables = state.tables;
-    
-    if (!tables.length) {
-      elements.tablesContainer.innerHTML = '<div class="empty-message">No tables available</div>';
+    // Display only tables that are in "active" state (with active orders)
+    const activeTables = state.tables.filter(table => table.current_pos_order);
+    if (!activeTables.length) {
+      elements.tablesContainer.innerHTML = '<div class="empty-message">No active orders</div>';
       return;
     }
 
-    elements.tablesContainer.innerHTML = tables.map(table => {
+    elements.tablesContainer.innerHTML = activeTables.map(table => {
       const isSelected = state.selectedTable && state.selectedTable.name === table.name;
-      const isOccupied = table.current_pos_order;
-      
       return `
-        <div class="table-button ${isSelected ? 'selected' : ''} ${isOccupied ? 'occupied' : ''}" 
+        <div class="table-button ${isSelected ? 'selected' : ''}" 
              data-table-id="${table.name}">
           ${table.table_number || table.name}
         </div>
       `;
     }).join('');
-  }
+  };
 
-  /**
-   * Render all menu items or filtered items
-   * @param {string} filterGroup - Item group to filter by
-   * @param {string} searchQuery - Search query to filter by
-   */
-  function renderItems(filterGroup = 'all', searchQuery = '') {
-    if (!elements.itemList) return;
+  const renderItems = (filterGroup = 'all', searchQuery = '') => {
+    if (!elements.itemsContainer) return;
     
     let filteredItems = state.items;
     
-    // Apply filters
+    // Filter by item group
     if (filterGroup !== 'all') {
       filteredItems = filteredItems.filter(item => item.item_group === filterGroup);
     }
     
+    // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filteredItems = filteredItems.filter(item => 
@@ -323,328 +198,196 @@ frappe.ready(function() {
       );
     }
 
-    // Display items or a message
     if (!filteredItems.length) {
-      elements.itemList.innerHTML = '<div class="empty-message">No items found</div>';
+      elements.itemsContainer.innerHTML = '<div class="empty-message">No items found</div>';
       return;
     }
 
-    elements.itemList.innerHTML = filteredItems.map(item => `
-      <div class="item-card" data-item-code="${item.item_code}">
-        ${item.has_variants ? '<div class="variant-badge">Variants</div>' : ''}
-        <div class="item-name">${item.item_name}</div>
-        <div class="item-price">${frappe.format(item.standard_rate || 0, {fieldtype: 'Currency'})}</div>
-      </div>
-    `).join('');
-  }
-
-  /**
-   * Render item category tabs
-   */
-  function renderItemCategories() {
-    if (!elements.itemCategories || !state.itemGroups.length) return;
-    
-    const categoriesHtml = [
-      '<div class="category-button active" data-group="all">All</div>'
-    ];
-    
-    state.itemGroups.forEach(group => {
-      categoriesHtml.push(`
-        <div class="category-button" data-group="${group.name}">
-          ${group.item_group_name}
+    elements.itemsContainer.innerHTML = filteredItems.map(item => {
+      return `
+        <div class="item-button" data-item-code="${item.item_code}">
+          <div>${item.item_name}</div>
+          <small>${item.has_variants ? '(Has variants)' : ''}</small>
         </div>
-      `);
-    });
-    
-    elements.itemCategories.innerHTML = categoriesHtml.join('');
-  }
+      `;
+    }).join('');
+  };
 
-  /**
-   * Render order items in the cart
-   */
-  function renderOrderItems() {
-    if (!elements.orderItems) return;
+  const renderItemGroupTabs = () => {
+    if (!elements.navTabs) return;
+    
+    const tabsHtml = state.itemGroups.map(group => 
+      `<div class="nav-tab" data-group="${group.name}">${group.item_group_name}</div>`
+    ).join('');
+    
+    elements.navTabs.innerHTML = '<div class="nav-tab active" data-group="all">All</div>' + tabsHtml;
+  
+    // Event listener for tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        renderItems(this.getAttribute('data-group'), elements.itemSearch?.value);
+      });
+    });
+  };
+
+  const renderOrderItems = () => {
+    if (!elements.orderItemsContainer) return;
     
     if (!state.currentOrder.items.length) {
-      elements.orderItems.innerHTML = '<div class="empty-order-message">No items added to order</div>';
+      elements.orderItemsContainer.innerHTML = '<div class="empty-order-message">No items added to order</div>';
       updateActionButtons();
       return;
     }
 
-    let orderTotal = 0;
-    const orderItemsHtml = state.currentOrder.items.map((orderItem, index) => {
+    elements.orderItemsContainer.innerHTML = state.currentOrder.items.map((orderItem, index) => {
       const isSent = state.currentOrder.sentItems.some(
         sent => sent.item_code === orderItem.item_code && 
                 JSON.stringify(sent.attributes || {}) === JSON.stringify(orderItem.attributes || {})
       );
       
-      // Calculate item subtotal and add to order total
-      const subtotal = (orderItem.price || 0) * orderItem.qty;
-      orderTotal += subtotal;
-      
       return `
-        <div class="order-item" data-index="${index}">
-          <div class="item-info">
-            <div class="item-details">
-              <span class="item-title">${orderItem.item_name}</span>
-              <span class="item-subtotal">${frappe.format(subtotal, {fieldtype: 'Currency'})}</span>
-            </div>
+        <div class="order-item ${isSent ? 'sent-item' : ''}" data-index="${index}">
+          <div class="order-item-name">
+            ${orderItem.item_name}
             ${orderItem.attributes ? 
-              `<div class="item-attributes">${Object.entries(orderItem.attributes)
-                .map(([k, v]) => `${k}: ${v}`).join(', ')}</div>` : ''}
-            ${orderItem.notes ? `<div class="item-notes">${orderItem.notes}</div>` : ''}
-            ${isSent ? `<span class="status-badge status-sent">Sent</span>` : 
-                       `<span class="status-badge status-new">New</span>`}
+              '<small>(' + Object.entries(orderItem.attributes).map(([k, v]) => `${k}: ${v}`).join(', ') + ')</small>' : 
+              ''}
           </div>
-          <div class="quantity-control">
+          <div class="order-item-qty">
             <div class="qty-btn minus">-</div>
-            <div class="qty-display">${orderItem.qty}</div>
+            <span style="margin: 0 5px;">${orderItem.qty}</span>
             <div class="qty-btn plus">+</div>
           </div>
-          <div class="remove-item">✕</div>
+          <div class="order-item-remove">✕</div>
         </div>
       `;
     }).join('');
-    
-    elements.orderItems.innerHTML = orderItemsHtml;
-    
-    // Update total amount
-    const totalElement = document.getElementById('order-total-amount');
-    if (totalElement) {
-      totalElement.textContent = frappe.format(orderTotal, {fieldtype: 'Currency'});
-    }
-    
+
     updateActionButtons();
-  }
+  };
 
-  /**
-   * Update action buttons state based on current order
-   */
-  function updateActionButtons() {
-    // Send to Kitchen button is active if table is selected and there are items
-    if (elements.btnSendKitchen) {
-      if (state.selectedTable && state.currentOrder.items.length > 0) {
-        elements.btnSendKitchen.classList.remove('disabled-btn');
-      } else {
-        elements.btnSendKitchen.classList.add('disabled-btn');
-      }
-    }
-
-    // Send Additional Items button is active if there are new items and some already sent
-    if (elements.btnSendAdditional) {
-      const hasNewItems = state.currentOrder.items.some(item => 
-        !state.currentOrder.sentItems.some(
-          sent => sent.item_code === item.item_code && 
-                  JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
-        )
-      );
-
-      if (state.selectedTable && hasNewItems && state.currentOrder.sentItems.length > 0) {
-        elements.btnSendAdditional.classList.remove('disabled-btn');
-      } else {
-        elements.btnSendAdditional.classList.add('disabled-btn');
-      }
-    }
+  const updateActionButtons = () => {
+    // "Send to Kitchen" button is active if a table is selected and order is not empty
+    if (!elements.sendToKitchenBtn) return;
     
-    // Mark All as Served button is active if there are ready items
-    if (elements.btnMarkServedAll) {
-      const hasReadyItems = state.currentOrder.sentItems.some(item => item.status === 'Ready');
-      
-      if (state.selectedTable && hasReadyItems) {
-        elements.btnMarkServedAll.classList.remove('disabled-btn');
-      } else {
-        elements.btnMarkServedAll.classList.add('disabled-btn');
-      }
+    if (state.selectedTable && state.currentOrder.items.length > 0) {
+      elements.sendToKitchenBtn.classList.remove('disabled-btn');
+    } else {
+      elements.sendToKitchenBtn.classList.add('disabled-btn');
     }
-    
-    // Print Order button is active if there are sent items
-    if (elements.btnPrintOrder) {
-      if (state.selectedTable && state.currentOrder.sentItems.length > 0) {
-        elements.btnPrintOrder.classList.remove('disabled-btn');
-      } else {
-        elements.btnPrintOrder.classList.add('disabled-btn');
-      }
-    }
-  }
 
-  /**
-   * Update the selected table display
-   */
-  function updateSelectedTableDisplay() {
+    // "Send Additional Items" button is active if there are new items not yet sent
+    if (!elements.sendAdditionalBtn) return;
+    
+    const hasNewItems = state.currentOrder.items.some(item => 
+      !state.currentOrder.sentItems.some(
+        sent => sent.item_code === item.item_code && 
+                JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
+      )
+    );
+
+    if (state.selectedTable && hasNewItems && state.currentOrder.sentItems.length > 0) {
+      elements.sendAdditionalBtn.classList.remove('disabled-btn');
+    } else {
+      elements.sendAdditionalBtn.classList.add('disabled-btn');
+    }
+  };
+
+  const updateSelectedTableDisplay = () => {
     if (!elements.selectedTableDisplay) return;
     
     if (state.selectedTable) {
-      elements.selectedTableDisplay.textContent = `Table: ${state.selectedTable.table_number || state.selectedTable.name}`;
+      elements.selectedTableDisplay.textContent = `Selected Table: ${state.selectedTable.table_number || state.selectedTable.name}`;
     } else {
       elements.selectedTableDisplay.textContent = 'No table selected';
     }
-  }
+  };
 
-  /**
-   * Set up all event listeners
-   */
-  function setupEventListeners() {
-    // Table selection
-    if (elements.tablesContainer) {
-      elements.tablesContainer.addEventListener('click', handleTableSelection);
-    }
+  // Event handlers
+  const setupEventListeners = () => {
+    // Event for selecting active tables (edit order)
+    elements.tablesContainer?.addEventListener('click', handleTableSelection);
     
-    // Item selection
-    if (elements.itemList) {
-      elements.itemList.addEventListener('click', handleItemSelection);
-    }
-    
-    // Item search
-    if (elements.itemSearch) {
-      elements.itemSearch.addEventListener('input', handleItemSearch);
-    }
-    
-    // Item categories
-    if (elements.itemCategories) {
-      elements.itemCategories.addEventListener('click', handleItemCategorySelection);
-    }
-    
-    // Order item actions
-    if (elements.orderItems) {
-      elements.orderItems.addEventListener('click', handleOrderItemActions);
-    }
-    
-    // Action buttons
-    if (elements.btnSendKitchen) {
-      elements.btnSendKitchen.addEventListener('click', handleSendToKitchen);
-    }
-    
-    if (elements.btnSendAdditional) {
-      elements.btnSendAdditional.addEventListener('click', handleSendAdditionalItems);
-    }
-    
-    if (elements.btnMarkServedAll) {
-      elements.btnMarkServedAll.addEventListener('click', handleMarkAllAsServed);
-    }
-    
-    if (elements.btnPrintOrder) {
-      elements.btnPrintOrder.addEventListener('click', handlePrintOrder);
-    }
-    
-    // Modal buttons
-    if (elements.btnCancelVariant) {
-      elements.btnCancelVariant.addEventListener('click', closeVariantModal);
-    }
-    
-    if (elements.btnAddVariant) {
-      elements.btnAddVariant.addEventListener('click', handleAddVariant);
-    }
-    
-    if (elements.variantOverlay) {
-      elements.variantOverlay.addEventListener('click', closeVariantModal);
-    }
-    
-    if (elements.btnCancelNotes) {
-      elements.btnCancelNotes.addEventListener('click', closeNotesModal);
-    }
-    
-    if (elements.btnSaveNotes) {
-      elements.btnSaveNotes.addEventListener('click', handleSaveNotes);
-    }
-    
-    if (elements.notesOverlay) {
-      elements.notesOverlay.addEventListener('click', closeNotesModal);
-    }
-  }
+    // Event for "New Order" button
+    elements.newOrderBtn?.addEventListener('click', handleNewOrder);
 
-  /**
-   * Handle table selection
-   * @param {Event} event - Click event
-   */
-  function handleTableSelection(event) {
+    // Event for item selection
+    elements.itemsContainer?.addEventListener('click', handleItemSelection);
+    
+    // Event for item search
+    elements.itemSearch?.addEventListener('input', handleItemSearch);
+    
+    // Events for order item operations
+    elements.orderItemsContainer?.addEventListener('click', handleOrderItemActions);
+    
+    // Send order to kitchen button
+    elements.sendToKitchenBtn?.addEventListener('click', handleSendToKitchen);
+    
+    // Send additional items button
+    elements.sendAdditionalBtn?.addEventListener('click', handleSendAdditionalItems);
+    
+    // Events for variant modal
+    elements.cancelVariantBtn?.addEventListener('click', closeVariantModal);
+    elements.addVariantBtn?.addEventListener('click', handleAddVariant);
+    elements.modalOverlay?.addEventListener('click', closeVariantModal);
+  };
+
+  // Handle selecting an active table (from grid)
+  const handleTableSelection = (event) => {
     const tableButton = event.target.closest('.table-button');
     if (!tableButton) return;
     
     const tableId = tableButton.getAttribute('data-table-id');
     const table = state.tables.find(t => t.name === tableId);
     
-    if (!table) return;
-    
-    state.selectedTable = table;
-    
-    // Load existing orders for this table
-    loadActiveOrders(tableId);
+    // Select or cancel selection
+    if (state.selectedTable && state.selectedTable.name === tableId) {
+      state.selectedTable = null;
+    } else {
+      state.selectedTable = table;
+    }
     
     renderTables();
     updateSelectedTableDisplay();
-  }
+    updateActionButtons();
+  };
 
-  /**
-   * Load active orders for a table
-   * @param {string} tableId - Table ID
-   */
-  async function loadActiveOrders(tableId) {
-    try {
-      showLoading();
-      
-      const result = await frappe.call({
-        method: 'restaurant_management.api.waiter_order.get_active_orders',
-        args: { table_id: tableId },
-        freeze: false
-      });
-      
-      if (result.message && result.message.length) {
-        const order = result.message[0]; // Get the first active order
-        
-        // Update current order with server data
-        state.currentOrder.items = order.items.map(item => ({
-          item_code: item.item_code,
-          item_name: item.item_name,
-          qty: item.qty,
-          price: item.price,
-          notes: item.notes,
-          status: item.status
-        }));
-        
-        // Mark all items as already sent
-        state.currentOrder.sentItems = [...state.currentOrder.items];
-      } else {
-        // Reset current order if no active orders
-        state.currentOrder.items = [];
-        state.currentOrder.sentItems = [];
-      }
-      
-      renderOrderItems();
-      hideLoading();
-    } catch (error) {
-      console.error('Error loading active orders:', error);
-      hideLoading();
+  // Handle creating a new order
+  const handleNewOrder = () => {
+    if (!elements.newOrderTableNumber) return;
+    
+    const tableNo = elements.newOrderTableNumber.value.trim();
+    if (!tableNo) {
+      frappe.msgprint(__('Please enter a table number'));
+      return;
     }
-  }
+    // Find table by table_number or name
+    const table = state.tables.find(t => (t.table_number || t.name) == tableNo);
+    if (!table) {
+      frappe.msgprint(__('No table found with that number'));
+      return;
+    }
+    // If table is already in use, show notification
+    if (table.current_pos_order) {
+      frappe.msgprint(__('Table is not available. It already has an active order.'));
+      return;
+    }
+    // Mark as new order (simulating creating a new order; in a real implementation, you could call an API to create an order)
+    table.current_pos_order = {};
+    state.selectedTable = table;
+    updateSelectedTableDisplay();
+    // Re-render tables: now the table with the new order won't appear in the active grid
+    renderTables();
+    frappe.msgprint(__('New order created at Table ') + tableNo);
+  };
 
-  /**
-   * Handle item category selection
-   * @param {Event} event - Click event
-   */
-  function handleItemCategorySelection(event) {
-    const categoryButton = event.target.closest('.category-button');
-    if (!categoryButton) return;
+  const handleItemSelection = (event) => {
+    const itemButton = event.target.closest('.item-button');
+    if (!itemButton) return;
     
-    // Update active class
-    const allCategoryButtons = elements.itemCategories.querySelectorAll('.category-button');
-    allCategoryButtons.forEach(btn => btn.classList.remove('active'));
-    categoryButton.classList.add('active');
-    
-    // Filter items by selected category
-    const categoryGroup = categoryButton.getAttribute('data-group');
-    const searchQuery = elements.itemSearch ? elements.itemSearch.value : '';
-    renderItems(categoryGroup, searchQuery);
-  }
-
-  /**
-   * Handle item selection
-   * @param {Event} event - Click event
-   */
-  function handleItemSelection(event) {
-    const itemCard = event.target.closest('.item-card');
-    if (!itemCard) return;
-    
-    const itemCode = itemCard.getAttribute('data-item-code');
+    const itemCode = itemButton.getAttribute('data-item-code');
     const item = state.items.find(i => i.item_code === itemCode);
     
     if (!item) return;
@@ -655,75 +398,50 @@ frappe.ready(function() {
       showVariantModal(item);
     } else {
       // Add item directly to order
-      addItemToOrder({
-        item_code: item.item_code,
-        item_name: item.item_name,
-        price: item.standard_rate || 0,
-        qty: 1
-      });
+      addItemToOrder(item);
     }
-  }
+  };
 
-  /**
-   * Handle item search
-   * @param {Event} event - Input event
-   */
-  function handleItemSearch(event) {
+  const handleItemSearch = (event) => {
     const searchQuery = event.target.value;
-    const activeCategoryButton = elements.itemCategories.querySelector('.category-button.active');
-    const categoryGroup = activeCategoryButton ? activeCategoryButton.getAttribute('data-group') : 'all';
-    renderItems(categoryGroup, searchQuery);
-  }
+    const activeGroupElem = document.querySelector('.nav-tab.active');
+    const activeGroup = activeGroupElem ? activeGroupElem.getAttribute('data-group') : 'all';
+    renderItems(activeGroup, searchQuery);
+  };
 
-  /**
-   * Handle order item actions (quantity change, removal)
-   * @param {Event} event - Click event
-   */
-  function handleOrderItemActions(event) {
-    const orderItem = event.target.closest('.order-item');
-    if (!orderItem) return;
+  const handleOrderItemActions = (event) => {
+    const orderItemElem = event.target.closest('.order-item');
+    if (!orderItemElem) return;
     
-    const index = parseInt(orderItem.getAttribute('data-index'), 10);
-    if (isNaN(index) || index < 0 || index >= state.currentOrder.items.length) return;
+    const index = parseInt(orderItemElem.getAttribute('data-index'));
     
     if (event.target.classList.contains('plus')) {
       state.currentOrder.items[index].qty += 1;
+      renderOrderItems();
     } else if (event.target.classList.contains('minus')) {
       if (state.currentOrder.items[index].qty > 1) {
         state.currentOrder.items[index].qty -= 1;
+        renderOrderItems();
       }
-    } else if (event.target.classList.contains('remove-item')) {
+    } else if (event.target.classList.contains('order-item-remove')) {
       state.currentOrder.items.splice(index, 1);
-    } else {
-      return;
+      renderOrderItems();
     }
-    
-    renderOrderItems();
-  }
+  };
 
-  /**
-   * Send order to kitchen
-   */
-  async function handleSendToKitchen() {
+  const handleSendToKitchen = async () => {
     if (!state.selectedTable || !state.currentOrder.items.length || 
-        elements.btnSendKitchen.classList.contains('disabled-btn')) {
+        !elements.sendToKitchenBtn || elements.sendToKitchenBtn.classList.contains('disabled-btn')) {
       return;
     }
     
     try {
+      ensureElements();
       showLoading();
       
       const orderData = {
         table: state.selectedTable.name,
-        branch_code: state.selectedTable.branch_code, // Include branch_code from table
-        items: state.currentOrder.items.map(item => ({
-          item_code: item.item_code,
-          item_name: item.item_name,
-          qty: item.qty,
-          price: item.price || 0,
-          notes: item.notes || '',
-          attributes: item.attributes || {}
-        }))
+        items: state.currentOrder.items
       };
       
       const result = await frappe.call({
@@ -734,46 +452,32 @@ frappe.ready(function() {
       });
       
       if (result.message && result.message.success) {
-        // Mark all items as sent
+        // Mark items as sent
         state.currentOrder.sentItems = [...state.currentOrder.items];
-        
         frappe.show_alert({
           message: __('Order sent to kitchen successfully'),
           indicator: 'green'
         }, 5);
-        
-        if (result.message.print_url) {
-          // Open print dialog in new window
-          window.open(result.message.print_url, '_blank');
-        }
-        
-        // Refresh tables to update status
+        // Refresh table list to update occupancy
         await loadTables();
         updateActionButtons();
       } else {
-        const errorMsg = result.message && result.message.error 
-          ? result.message.error 
-          : __('Failed to send order to kitchen');
-        frappe.throw(errorMsg);
+        frappe.throw(__('Failed to send order to kitchen'));
       }
-      
       hideLoading();
     } catch (error) {
-      console.error('Error sending order to kitchen:', error);
-      frappe.throw(__('Failed to send order to kitchen: ') + (error.message || ''));
+      log('error', 'Error sending order to kitchen:', error);
+      frappe.throw(__('Failed to send order to kitchen'));
       hideLoading();
     }
-  }
+  };
 
-  /**
-   * Send additional items to kitchen
-   */
-  async function handleSendAdditionalItems() {
-    if (!state.selectedTable || elements.btnSendAdditional.classList.contains('disabled-btn')) {
+  const handleSendAdditionalItems = async () => {
+    if (!state.selectedTable || 
+        !elements.sendAdditionalBtn || elements.sendAdditionalBtn.classList.contains('disabled-btn')) {
       return;
     }
     
-    // Filter out items that have already been sent
     const newItems = state.currentOrder.items.filter(item => 
       !state.currentOrder.sentItems.some(
         sent => sent.item_code === item.item_code && 
@@ -784,20 +488,13 @@ frappe.ready(function() {
     if (!newItems.length) return;
     
     try {
+      ensureElements();
       showLoading();
       
       const orderData = {
-        order_id: state.currentOrder.order_id, // If available
         table: state.selectedTable.name,
-        branch_code: state.selectedTable.branch_code,
-        items: newItems.map(item => ({
-          item_code: item.item_code,
-          item_name: item.item_name,
-          qty: item.qty,
-          price: item.price || 0,
-          notes: item.notes || '',
-          attributes: item.attributes || {}
-        }))
+        items: newItems,
+        is_additional: true
       };
       
       const result = await frappe.call({
@@ -808,188 +505,74 @@ frappe.ready(function() {
       });
       
       if (result.message && result.message.success) {
-        // Mark all items as sent
         state.currentOrder.sentItems = [...state.currentOrder.items];
-        
         frappe.show_alert({
           message: __('Additional items sent to kitchen successfully'),
           indicator: 'green'
         }, 5);
-        
-        if (result.message.print_url) {
-          // Open print dialog in new window
-          window.open(result.message.print_url, '_blank');
-        }
-        
         updateActionButtons();
       } else {
-        const errorMsg = result.message && result.message.error 
-          ? result.message.error 
-          : __('Failed to send additional items to kitchen');
-        frappe.throw(errorMsg);
+        frappe.throw(__('Failed to send additional items to kitchen'));
       }
-      
       hideLoading();
     } catch (error) {
-      console.error('Error sending additional items:', error);
-      frappe.throw(__('Failed to send additional items: ') + (error.message || ''));
+      log('error', 'Error sending additional items:', error);
+      frappe.throw(__('Failed to send additional items to kitchen'));
       hideLoading();
     }
-  }
+  };
 
-  /**
-   * Mark all ready items as served
-   */
-  async function handleMarkAllAsServed() {
-    if (!state.selectedTable || elements.btnMarkServedAll.classList.contains('disabled-btn')) {
-      return;
-    }
+  // Variant handling
+  const showVariantModal = (item) => {
+    if (!elements.variantItemName || !elements.modalOverlay || !elements.variantModal) return;
     
-    try {
-      showLoading();
-      
-      const result = await frappe.call({
-        method: 'restaurant_management.api.waiter_order.mark_items_as_served',
-        args: {
-          order_id: state.currentOrder.order_id,
-          item_ids: [], // Empty array means all items
-          all_ready: true
-        },
-        freeze: true,
-        freeze_message: __('Marking items as served...')
-      });
-      
-      if (result.message && result.message.success) {
-        // Refresh order items from server
-        await loadActiveOrders(state.selectedTable.name);
-        
-        frappe.show_alert({
-          message: __('Items marked as served successfully'),
-          indicator: 'green'
-        }, 5);
-      } else {
-        const errorMsg = result.message && result.message.error 
-          ? result.message.error 
-          : __('Failed to mark items as served');
-        frappe.throw(errorMsg);
-      }
-      
-      hideLoading();
-    } catch (error) {
-      console.error('Error marking items as served:', error);
-      frappe.throw(__('Failed to mark items as served: ') + (error.message || ''));
-      hideLoading();
-    }
-  }
-
-  /**
-   * Print order
-   */
-  async function handlePrintOrder() {
-    if (!state.selectedTable || elements.btnPrintOrder.classList.contains('disabled-btn')) {
-      return;
-    }
-    
-    try {
-      showLoading();
-      
-      const result = await frappe.call({
-        method: 'restaurant_management.api.waiter_order.get_print_url',
-        args: {
-          order_id: state.currentOrder.order_id,
-          additional: false
-        },
-        freeze: false
-      });
-      
-      if (result.message && result.message.print_url) {
-        window.open(result.message.print_url, '_blank');
-      } else {
-        frappe.throw(__('Print URL not available'));
-      }
-      
-      hideLoading();
-    } catch (error) {
-      console.error('Error printing order:', error);
-      frappe.throw(__('Failed to print order: ') + (error.message || ''));
-      hideLoading();
-    }
-  }
-
-  /**
-   * Show variant selection modal
-   * @param {Object} item - Item template
-   */
-  function showVariantModal(item) {
-    if (!elements.variantModal || !elements.variantOverlay || !elements.variantAttributes) return;
-    
-    // Set modal title
-    const modalTitle = elements.variantModal.querySelector('.modal-header');
-    if (modalTitle) {
-      modalTitle.textContent = `Select Options for ${item.item_name}`;
-    }
+    elements.variantItemName.textContent = item.item_name;
     
     // Get variant attributes
     frappe.call({
       method: 'restaurant_management.api.waiter_order.get_item_variant_attributes',
-      args: { template_item_code: item.item_code },
+      args: { item_code: item.item_code },
       callback: function(response) {
-        if (response.message && response.message.length) {
+        if (response.message) {
           renderVariantAttributes(response.message);
-          elements.variantOverlay.style.display = 'block';
+          elements.modalOverlay.style.display = 'block';
           elements.variantModal.style.display = 'block';
         } else {
-          frappe.msgprint(__('No variant attributes found for this item'));
+          frappe.throw(__('Failed to get variant attributes'));
         }
       }
     });
-  }
+  };
 
-  /**
-   * Render variant attributes in modal
-   * @param {Array} attributes - Variant attributes
-   */
-  function renderVariantAttributes(attributes) {
+  const renderVariantAttributes = (attributes) => {
     if (!elements.variantAttributes) return;
     
     elements.variantAttributes.innerHTML = attributes.map(attr => {
-      // Parse options (may be newline separated or JSON array)
-      let options = attr.options;
-      if (typeof options === 'string') {
-        options = options.split('\n').map(o => o.trim()).filter(Boolean);
-      }
-      
-      const optionsHtml = options.map(option => 
-        `<option value="${option}">${option}</option>`
+      const options = attr.options.split('\n').map(option => 
+        `<option value="${option.trim()}">${option.trim()}</option>`
       ).join('');
       
       return `
-        <div class="attribute-group">
-          <label class="attribute-label" for="attr-${attr.attribute}">${attr.attribute}</label>
-          <select class="attribute-select variant-attribute" id="attr-${attr.attribute}" data-attribute="${attr.attribute}">
-            <option value="">Select ${attr.attribute}</option>
-            ${optionsHtml}
+        <div class="form-group">
+          <label for="attr-${attr.name}">${attr.field_name}</label>
+          <select class="form-control variant-attribute" id="attr-${attr.name}" data-attribute="${attr.field_name}">
+            <option value="">Select ${attr.field_name}</option>
+            ${options}
           </select>
         </div>
       `;
     }).join('');
-  }
+  };
 
-  /**
-   * Close variant selection modal
-   */
-  function closeVariantModal() {
-    if (!elements.variantModal || !elements.variantOverlay) return;
+  const closeVariantModal = () => {
+    if (!elements.modalOverlay || !elements.variantModal) return;
     
+    elements.modalOverlay.style.display = 'none';
     elements.variantModal.style.display = 'none';
-    elements.variantOverlay.style.display = 'none';
     state.selectedItemTemplate = null;
-  }
+  };
 
-  /**
-   * Add selected variant to order
-   */
-  async function handleAddVariant() {
+  const handleAddVariant = async () => {
     if (!state.selectedItemTemplate) return;
     
     const attributes = {};
@@ -1007,11 +590,12 @@ frappe.ready(function() {
     });
     
     if (!allSelected) {
-      frappe.msgprint(__('Please select all variant attributes'));
+      frappe.throw(__('Please select all variant attributes'));
       return;
     }
     
     try {
+      ensureElements();
       showLoading();
       
       const result = await frappe.call({
@@ -1028,105 +612,51 @@ frappe.ready(function() {
         addItemToOrder({
           item_code: variant.item_code,
           item_name: variant.item_name,
-          price: variant.standard_rate || 0,
           attributes: attributes
         });
         closeVariantModal();
       } else {
-        frappe.msgprint(__('No matching variant found for the selected attributes'));
+        frappe.throw(__('Failed to resolve variant'));
       }
       
       hideLoading();
     } catch (error) {
-      console.error('Error resolving variant:', error);
-      frappe.throw(__('Failed to resolve variant: ') + (error.message || ''));
+      log('error', 'Error resolving variant:', error);
+      frappe.throw(__('Failed to resolve variant'));
       hideLoading();
     }
-  }
+  };
 
-  /**
-   * Show notes input modal for an item
-   * @param {number} index - Item index in the order
-   */
-  function showNotesModal(index) {
-    if (!elements.notesModal || !elements.notesOverlay || !elements.itemNotesTextarea) return;
-    
-    // Store the current item index
-    state.currentNoteItemIndex = index;
-    
-    // Fill textarea with existing notes
-    if (index >= 0 && index < state.currentOrder.items.length) {
-      elements.itemNotesTextarea.value = state.currentOrder.items[index].notes || '';
-    } else {
-      elements.itemNotesTextarea.value = '';
-    }
-    
-    elements.notesOverlay.style.display = 'block';
-    elements.notesModal.style.display = 'block';
-    elements.itemNotesTextarea.focus();
-  }
-
-  /**
-   * Close notes modal
-   */
-  function closeNotesModal() {
-    if (!elements.notesModal || !elements.notesOverlay) return;
-    
-    elements.notesModal.style.display = 'none';
-    elements.notesOverlay.style.display = 'none';
-    state.currentNoteItemIndex = -1;
-  }
-
-  /**
-   * Save notes for an item
-   */
-  function handleSaveNotes() {
-    if (state.currentNoteItemIndex === undefined || 
-        state.currentNoteItemIndex < 0 || 
-        state.currentNoteItemIndex >= state.currentOrder.items.length) {
-      closeNotesModal();
-      return;
-    }
-    
-    // Save the notes
-    state.currentOrder.items[state.currentNoteItemIndex].notes = 
-      elements.itemNotesTextarea.value.trim();
-    
-    closeNotesModal();
-    renderOrderItems();
-  }
-
-  /**
-   * Add an item to the current order
-   * @param {Object} item - Item to add
-   */
-  function addItemToOrder(item) {
-    if (!item) return;
-    
-    // Check if item already exists in order with same attributes
+  // Helper: Add item to order
+  const addItemToOrder = (item) => {
     const existingItemIndex = state.currentOrder.items.findIndex(orderItem => 
       orderItem.item_code === item.item_code && 
       JSON.stringify(orderItem.attributes || {}) === JSON.stringify(item.attributes || {})
     );
     
     if (existingItemIndex !== -1) {
-      // Update quantity if item exists
       state.currentOrder.items[existingItemIndex].qty += 1;
     } else {
-      // Add new item
       state.currentOrder.items.push({
         item_code: item.item_code,
         item_name: item.item_name,
         qty: 1,
-        price: item.price || 0,
-        attributes: item.attributes || {},
-        notes: item.notes || ''
+        attributes: item.attributes
       });
     }
     
     renderOrderItems();
-  }
+  };
 
-  // Start the application
-  init();
+  const showLoading = () => {
+    state.loading = true;
+    if (!elements.loadingOverlay) return;
+    elements.loadingOverlay.style.display = 'flex';
+  };
+
+  const hideLoading = () => {
+    state.loading = false;
+    if (!elements.loadingOverlay) return;
+    elements.loadingOverlay.style.display = 'none';
+  };
 });
