@@ -1,47 +1,201 @@
-[
-  {
-    "doctype": "Workspace",
-    "name": "Restaurant Management",
-    "label": "Restaurant Management",
-    "title": "Restaurant Management",
-    "icon": "restaurant",
-    "module": "Restaurant Management",
-    "is_default": 0,
-    "is_standard": 1,
-    "developer_mode_only": 0,
-    "public": 1,
-    "sequence_id": 1,
-    "content": "[]",
-    "roles": [
-      { "role": "Restaurant Manager" },
-      { "role": "Restaurant User" },
-      { "role": "System Manager" }
-    ],
-    "for_user": "",
-    "charts": [
-      { "chart_name": "Daily Sales", "label": "Daily Restaurant Sales" },
-      { "chart_name": "Monthly Sales Trend", "label": "Monthly Sales Trend" }
-    ],
-    "shortcuts": [
-      { "label": "New Waiter Order", "name": "Waiter Order", "icon": "edit", "type": "DocType" },
-      { "label": "Kitchen Display", "name": "station_display", "icon": "list", "type": "Page" },
-      { "label": "Table Overview", "name": "table_display", "icon": "grid", "type": "Page" },
-      { "label": "Open POS", "name": "point-of-sale", "icon": "point-of-sale", "type": "Page" },
-      { "label": "Restaurant Dashboard", "name": "restaurant_dashboard", "icon": "dashboard", "type": "Dashboard" }
-    ],
-    "links": [
-      { "label": "Operations", "icon": "restaurant", "type": "Card Break" },
-      { "label": "Waiter Order", "type": "Link", "link_type": "DocType", "link_to": "Waiter Order", "icon": "edit" },
-      { "label": "Kitchen Station", "type": "Link", "link_type": "DocType", "link_to": "Kitchen Station", "icon": "list" },
-      { "label": "Table", "type": "Link", "link_type": "DocType", "link_to": "Table", "icon": "table" },
-      { "label": "Branch", "type": "Link", "link_type": "DocType", "link_to": "Branch", "icon": "branch" },
-      { "label": "POS Profile", "type": "Link", "link_type": "DocType", "link_to": "POS Profile", "icon": "point-of-sale" },
-      { "label": "Reports", "icon": "bar-chart", "type": "Card Break" },
-      { "label": "Restaurant Sales Analytics", "type": "Link", "link_type": "Report", "link_to": "Restaurant Sales Analytics", "icon": "bar-chart" },
-      { "label": "Item Consumption Analytics", "type": "Link", "link_type": "Report", "link_to": "Restaurant Item Consumption", "icon": "bar-chart" },
-      { "label": "Table Turnover Analytics", "type": "Link", "link_type": "Report", "link_to": "Table Turnover Analytics", "icon": "bar-chart" },
-      { "label": "Dashboards", "icon": "dashboard", "type": "Card Break" },
-      { "label": "Restaurant Dashboard", "type": "Link", "link_type": "Dashboard", "link_to": "restaurant_dashboard", "icon": "dashboard" }
-    ]
-  }
-]
+{
+  "doctype": "Workspace",
+  "name": "Restaurant Management",
+  "category": "Modules",
+  "content": "[]",
+  "creation": "2025-05-20 06:26:00",
+  "docstatus": 0,
+  "icon": "restaurant",
+  "is_hidden": 0,
+  "is_standard": 1,
+  "label": "Restaurant Management",
+  "links": [
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Operations",
+      "icon": "restaurant",
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Waiter Order",
+      "link_to": "Waiter Order",
+      "link_type": "DocType",
+      "icon": "edit",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Kitchen Station",
+      "link_to": "Kitchen Station",
+      "link_type": "DocType",
+      "icon": "list",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Table",
+      "link_to": "Table",
+      "link_type": "DocType",
+      "icon": "table",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Branch",
+      "link_to": "Branch",
+      "link_type": "DocType",
+      "icon": "branch",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "POS Profile",
+      "link_to": "POS Profile",
+      "link_type": "DocType",
+      "icon": "point-of-sale",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Reports",
+      "icon": "bar-chart",
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Restaurant Sales Analytics",
+      "link_to": "Restaurant Sales Analytics",
+      "link_type": "Report",
+      "icon": "bar-chart",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Item Consumption Analytics",
+      "link_to": "Restaurant Item Consumption",
+      "link_type": "Report",
+      "icon": "bar-chart",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Table Turnover Analytics",
+      "link_to": "Table Turnover Analytics",
+      "link_type": "Report",
+      "icon": "bar-chart",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Dashboards",
+      "icon": "dashboard",
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Restaurant Dashboard",
+      "link_to": "restaurant_dashboard",
+      "link_type": "Dashboard",
+      "icon": "dashboard",
+      "onboard": 0,
+      "type": "Link"
+    }
+  ],
+  "modified": "2025-05-20 06:26:00",
+  "modified_by": "dannyaudian",
+  "module": "Restaurant Management",
+  "owner": "dannyaudian",
+  "parent_page": "",
+  "public": 1,
+  "quick_lists": [
+    {
+      "document_type": "Waiter Order",
+      "label": "Active Orders",
+      "filter_by": "status,=,Active"
+    },
+    {
+      "document_type": "Kitchen Station",
+      "label": "Kitchen Stations",
+      "filter_by": ""
+    },
+    {
+      "document_type": "Table",
+      "label": "Available Tables",
+      "filter_by": "status,=,Available"
+    }
+  ],
+  "roles": [
+    {
+      "role": "Restaurant Manager"
+    },
+    {
+      "role": "Restaurant User"
+    },
+    {
+      "role": "System Manager"
+    }
+  ],
+  "sequence_id": 1,
+  "shortcuts": [
+    {
+      "color": "Blue",
+      "doc_view": "List",
+      "label": "New Waiter Order",
+      "link_to": "Waiter Order",
+      "type": "DocType"
+    },
+    {
+      "color": "Green",
+      "doc_view": "List",
+      "label": "Kitchen Display",
+      "link_to": "station_display",
+      "type": "Page"
+    },
+    {
+      "color": "Yellow",
+      "doc_view": "List",
+      "label": "Table Overview",
+      "link_to": "table_display",
+      "type": "Page"
+    },
+    {
+      "color": "Red",
+      "doc_view": "List",
+      "label": "Open POS",
+      "link_to": "point-of-sale",
+      "type": "Page"
+    },
+    {
+      "color": "Purple",
+      "doc_view": "List",
+      "label": "Restaurant Dashboard",
+      "link_to": "restaurant_dashboard",
+      "type": "Dashboard"
+    }
+  ],
+  "title": "Restaurant Management"
+}
