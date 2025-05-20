@@ -1,8 +1,3 @@
-I'll rewrite the hooks.py file according to your requirements, ensuring website_route_rules uses hyphens in from_route while keeping the to_route as the template name, and maintaining proper paths for web assets without the "public/" prefix. Here's the rewritten file:
-
-Based on the requirements, here's the rewritten hooks.py file:
-
-```python
 app_name = "restaurant_management"
 app_title = "Restaurant Management"
 app_publisher = "Danny Audian Pratama"
