@@ -1,590 +1,142 @@
 {% extends "templates/web.html" %}
 
-{% block title %}Waiter Order Interface{% endblock %}
+{% block title %}Waiter Order{% endblock %}
 
-{% block style %}
-<style>
-  /* Main layout */
-  .waiter-order-container {
-    display: flex;
-    margin: 0 -15px;
-  }
-
-  .left-column {
-    flex: 2;
-    padding: 0 15px;
-    display: flex;
-    flex-direction: column;
-    min-height: 80vh;
-  }
-
-  .right-column {
-    flex: 1;
-    padding: 0 15px;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-    background-color: #f9f9f9;
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-  }
-  /* Table selection */
-  .table-selection {
-    margin-bottom: 20px;
-  }
-
-  /* New Order Section: input nomor meja dan tombol */
-  .new-order-section {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .new-order-section input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  .btn-new-order {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    background-color: #5e64ff;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .btn-new-order:hover {
-    background-color: #455ecc;
-  }
-  .tables-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    margin-top: 15px;
-  }
-
-  .table-button {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: #ffffff;
-    transition: all 0.2s ease;
-  }
-
-  .table-button:hover {
-    border-color: #8a8aff;
-  }
-
-  .table-button.selected {
-    background-color: #5e64ff;
-    color: white;
-    font-weight: bold;
-  }
-
-  .table-button.occupied {
-    background-color: #ff5858;
-    color: white;
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  /* Item selection */
-  .item-categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-  }
-  
-  .category-button {
-    padding: 8px 15px;
-    border-radius: 20px;
-    background-color: #f3f3f3;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .category-button:hover {
-    background-color: #e0e0ff;
-  }
-  
-  .category-button.active {
-    background-color: #5e64ff;
-    color: white;
-  }
-
-  .item-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-    overflow-y: auto;
-    flex-grow: 1;
-    padding-bottom: 15px;
-  }
-  
-  .item-card {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
-    background-color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    height: 100px;
-    justify-content: center;
-  }
-  
-  .item-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-
-  .item-name {
-    font-weight: 500;
-    margin-bottom: 5px;
-  }
-
-  .item-price {
-    color: #555;
-    font-size: 0.9em;
-  }
-
-  .variant-badge {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    background-color: #ffd100;
-    color: #333;
-    font-size: 0.7em;
-    padding: 2px 5px;
-    border-radius: 3px;
-  }
-  
-  /* Order summary */
-  .order-header {
-    margin-bottom: 20px;
-  }
-
-  .selected-table {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-
-  .order-items {
-    flex-grow: 1;
-    overflow-y: auto;
-    margin-bottom: 20px;
-  }
-
-  .order-item {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-  }
-
-  .order-item:last-child {
-    border-bottom: none;
-  }
-
-  .item-info {
-    flex-grow: 1;
-  }
-
-  .item-details {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .item-title {
-    font-weight: 500;
-  }
-
-  .item-subtotal {
-    text-align: right;
-  }
-
-  .item-notes {
-    font-size: 0.8em;
-    color: #666;
-    margin-top: 3px;
-  }
-
-  .item-attributes {
-    font-size: 0.85em;
-    color: #444;
-    font-style: italic;
-    margin-top: 3px;
-  }
-
-  .quantity-control {
-    display: flex;
-    align-items: center;
-    margin-left: 15px;
-  }
-
-  .qty-btn {
-    width: 25px;
-    height: 25px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f3f3f3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  .qty-display {
-    padding: 0 10px;
-  }
-
-  .remove-item {
-    color: #ff5858;
-    margin-left: 15px;
-    cursor: pointer;
-  }
-
-  .status-badge {
-    font-size: 0.8em;
-    padding: 2px 6px;
-    border-radius: 10px;
-    margin-left: 10px;
-  }
-
-  .status-new {
-    background-color: #ddd;
-    color: #333;
-  }
-
-  .status-sent {
-    background-color: #ffeb3b;
-    color: #333;
-  }
-
-  .status-cooking {
-    background-color: #ff9800;
-    color: white;
-  }
-
-  .status-ready {
-    background-color: #4caf50;
-    color: white;
-  }
-
-  .status-served {
-    background-color: #2196f3;
-    color: white;
-  }
-
-  /* Order footer */
-  .order-actions {
-    border-top: 1px solid #ddd;
-    padding-top: 15px;
-  }
-
-  .order-total {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-
-  .action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .action-btn {
-    padding: 12px;
-    border-radius: 4px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: center;
-  }
-
-  .btn-kitchen {
-    background-color: #4caf50;
-    color: white;
-  }
-
-  .btn-additional {
-    background-color: #2196f3;
-    color: white;
-  }
-
-  .btn-served {
-    background-color: #ff9800;
-    color: white;
-  }
-
-  .btn-print {
-    background-color: #607d8b;
-    color: white;
-  }
-
-  .disabled-btn {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Variant selection modal */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 1000;
-  }
-
-  .variant-modal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 1001;
-    width: 90%;
-    max-width: 500px;
-  }
-
-  .modal-header {
-    margin-bottom: 15px;
-    font-size: 1.2em;
-    font-weight: bold;
-  }
-
-  .variant-attributes {
-    margin-bottom: 20px;
-  }
-
-  .attribute-group {
-    margin-bottom: 15px;
-  }
-
-  .attribute-label {
-    margin-bottom: 5px;
-    font-weight: 500;
-  }
-
-  .attribute-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-
-  .modal-btn {
-    padding: 8px 15px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-  }
-
-  .btn-cancel {
-    background-color: #f3f3f3;
-  }
-
-  .btn-add {
-    background-color: #5e64ff;
-    color: white;
-  }
-
-  /* Item notes modal */
-  .notes-modal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 1001;
-    width: 90%;
-    max-width: 500px;
-  }
-
-  .notes-textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    min-height: 100px;
-    margin-bottom: 15px;
-  }
-
-  /* Loading indicator */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(255,255,255,0.8);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #5e64ff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  .search-box {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 15px;
-  }
-
-  /* Responsive design */
-  @media (max-width: 768px) {
-    .waiter-order-container {
-      flex-direction: column;
-    }
-
-    .left-column, .right-column {
-      width: 100%;
-      min-height: unset;
-    }
-
-    .right-column {
-      margin-top: 20px;
-      box-shadow: none;
-      border-top: 1px solid #ddd;
-    }
-  }
-</style>
+{% block head_include %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% endblock %}
 
-{% block content %}
-<div class="waiter-order-container">
-  <!-- Left Column: Table Selection & Menu Items -->
-  <div class="left-column">
-    <!-- Table Selection Section -->
-    <div class="table-selection">
-      <h3>Select Table</h3>
-      <div class="tables-grid" id="tables-container">
-        <!-- Tables will be loaded dynamically -->
-        <div class="loading-message">Loading tables...</div>
+{% block page_content %}
+<div class="flex flex-col min-h-screen bg-gray-50">
+  <!-- Header Section -->
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+      <h1 class="text-xl font-bold text-gray-900">Waiter Order Interface</h1>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow">
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Tabs Navigation -->
+      <div class="border-b border-gray-200 mb-6" role="tablist">
+        <nav class="flex space-x-8" aria-label="Order sections">
+          <button class="border-indigo-500 text-indigo-600 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm" role="tab" aria-selected="true" id="tab-tables">
+            Active Tables
+          </button>
+          <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm" role="tab" aria-selected="false" id="tab-menu">
+            Menu Items
+          </button>
+          <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm" role="tab" aria-selected="false" id="tab-new-order">
+            New Order
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tables Section -->
+      <div id="section-tables" class="mb-8" role="tabpanel" aria-labelledby="tab-tables">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-medium text-gray-900">Active Tables</h2>
+          <div class="flex items-center space-x-2">
+            <span id="selected-table-display" class="text-sm font-medium text-gray-500">No table selected</span>
+          </div>
+        </div>
+        <div id="tables-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <!-- Tables will be populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Menu Items Section -->
+      <div id="section-menu" class="hidden mb-8" role="tabpanel" aria-labelledby="tab-menu">
+        <div class="mb-4">
+          <input id="item-search" type="text" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2" placeholder="Search menu items...">
+        </div>
+        
+        <!-- Item Groups Tabs -->
+        <div class="nav-tabs mb-4 flex flex-wrap" role="tablist" aria-label="Item categories">
+          <!-- Item group tabs will be populated dynamically -->
+        </div>
+        
+        <!-- Items Grid -->
+        <div id="items-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <!-- Items will be populated dynamically -->
+        </div>
+      </div>
+
+      <!-- New Order Section -->
+      <div id="section-new-order" class="hidden mb-8" role="tabpanel" aria-labelledby="tab-new-order">
+        <div class="bg-white shadow sm:rounded-lg p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Order</h3>
+          <div class="flex space-x-2 mb-4">
+            <input id="new-order-table-number" type="text" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Table Number">
+            <button id="new-order-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Order Summary -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+          <h2 class="text-lg font-medium text-gray-900">Current Order</h2>
+        </div>
+        <div class="border-t border-gray-200">
+          <ul id="queue-list" class="divide-y divide-gray-200" aria-label="Order items list" role="list">
+            <!-- Order items will be populated dynamically -->
+            <li class="p-4 text-center text-gray-500">No items in order</li>
+          </ul>
+          
+          <div id="order-items-container" class="divide-y divide-gray-200">
+            <!-- Order items will be populated here dynamically -->
+          </div>
+          
+          <div class="px-4 py-4 sm:px-6 flex justify-end space-x-3">
+            <button id="send-additional-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled-btn" disabled>
+              Send Additional Items
+            </button>
+            <button id="send-to-kitchen-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled-btn" disabled>
+              Send to Kitchen
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-    
-    <!-- Item Selection Section -->
-    <div class="item-selection">
-      <h3>Menu Items</h3>
-      <input type="text" class="search-box" id="item-search" placeholder="Search items...">
-      
-      <div class="item-categories" id="item-categories">
-        <!-- Categories will be loaded dynamically -->
-      </div>
-      
-      <div class="item-list" id="item-list">
-        <!-- Items will be loaded dynamically -->
-        <div class="loading-message">Loading menu items...</div>
-      </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white">
+    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+      <p class="text-sm text-gray-500 text-center">&copy; {% now 'Y' %} Restaurant Management System</p>
     </div>
-  </div>
-  
-  <!-- Right Column: Order Summary & Actions -->
-  <div class="right-column">
-    <div class="order-header">
-      <h3>Order Summary</h3>
-      <div class="selected-table" id="selected-table-display">
-        No table selected
-      </div>
-    </div>
-    
-    <div class="order-items" id="order-items">
-      <!-- Order items will be displayed here -->
-      <div class="empty-order-message">No items added to order</div>
-    </div>
-    
-    <div class="order-footer">
-      <div class="order-total">
-        <span>Total:</span>
-        <span id="order-total-amount">₹0.00</span>
-      </div>
-      
-      <div class="action-buttons">
-        <button id="btn-send-kitchen" class="action-btn btn-kitchen disabled-btn">Send to Kitchen</button>
-        <button id="btn-send-additional" class="action-btn btn-additional disabled-btn">Send Additional Items</button>
-        <button id="btn-mark-served-all" class="action-btn btn-served disabled-btn">Mark All as Served</button>
-        <button id="btn-print-order" class="action-btn btn-print disabled-btn">Print Order</button>
-      </div>
-    </div>
-  </div>
+  </footer>
 </div>
 
-<!-- Item Variant Selection Modal -->
-<div class="modal-overlay" id="variant-overlay"></div>
-<div class="variant-modal" id="variant-modal">
-  <div class="modal-header" id="variant-modal-title">Select Variant Options</div>
-  
-  <div class="variant-attributes" id="variant-attributes">
-    <!-- Variant attributes will be loaded dynamically -->
-  </div>
-  
-  <div class="modal-actions">
-    <button class="modal-btn btn-cancel" id="btn-cancel-variant">Cancel</button>
-    <button class="modal-btn btn-add" id="btn-add-variant">Add to Order</button>
-  </div>
-</div>
-
-<!-- Item Notes Modal -->
-<div class="modal-overlay" id="notes-overlay"></div>
-<div class="notes-modal" id="notes-modal">
-  <div class="modal-header">Add Notes</div>
-  
-  <textarea class="notes-textarea" id="item-notes-textarea" placeholder="Add special instructions..."></textarea>
-  
-  <div class="modal-actions">
-    <button class="modal-btn btn-cancel" id="btn-cancel-notes">Cancel</button>
-    <button class="modal-btn btn-add" id="btn-save-notes">Save Notes</button>
+<!-- Variant Selection Modal -->
+<div id="modal-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40" aria-hidden="true" role="dialog"></div>
+<div id="variant-modal" class="hidden fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl max-w-md w-full" role="dialog" aria-labelledby="variant-item-name" aria-modal="true">
+  <div class="p-4 sm:p-6">
+    <h3 id="variant-item-name" class="text-lg font-medium text-gray-900 mb-4">Item Variants</h3>
+    <div id="variant-attributes-container" class="space-y-4">
+      <!-- Variant options will be populated here -->
+    </div>
+    <div class="mt-5 sm:mt-6 flex justify-end space-x-3">
+      <button id="cancel-variant-btn" class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Cancel
+      </button>
+      <button id="add-variant-btn" class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Add to Order
+      </button>
+    </div>
   </div>
 </div>
 
 <!-- Loading Overlay -->
-<div class="loading-overlay" id="loading-overlay">
-  <div class="spinner"></div>
+<div id="loading-overlay" class="loading-overlay hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" role="alert" aria-busy="true" aria-label="Loading">
+  <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+    <p class="mt-4 text-gray-700">Loading...</p>
+  </div>
 </div>
 {% endblock %}
 
@@ -594,6 +146,5 @@
     csrfToken: "{{ frappe.session.csrf_token }}"
   };
 </script>
-
-<script src="/assets/restaurant_management/js/waiter_order.js"></script>
+<script defer src="/assets/restaurant_management/js/waiter_order.js"></script>
 {% endblock %}
