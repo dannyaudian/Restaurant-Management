@@ -2,7 +2,7 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": "[]",
+  "content": "[{\"id\":\"wd653Rf8Lp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"qP7i2C6mRs\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"FbK8Zx9n4W\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"New Waiter Order\",\"col\":3}},{\"id\":\"jG3tQs5Lp2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Kitchen Display\",\"col\":3}},{\"id\":\"hR8zP5vKm6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Table Overview\",\"col\":3}},{\"id\":\"nT4wCs9Jk7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Open POS\",\"col\":3}},{\"id\":\"gS5vD3rMt8\",\"type\":\"card\",\"data\":{\"card_name\":\"Operations\",\"col\":4}},{\"id\":\"yP2mH7qKs9\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}},{\"id\":\"xF4nC8pLr2\",\"type\":\"card\",\"data\":{\"card_name\":\"Dashboards\",\"col\":4}}]",
   "creation": "2025-05-20 06:26:00",
   "docstatus": 0,
   "icon": "restaurant",
@@ -14,7 +14,6 @@
       "hidden": 0,
       "is_query_report": 0,
       "label": "Operations",
-      "icon": "restaurant",
       "onboard": 0,
       "type": "Card Break"
     },
@@ -24,7 +23,6 @@
       "label": "Waiter Order",
       "link_to": "Waiter Order",
       "link_type": "DocType",
-      "icon": "edit",
       "onboard": 1,
       "type": "Link"
     },
@@ -34,7 +32,6 @@
       "label": "Kitchen Station",
       "link_to": "Kitchen Station",
       "link_type": "DocType",
-      "icon": "list",
       "onboard": 1,
       "type": "Link"
     },
@@ -44,7 +41,6 @@
       "label": "Table",
       "link_to": "Table",
       "link_type": "DocType",
-      "icon": "table",
       "onboard": 1,
       "type": "Link"
     },
@@ -54,7 +50,6 @@
       "label": "Branch",
       "link_to": "Branch",
       "link_type": "DocType",
-      "icon": "branch",
       "onboard": 0,
       "type": "Link"
     },
@@ -64,7 +59,6 @@
       "label": "POS Profile",
       "link_to": "POS Profile",
       "link_type": "DocType",
-      "icon": "point-of-sale",
       "onboard": 0,
       "type": "Link"
     },
@@ -72,7 +66,6 @@
       "hidden": 0,
       "is_query_report": 0,
       "label": "Reports",
-      "icon": "bar-chart",
       "onboard": 0,
       "type": "Card Break"
     },
@@ -82,7 +75,6 @@
       "label": "Restaurant Sales Analytics",
       "link_to": "Restaurant Sales Analytics",
       "link_type": "Report",
-      "icon": "bar-chart",
       "onboard": 0,
       "type": "Link"
     },
@@ -92,7 +84,6 @@
       "label": "Item Consumption Analytics",
       "link_to": "Restaurant Item Consumption",
       "link_type": "Report",
-      "icon": "bar-chart",
       "onboard": 0,
       "type": "Link"
     },
@@ -102,7 +93,6 @@
       "label": "Table Turnover Analytics",
       "link_to": "Table Turnover Analytics",
       "link_type": "Report",
-      "icon": "bar-chart",
       "onboard": 0,
       "type": "Link"
     },
@@ -110,7 +100,6 @@
       "hidden": 0,
       "is_query_report": 0,
       "label": "Dashboards",
-      "icon": "dashboard",
       "onboard": 0,
       "type": "Card Break"
     },
@@ -120,12 +109,11 @@
       "label": "Restaurant Dashboard",
       "link_to": "restaurant_dashboard",
       "link_type": "Dashboard",
-      "icon": "dashboard",
       "onboard": 0,
       "type": "Link"
     }
   ],
-  "modified": "2025-05-20 06:26:00",
+  "modified": "2025-05-20 09:35:00",
   "modified_by": "dannyaudian",
   "module": "Restaurant Management",
   "owner": "dannyaudian",
