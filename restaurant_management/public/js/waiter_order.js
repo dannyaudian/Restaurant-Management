@@ -1,5 +1,31 @@
-frappe.ready(function() {
-  // State management
+
+
+Based on the requirements, I'll rewrite the entire waiter_order.js file with improved DOM handling, proper loading sequence, and other requested enhancements. Here's the complete code:
+
+```javascript
+/**
+ * Waiter Order Interface
+ * Handles restaurant table selection, item ordering, and kitchen communication.
+ */
+(function() {
+  'use strict';
+  
+  /**
+   * @typedef {Object} TableData
+   * @property {string} name - Table identifier
+   * @property {string} table_number - Display number for the table
+   * @property {Object} current_pos_order - Current active order if any
+   */
+  
+  /**
+   * @typedef {Object} OrderItem
+   * @property {string} item_code - Item identifier
+   * @property {string} item_name - Display name for the item
+   * @property {number} qty - Quantity ordered
+   * @property {Object} [attributes] - Optional variant attributes
+   */
+
+  // Application state
   const state = {
     tables: [],
     items: [],
@@ -10,64 +36,92 @@ frappe.ready(function() {
       sentItems: [] // keeps track of items already sent to kitchen
     },
     selectedItemTemplate: null,
-    loading: false
+    loading: false,
+    orderSound: null
   };
 
-  // DOM Elements
+  // DOM Elements map using kebab-case keys
   const elements = {
-    tablesContainer: document.getElementById('tables-container'),
-    itemsContainer: document.getElementById('items-container'),
-    itemSearch: document.getElementById('item-search'),
-    navTabs: document.querySelector('.nav-tabs'),
-    orderItemsContainer: document.getElementById('order-items-container'),
-    selectedTableDisplay: document.getElementById('selected-table-display'),
-    sendToKitchenBtn: document.getElementById('send-to-kitchen-btn'),
-    sendAdditionalBtn: document.getElementById('send-additional-btn'),
-    variantModal: document.getElementById('variant-modal'),
-    modalOverlay: document.getElementById('modal-overlay'),
-    variantItemName: document.getElementById('variant-item-name'),
-    variantAttributesContainer: document.getElementById('variant-attributes-container'),
-    cancelVariantBtn: document.getElementById('cancel-variant-btn'),
-    addVariantBtn: document.getElementById('add-variant-btn'),
-    loadingOverlay: document.getElementById('loading-overlay'),
-    // New Order Elements
-    newOrderBtn: document.getElementById('new-order-btn'),
-    newOrderTableNumber: document.getElementById('new-order-table-number')
+    'tables-container': null,
+    'items-container': null,
+    'item-search': null,
+    'nav-tabs': null,
+    'order-items-container': null,
+    'selected-table-display': null,
+    'send-to-kitchen-btn': null,
+    'send-additional-btn': null,
+    'variant-modal': null,
+    'modal-overlay': null,
+    'variant-item-name': null,
+    'variant-attributes-container': null,
+    'cancel-variant-btn': null,
+    'add-variant-btn': null,
+    'loading-overlay': null,
+    'new-order-btn': null,
+    'new-order-table-number': null
   };
 
+  /**
+   * Checks if all required DOM elements exist, creates minimal fallbacks if missing
+   */
   function checkElements() {
-    if (!elements.loadingOverlay) {
+    // Populate elements from DOM
+    Object.keys(elements).forEach(id => {
+      elements[id] = document.getElementById(id);
+    });
+
+    // Ensure loading overlay exists
+    if (!elements['loading-overlay']) {
       const loadingOverlay = document.createElement('div');
       loadingOverlay.id = 'loading-overlay';
       loadingOverlay.className = 'loading-overlay';
       loadingOverlay.innerHTML = '<div class="spinner"></div><div>Loading...</div>';
       document.body.appendChild(loadingOverlay);
-      elements.loadingOverlay = loadingOverlay;
+      elements['loading-overlay'] = loadingOverlay;
+      console.debug('Created missing loading-overlay element');
     }
-  };
 
-  // Initialize the page
-  init();
+    // Initialize sound if supported
+    try {
+      state.orderSound = new Audio('/assets/restaurant_management/sounds/ready_alert.mp3');
+      state.orderSound.addEventListener('error', (e) => {
+        console.error('Error loading order sound:', e.error);
+      });
+    } catch (err) {
+      console.error('Audio not supported in this browser:', err.message);
+    }
+  }
 
+  /**
+   * Initialize the application
+   */
   async function init() {
     try {
+      checkElements();
       showLoading();
+      
       await Promise.all([
         loadTables(),
         loadItems(),
         loadItemGroups()
       ]);
+      
       renderItemGroupTabs();
       setupEventListeners();
       hideLoading();
     } catch (error) {
       console.error('Initialization error:', error);
-      frappe.throw(__('Failed to initialize waiter order page'));
+      frappe?.throw?.(__(error.message || 'Failed to initialize waiter order page'));
       hideLoading();
     }
   }
 
-  // Data loading functions
+  // Wait for DOM to be fully loaded before initialization
+  document.addEventListener('DOMContentLoaded', init);
+
+  /**
+   * Data loading functions
+   */
   async function loadTables() {
     try {
       const result = await frappe.call({
@@ -75,12 +129,11 @@ frappe.ready(function() {
         freeze: false
       });
       
-      // result.message diharapkan mengembalikan daftar semua meja dengan status aktif atau available
       state.tables = result.message || [];
       renderTables();
     } catch (error) {
       console.error('Error loading tables:', error);
-      frappe.throw(__('Failed to load tables'));
+      throw new Error('Failed to load tables');
     }
   }
 
@@ -95,7 +148,7 @@ frappe.ready(function() {
       renderItems();
     } catch (error) {
       console.error('Error loading items:', error);
-      frappe.throw(__('Failed to load menu items'));
+      throw new Error('Failed to load menu items');
     }
   }
 
@@ -109,20 +162,29 @@ frappe.ready(function() {
       state.itemGroups = result.message || [];
     } catch (error) {
       console.error('Error loading item groups:', error);
-      frappe.throw(__('Failed to load item groups'));
+      throw new Error('Failed to load item groups');
     }
   }
 
-  // Rendering functions
+  /**
+   * Rendering functions
+   */
   function renderTables() {
-    // Tampilkan hanya meja yang sedang dalam keadaan "active" (ada order aktif)
+    const tablesContainer = elements['tables-container'];
+    if (!tablesContainer) {
+      console.error('Tables container element not found');
+      return;
+    }
+    
+    // Display only tables with active orders
     const activeTables = state.tables.filter(table => table.current_pos_order);
+    
     if (!activeTables.length) {
-      elements.tablesContainer.innerHTML = '<div class="empty-message">No active orders</div>';
+      tablesContainer.innerHTML = '<div class="empty-message">No active orders</div>';
       return;
     }
 
-    elements.tablesContainer.innerHTML = activeTables.map(table => {
+    tablesContainer.innerHTML = activeTables.map(table => {
       const isSelected = state.selectedTable && state.selectedTable.name === table.name;
       return `
         <div class="table-button ${isSelected ? 'selected' : ''}" 
@@ -134,6 +196,12 @@ frappe.ready(function() {
   }
 
   function renderItems(filterGroup = 'all', searchQuery = '') {
+    const itemsContainer = elements['items-container'];
+    if (!itemsContainer) {
+      console.error('Items container element not found');
+      return;
+    }
+    
     let filteredItems = state.items;
     
     // Filter by item group
@@ -151,11 +219,11 @@ frappe.ready(function() {
     }
 
     if (!filteredItems.length) {
-      elements.itemsContainer.innerHTML = '<div class="empty-message">No items found</div>';
+      itemsContainer.innerHTML = '<div class="empty-message">No items found</div>';
       return;
     }
 
-    elements.itemsContainer.innerHTML = filteredItems.map(item => {
+    itemsContainer.innerHTML = filteredItems.map(item => {
       return `
         <div class="item-button" data-item-code="${item.item_code}">
           <div>${item.item_name}</div>
@@ -166,34 +234,45 @@ frappe.ready(function() {
   }
 
   function renderItemGroupTabs() {
-    // Tambahkan tab kategori item
+    const navTabs = elements['nav-tabs'];
+    if (!navTabs) {
+      console.error('Navigation tabs element not found');
+      return;
+    }
+    
+    // Add item category tabs
     const tabsHtml = state.itemGroups.map(group => 
       `<div class="nav-tab" data-group="${group.name}">${group.item_group_name}</div>`
     ).join('');
     
-    // Anggap elemen navTabs sudah ada di HTML; jika tidak, bisa dihilangkan
-    if (elements.navTabs) {
-      elements.navTabs.innerHTML = '<div class="nav-tab active" data-group="all">All</div>' + tabsHtml;
-    
-      // Event listener untuk tab
-      document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-          document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          renderItems(this.getAttribute('data-group'), elements.itemSearch.value);
-        });
+    navTabs.innerHTML = '<div class="nav-tab active" data-group="all">All</div>' + tabsHtml;
+  
+    // Event listener for tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const itemSearch = elements['item-search'];
+        const searchValue = itemSearch?.value || '';
+        renderItems(this.getAttribute('data-group'), searchValue);
       });
-    }
+    });
   }
 
   function renderOrderItems() {
+    const orderItemsContainer = elements['order-items-container'];
+    if (!orderItemsContainer) {
+      console.error('Order items container element not found');
+      return;
+    }
+    
     if (!state.currentOrder.items.length) {
-      elements.orderItemsContainer.innerHTML = '<div class="empty-order-message">No items added to order</div>';
+      orderItemsContainer.innerHTML = '<div class="empty-order-message">No items added to order</div>';
       updateActionButtons();
       return;
     }
 
-    elements.orderItemsContainer.innerHTML = state.currentOrder.items.map((orderItem, index) => {
+    orderItemsContainer.innerHTML = state.currentOrder.items.map((orderItem, index) => {
       const isSent = state.currentOrder.sentItems.some(
         sent => sent.item_code === orderItem.item_code && 
                 JSON.stringify(sent.attributes || {}) === JSON.stringify(orderItem.attributes || {})
@@ -221,68 +300,115 @@ frappe.ready(function() {
   }
 
   function updateActionButtons() {
-    // Tombol "Send to Kitchen" aktif jika ada meja yang dipilih dan order tidak kosong
-    if (state.selectedTable && state.currentOrder.items.length > 0) {
-      elements.sendToKitchenBtn.classList.remove('disabled-btn');
-    } else {
-      elements.sendToKitchenBtn.classList.add('disabled-btn');
+    const sendToKitchenBtn = elements['send-to-kitchen-btn'];
+    const sendAdditionalBtn = elements['send-additional-btn'];
+    
+    // Update "Send to Kitchen" button state
+    if (sendToKitchenBtn) {
+      if (state.selectedTable && state.currentOrder.items.length > 0) {
+        sendToKitchenBtn.classList.remove('disabled-btn');
+      } else {
+        sendToKitchenBtn.classList.add('disabled-btn');
+      }
     }
 
-    // Tombol "Send Additional Items" aktif jika ada item baru yang belum dikirim
-    const hasNewItems = state.currentOrder.items.some(item => 
-      !state.currentOrder.sentItems.some(
-        sent => sent.item_code === item.item_code && 
-                JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
-      )
-    );
+    // Update "Send Additional Items" button state
+    if (sendAdditionalBtn) {
+      const hasNewItems = state.currentOrder.items.some(item => 
+        !state.currentOrder.sentItems.some(
+          sent => sent.item_code === item.item_code && 
+                  JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
+        )
+      );
 
-    if (state.selectedTable && hasNewItems && state.currentOrder.sentItems.length > 0) {
-      elements.sendAdditionalBtn.classList.remove('disabled-btn');
-    } else {
-      elements.sendAdditionalBtn.classList.add('disabled-btn');
+      if (state.selectedTable && hasNewItems && state.currentOrder.sentItems.length > 0) {
+        sendAdditionalBtn.classList.remove('disabled-btn');
+      } else {
+        sendAdditionalBtn.classList.add('disabled-btn');
+      }
     }
   }
 
   function updateSelectedTableDisplay() {
+    const selectedTableDisplay = elements['selected-table-display'];
+    if (!selectedTableDisplay) return;
+    
     if (state.selectedTable) {
-      elements.selectedTableDisplay.textContent = `Selected Table: ${state.selectedTable.table_number || state.selectedTable.name}`;
+      selectedTableDisplay.textContent = `Selected Table: ${state.selectedTable.table_number || state.selectedTable.name}`;
     } else {
-      elements.selectedTableDisplay.textContent = 'No table selected';
+      selectedTableDisplay.textContent = 'No table selected';
     }
   }
 
-  // Event handlers
+  /**
+   * Event handlers
+   */
   function setupEventListeners() {
-    // Event untuk pemilihan meja aktif (edit order)
-    elements.tablesContainer.addEventListener('click', handleTableSelection);
+    // Make sure elements exist before attaching listeners
+    checkElements();
     
-    // Event untuk tombol "New Order"
-    if (elements.newOrderBtn) {
-      elements.newOrderBtn.addEventListener('click', handleNewOrder);
+    // Event for active table selection (edit order)
+    const tablesContainer = elements['tables-container'];
+    if (tablesContainer) {
+      tablesContainer.addEventListener('click', handleTableSelection);
+    }
+    
+    // Event for "New Order" button
+    const newOrderBtn = elements['new-order-btn'];
+    if (newOrderBtn) {
+      newOrderBtn.addEventListener('click', handleNewOrder);
     }
 
-    // Event untuk pilihan item
-    elements.itemsContainer.addEventListener('click', handleItemSelection);
+    // Event for item selection
+    const itemsContainer = elements['items-container'];
+    if (itemsContainer) {
+      itemsContainer.addEventListener('click', handleItemSelection);
+    }
     
-    // Event pencarian item
-    elements.itemSearch.addEventListener('input', handleItemSearch);
+    // Event for item search
+    const itemSearch = elements['item-search'];
+    if (itemSearch) {
+      itemSearch.addEventListener('input', handleItemSearch);
+    }
     
-    // Event operasi item pada ringkasan order
-    elements.orderItemsContainer.addEventListener('click', handleOrderItemActions);
+    // Event for order item operations
+    const orderItemsContainer = elements['order-items-container'];
+    if (orderItemsContainer) {
+      orderItemsContainer.addEventListener('click', handleOrderItemActions);
+    }
     
-    // Tombol kirim order ke dapur
-    elements.sendToKitchenBtn.addEventListener('click', handleSendToKitchen);
+    // Events for kitchen send buttons
+    const sendToKitchenBtn = elements['send-to-kitchen-btn'];
+    if (sendToKitchenBtn) {
+      sendToKitchenBtn.addEventListener('click', handleSendToKitchen);
+    }
     
-    // Tombol kirim item tambahan
-    elements.sendAdditionalBtn.addEventListener('click', handleSendAdditionalItems);
+    const sendAdditionalBtn = elements['send-additional-btn'];
+    if (sendAdditionalBtn) {
+      sendAdditionalBtn.addEventListener('click', handleSendAdditionalItems);
+    }
     
-    // Event untuk modal varian
-    elements.cancelVariantBtn.addEventListener('click', closeVariantModal);
-    elements.addVariantBtn.addEventListener('click', handleAddVariant);
-    elements.modalOverlay.addEventListener('click', closeVariantModal);
+    // Events for variant modal
+    const cancelVariantBtn = elements['cancel-variant-btn'];
+    if (cancelVariantBtn) {
+      cancelVariantBtn.addEventListener('click', closeVariantModal);
+    }
+    
+    const addVariantBtn = elements['add-variant-btn'];
+    if (addVariantBtn) {
+      addVariantBtn.addEventListener('click', handleAddVariant);
+    }
+    
+    const modalOverlay = elements['modal-overlay'];
+    if (modalOverlay) {
+      modalOverlay.addEventListener('click', closeVariantModal);
+    }
   }
 
-  // Handle pemilihan meja aktif (dari grid)
+  /**
+   * Handle active table selection (from grid)
+   * @param {Event} event - Click event
+   */
   function handleTableSelection(event) {
     const tableButton = event.target.closest('.table-button');
     if (!tableButton) return;
@@ -290,7 +416,7 @@ frappe.ready(function() {
     const tableId = tableButton.getAttribute('data-table-id');
     const table = state.tables.find(t => t.name === tableId);
     
-    // Pilih atau batalkan pilihan
+    // Select or cancel selection
     if (state.selectedTable && state.selectedTable.name === tableId) {
       state.selectedTable = null;
     } else {
@@ -302,33 +428,45 @@ frappe.ready(function() {
     updateActionButtons();
   }
 
-  // Handle pembuatan new order
+  /**
+   * Handle new order creation
+   */
   function handleNewOrder() {
-    const tableNo = elements.newOrderTableNumber.value.trim();
+    const newOrderTableNumber = elements['new-order-table-number'];
+    if (!newOrderTableNumber) return;
+    
+    const tableNo = newOrderTableNumber.value.trim();
     if (!tableNo) {
-      frappe.msgprint(__('Please enter a table number'));
+      frappe?.msgprint?.(__(Error('Please enter a table number')));
       return;
     }
-    // Cari meja berdasarkan table_number atau name
+    
+    // Find table by table_number or name
     const table = state.tables.find(t => (t.table_number || t.name) == tableNo);
     if (!table) {
-      frappe.msgprint(__('No table found with that number'));
+      frappe?.msgprint?.(__(Error('No table found with that number')));
       return;
     }
-    // Jika meja sudah dipakai, beri notifikasi
+    
+    // Check if table is already in use
     if (table.current_pos_order) {
-      frappe.msgprint(__('Table is not available. It already has an active order.'));
+      frappe?.msgprint?.(__(Error('Table is not available. It already has an active order.')));
       return;
     }
-    // Jika meja tersedia, tandai sebagai order baru (misalnya dengan mengeset properti current_pos_order)
-    table.current_pos_order = {};  // Ini simulasi pembuatan order baru; di real implementation, Anda bisa panggil API buat create order
+    
+    // Mark as new order (simulation; in real implementation, call API to create order)
+    table.current_pos_order = {};
     state.selectedTable = table;
     updateSelectedTableDisplay();
-    // Re-render tabel: karena sekarang meja yang dibuat new order tidak akan tampil di grid active (grid hanya memuat meja dengan order aktif)
     renderTables();
-    frappe.msgprint(__('New order created at Table ') + tableNo);
+    
+    frappe?.msgprint?.(__(Error('New order created at Table ')) + tableNo);
   }
 
+  /**
+   * Handle menu item selection
+   * @param {Event} event - Click event
+   */
   function handleItemSelection(event) {
     const itemButton = event.target.closest('.item-button');
     if (!itemButton) return;
@@ -339,15 +477,19 @@ frappe.ready(function() {
     if (!item) return;
     
     if (item.has_variants) {
-      // Tampilkan modal pilihan varian
+      // Show variant selection modal
       state.selectedItemTemplate = item;
       showVariantModal(item);
     } else {
-      // Tambahkan item langsung ke order
+      // Add item directly to order
       addItemToOrder(item);
     }
   }
 
+  /**
+   * Handle item search input
+   * @param {Event} event - Input event
+   */
   function handleItemSearch(event) {
     const searchQuery = event.target.value;
     const activeGroupElem = document.querySelector('.nav-tab.active');
@@ -355,6 +497,10 @@ frappe.ready(function() {
     renderItems(activeGroup, searchQuery);
   }
 
+  /**
+   * Handle actions on order items (increase/decrease qty, remove)
+   * @param {Event} event - Click event
+   */
   function handleOrderItemActions(event) {
     const orderItemElem = event.target.closest('.order-item');
     if (!orderItemElem) return;
@@ -375,9 +521,15 @@ frappe.ready(function() {
     }
   }
 
+  /**
+   * Send complete order to kitchen
+   */
   async function handleSendToKitchen() {
-    if (!state.selectedTable || !state.currentOrder.items.length || 
-        elements.sendToKitchenBtn.classList.contains('disabled-btn')) {
+    const sendToKitchenBtn = elements['send-to-kitchen-btn'];
+    
+    if (!state.selectedTable || 
+        !state.currentOrder.items.length || 
+        (sendToKitchenBtn && sendToKitchenBtn.classList.contains('disabled-btn'))) {
       return;
     }
     
@@ -396,29 +548,47 @@ frappe.ready(function() {
         freeze_message: __('Sending order to kitchen...')
       });
       
-      if (result.message && result.message.success) {
-        // Tandai item sebagai sudah terkirim
+      if (result.message?.success) {
+        // Mark items as sent
         state.currentOrder.sentItems = [...state.currentOrder.items];
-        frappe.show_alert({
+        
+        // Play notification sound if available
+        if (state.orderSound) {
+          try {
+            await state.orderSound.play();
+          } catch (err) {
+            console.debug('Could not play order sound:', err.message);
+          }
+        }
+        
+        frappe?.show_alert?.({
           message: __('Order sent to kitchen successfully'),
           indicator: 'green'
         }, 5);
-        // Refresh daftar meja untuk update occupancy
+        
+        // Refresh table list to update occupancy
         await loadTables();
         updateActionButtons();
       } else {
-        frappe.throw(__('Failed to send order to kitchen'));
+        frappe?.throw?.(__(Error('Failed to send order to kitchen')));
       }
+      
       hideLoading();
     } catch (error) {
       console.error('Error sending order to kitchen:', error);
-      frappe.throw(__('Failed to send order to kitchen'));
+      frappe?.throw?.(__(Error('Failed to send order to kitchen')));
       hideLoading();
     }
   }
 
+  /**
+   * Send only new items to kitchen
+   */
   async function handleSendAdditionalItems() {
-    if (!state.selectedTable || elements.sendAdditionalBtn.classList.contains('disabled-btn')) {
+    const sendAdditionalBtn = elements['send-additional-btn'];
+    
+    if (!state.selectedTable || 
+        (sendAdditionalBtn && sendAdditionalBtn.classList.contains('disabled-btn'))) {
       return;
     }
     
@@ -447,46 +617,80 @@ frappe.ready(function() {
         freeze_message: __('Sending additional items to kitchen...')
       });
       
-      if (result.message && result.message.success) {
+      if (result.message?.success) {
         state.currentOrder.sentItems = [...state.currentOrder.items];
-        frappe.show_alert({
+        
+        // Play notification sound if available
+        if (state.orderSound) {
+          try {
+            await state.orderSound.play();
+          } catch (err) {
+            console.debug('Could not play order sound:', err.message);
+          }
+        }
+        
+        frappe?.show_alert?.({
           message: __('Additional items sent to kitchen successfully'),
           indicator: 'green'
         }, 5);
+        
         updateActionButtons();
       } else {
-        frappe.throw(__('Failed to send additional items to kitchen'));
+        frappe?.throw?.(__(Error('Failed to send additional items to kitchen')));
       }
+      
       hideLoading();
     } catch (error) {
       console.error('Error sending additional items:', error);
-      frappe.throw(__('Failed to send additional items to kitchen'));
+      frappe?.throw?.(__(Error('Failed to send additional items to kitchen')));
       hideLoading();
     }
   }
 
-  // Variant handling
+  /**
+   * Variant handling
+   */
   function showVariantModal(item) {
-    elements.variantItemName.textContent = item.item_name;
+    const variantItemName = elements['variant-item-name'];
+    const modalOverlay = elements['modal-overlay'];
+    const variantModal = elements['variant-modal'];
     
-    // Ambil atribut varian
+    if (!variantItemName || !modalOverlay || !variantModal) {
+      console.error('Variant modal elements not found');
+      return;
+    }
+    
+    variantItemName.textContent = item.item_name;
+    
+    // Get variant attributes
     frappe.call({
       method: 'restaurant_management.api.waiter_order.get_item_variant_attributes',
       args: { item_code: item.item_code },
       callback: function(response) {
         if (response.message) {
           renderVariantAttributes(response.message);
-          elements.modalOverlay.style.display = 'block';
-          elements.variantModal.style.display = 'block';
+          modalOverlay.style.display = 'block';
+          variantModal.style.display = 'block';
         } else {
-          frappe.throw(__('Failed to get variant attributes'));
+          frappe?.throw?.(__(Error('Failed to get variant attributes')));
         }
       }
     });
   }
 
+  /**
+   * Render variant attribute options in modal
+   * @param {Array} attributes - List of item attributes
+   */
   function renderVariantAttributes(attributes) {
-    elements.variantAttributesContainer.innerHTML = attributes.map(attr => {
+    const variantAttributesContainer = elements['variant-attributes-container'];
+    
+    if (!variantAttributesContainer) {
+      console.error('Variant attributes container not found');
+      return;
+    }
+    
+    variantAttributesContainer.innerHTML = attributes.map(attr => {
       const options = attr.options.split('\n').map(option => 
         `<option value="${option.trim()}">${option.trim()}</option>`
       ).join('');
@@ -503,12 +707,27 @@ frappe.ready(function() {
     }).join('');
   }
 
+  /**
+   * Close variant selection modal
+   */
   function closeVariantModal() {
-    elements.modalOverlay.style.display = 'none';
-    elements.variantModal.style.display = 'none';
+    const modalOverlay = elements['modal-overlay'];
+    const variantModal = elements['variant-modal'];
+    
+    if (modalOverlay) {
+      modalOverlay.style.display = 'none';
+    }
+    
+    if (variantModal) {
+      variantModal.style.display = 'none';
+    }
+    
     state.selectedItemTemplate = null;
   }
 
+  /**
+   * Process variant selection and add to order
+   */
   async function handleAddVariant() {
     if (!state.selectedItemTemplate) return;
     
@@ -527,7 +746,7 @@ frappe.ready(function() {
     });
     
     if (!allSelected) {
-      frappe.throw(__('Please select all variant attributes'));
+      frappe?.throw?.(__(Error('Please select all variant attributes')));
       return;
     }
     
@@ -552,18 +771,21 @@ frappe.ready(function() {
         });
         closeVariantModal();
       } else {
-        frappe.throw(__('Failed to resolve variant'));
+        frappe?.throw?.(__(Error('Failed to resolve variant')));
       }
       
       hideLoading();
     } catch (error) {
       console.error('Error resolving variant:', error);
-      frappe.throw(__('Failed to resolve variant'));
+      frappe?.throw?.(__(Error('Failed to resolve variant')));
       hideLoading();
     }
   }
 
-  // Helper: Tambahkan item ke order
+  /**
+   * Add item to current order
+   * @param {Object} item - Item to add
+   */
   function addItemToOrder(item) {
     const existingItemIndex = state.currentOrder.items.findIndex(orderItem => 
       orderItem.item_code === item.item_code && 
@@ -584,13 +806,28 @@ frappe.ready(function() {
     renderOrderItems();
   }
 
+  /**
+   * Show loading overlay
+   */
   function showLoading() {
     state.loading = true;
-    elements.loadingOverlay.style.display = 'flex';
+    const loadingOverlay = elements['loading-overlay'];
+    
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'flex';
+    }
   }
 
+  /**
+   * Hide loading overlay
+   */
   function hideLoading() {
     state.loading = false;
-    elements.loadingOverlay.style.display = 'none';
+    const loadingOverlay = elements['loading-overlay'];
+    
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'none';
+    }
   }
-});
+})();
+```
