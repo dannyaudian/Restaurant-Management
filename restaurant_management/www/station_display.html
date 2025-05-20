@@ -1,68 +1,66 @@
 {% extends "templates/web.html" %}
 
-{% block title %}Kitchen Station Display{% endblock %}
+{% block title %}Station Display{% endblock %}
 
 {% block head_include %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% endblock %}
 
 {% block page_content %}
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen flex flex-col bg-gray-100">
   <!-- Header -->
   <header class="bg-gray-800 text-white shadow">
-    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center">
       <h1 class="text-xl font-bold">Kitchen Station Display</h1>
+      
+      <div class="flex flex-wrap gap-4 items-center mt-2 sm:mt-0">
+        <div class="flex items-center gap-2">
+          <label for="kitchen-station" class="font-medium text-sm">Station:</label>
+          <select id="kitchen-station" class="rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm">
+            <option value="">All Stations</option>
+          </select>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <label for="branch-code" class="font-medium text-sm">Branch:</label>
+          <select id="branch-code" class="rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm">
+            <option value="">All Branches</option>
+          </select>
+        </div>
+        
+        <div class="text-gray-300 text-sm flex items-center">
+          Auto-refresh in <span id="refresh-countdown" class="text-sm ml-1 font-medium">10</span>s
+        </div>
+      </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-    <!-- Top Control Bar -->
-    <div class="bg-white shadow rounded-lg mb-6">
-      <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-        <!-- Station and Branch Selectors -->
-        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-          <div class="w-full sm:w-64">
-            <label for="kitchen-station-select" class="block text-sm font-medium text-gray-700 mb-1">Kitchen Station</label>
-            <select id="kitchen-station-select" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" aria-label="Select kitchen station">
-              <option value="">All Stations</option>
-              <!-- Options will be populated dynamically -->
-            </select>
-          </div>
-          
-          <div class="w-full sm:w-64">
-            <label for="branch-select" class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
-            <select id="branch-select" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" aria-label="Select branch">
-              <option value="">All Branches</option>
-              <!-- Options will be populated dynamically -->
-            </select>
-          </div>
-        </div>
-        
-        <!-- Auto-refresh Indicator -->
-        <div class="flex items-center bg-gray-100 px-3 py-1 rounded-full">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span class="text-sm text-gray-600">Auto-refresh: <span id="refresh-countdown" class="text-sm font-medium">10</span>s</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Queue Items Display -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h2 class="text-lg font-medium text-gray-900">Order Queue</h2>
       </div>
       
-      <div class="px-4 py-5 sm:p-6">
-        <!-- Queue Items Grid -->
-        <div id="queue-items" class="grid gap-4 md:grid-cols-1 lg:grid-cols-2" role="list" aria-label="Order queue items">
-          <!-- Items will be populated dynamically -->
-          <div class="text-center py-12 text-gray-500">
-            <p>No items in queue</p>
-          </div>
-        </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-700 text-white">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Item</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Table</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Time</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody id="queue-items" class="bg-white divide-y divide-gray-200">
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                Loading items...
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </main>
@@ -73,20 +71,20 @@
       <p class="text-sm text-gray-500 text-center">&copy; {% now 'Y' %} Restaurant Management System</p>
     </div>
   </footer>
-</div>
-
-<!-- Loading Overlay -->
-<div id="loading-overlay" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" role="alert" aria-busy="true" aria-label="Loading">
-  <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
-    <p class="mt-4 text-gray-700">Loading...</p>
+  
+  <!-- Loading Overlay -->
+  <div id="kds-loading" class="fixed inset-0 hidden items-center justify-center bg-black/60 z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+      <p class="mt-4 text-gray-700">Loading...</p>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
-  window.stationDisplayContext = {
+  window.kdsContext = {
     csrfToken: "{{ frappe.session.csrf_token }}"
   };
 </script>
