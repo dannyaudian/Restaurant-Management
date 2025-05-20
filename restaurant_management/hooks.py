@@ -131,4 +131,3 @@ website_guest_routes = [
     "station_display",
     "table_display"
 ]
-```
