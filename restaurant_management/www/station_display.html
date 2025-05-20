@@ -1,248 +1,94 @@
 {% extends "templates/web.html" %}
 
-{% block title %}Kitchen Display System{% endblock %}
+{% block title %}Kitchen Station Display{% endblock %}
 
-{% block style %}
-<style>
-  :root {
-    --bg-dark: #2c3e50;
-    --bg-light: #ecf0f1;
-    --text-light: #ffffff;
-    --border-dark: #34495e;
-  }
-
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  }
-
-  /* Container Layout */
-  .kds-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
-
-  .kds-header {
-    background-color: var(--bg-dark);
-    color: var(--text-light);
-    padding: 12px 20px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-
-  .kds-title {
-    font-size: 24px;
-    font-weight: 600;
-  }
-
-  .kds-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-  }
-
-  .kds-filter {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-
-  .kds-filter label {
-    font-weight: 500;
-  }
-
-  .kds-select {
-    min-width: 140px;
-    padding: 6px 10px;
-    font-size: 14px;
-    background-color: var(--border-dark);
-    border: 1px solid var(--border-dark);
-    border-radius: 4px;
-    color: white;
-  }
-
-  .kds-refresh-info {
-    font-size: 12px;
-    color: #bdc3c7;
-  }
-
-  .kds-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    background-color: var(--bg-light);
-  }
-
-  /* Queue Table */
-  .kds-queue {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-
-  .kds-queue thead {
-    background-color: var(--border-dark);
-    color: white;
-  }
-
-  .kds-queue th, .kds-queue td {
-    padding: 12px 16px;
-    text-align: left;
-  }
-
-  .kds-queue td {
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .kds-queue tr:last-child td {
-    border-bottom: none;
-  }
-
-  .status-waiting { background-color: #e74c3c; }
-  .status-cooking { background-color: #f39c12; }
-  .status-ready   { background-color: #2ecc71; }
-
-  .status-waiting,
-  .status-cooking,
-  .status-ready {
-    color: white;
-    padding: 6px 12px;
-    font-weight: 600;
-    border-radius: 4px;
-    display: inline-block;
-  }
-
-  .kds-action-btn {
-    padding: 6px 10px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .kds-action-waiting { background-color: #f39c12; color: #fff; }
-  .kds-action-waiting:hover { background-color: #e67e22; }
-
-  .kds-action-cooking { background-color: #2ecc71; color: #fff; }
-  .kds-action-cooking:hover { background-color: #27ae60; }
-
-  .kds-time.urgent { color: #e74c3c; font-weight: bold; }
-
-  .kds-empty {
-    text-align: center;
-    padding: 40px;
-    font-size: 16px;
-    color: #7f8c8d;
-    background-color: #fff;
-    border-radius: 6px;
-  }
-
-  /* Loading overlay */
-  .kds-loading {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    font-size: 18px;
-  }
-
-  .kds-spinner {
-    width: 40px;
-    height: 40px;
-    margin-right: 12px;
-    border: 4px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  @media (max-width: 768px) {
-    .kds-header { flex-direction: column; align-items: flex-start; }
-    .kds-controls { width: 100%; gap: 8px; }
-    .kds-select { width: 100%; }
-    .kds-queue th:nth-child(3),
-    .kds-queue td:nth-child(3) {
-      display: none;
-    }
-  }
-</style>
+{% block head_include %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% endblock %}
 
-{% block content %}
-<div class="kds-container">
+{% block page_content %}
+<div class="min-h-screen bg-gray-100">
   <!-- Header -->
-  <div class="kds-header">
-    <div class="kds-title">Kitchen Display System</div>
-    <div class="kds-controls">
-      <div class="kds-filter">
-        <label for="kitchen-station">Station:</label>
-        <select id="kitchen-station" class="kds-select">
-          <option value="">All Stations</option>
-        </select>
-      </div>
-      <div class="kds-filter">
-        <label for="branch-code">Branch:</label>
-        <select id="branch-code" class="kds-select">
-          <option value="">All Branches</option>
-        </select>
-      </div>
-      <div class="kds-refresh-info">
-        Auto-refresh in <span id="refresh-countdown">10</span>s
+  <header class="bg-gray-800 text-white shadow">
+    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+      <h1 class="text-xl font-bold">Kitchen Station Display</h1>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Top Control Bar -->
+    <div class="bg-white shadow rounded-lg mb-6">
+      <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <!-- Station and Branch Selectors -->
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+          <div class="w-full sm:w-64">
+            <label for="kitchen-station-select" class="block text-sm font-medium text-gray-700 mb-1">Kitchen Station</label>
+            <select id="kitchen-station-select" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" aria-label="Select kitchen station">
+              <option value="">All Stations</option>
+              <!-- Options will be populated dynamically -->
+            </select>
+          </div>
+          
+          <div class="w-full sm:w-64">
+            <label for="branch-select" class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
+            <select id="branch-select" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" aria-label="Select branch">
+              <option value="">All Branches</option>
+              <!-- Options will be populated dynamically -->
+            </select>
+          </div>
+        </div>
+        
+        <!-- Auto-refresh Indicator -->
+        <div class="flex items-center bg-gray-100 px-3 py-1 rounded-full">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span class="text-sm text-gray-600">Auto-refresh: <span id="refresh-countdown" class="text-sm font-medium">10</span>s</span>
+        </div>
       </div>
     </div>
-  </div>
+    
+    <!-- Queue Items Display -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h2 class="text-lg font-medium text-gray-900">Order Queue</h2>
+      </div>
+      
+      <div class="px-4 py-5 sm:p-6">
+        <!-- Queue Items Grid -->
+        <div id="queue-items" class="grid gap-4 md:grid-cols-1 lg:grid-cols-2" role="list" aria-label="Order queue items">
+          <!-- Items will be populated dynamically -->
+          <div class="text-center py-12 text-gray-500">
+            <p>No items in queue</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="bg-white mt-auto">
+    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+      <p class="text-sm text-gray-500 text-center">&copy; {% now 'Y' %} Restaurant Management System</p>
+    </div>
+  </footer>
+</div>
 
-  <!-- Queue Content -->
-  <div class="kds-content">
-    <table class="kds-queue">
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Table</th>
-          <th>Time</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="queue-items">
-        <tr>
-          <td colspan="5" class="kds-empty">Loading items...</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Loading Overlay -->
-  <div id="kds-loading" class="kds-loading" style="display:none;">
-    <div class="kds-spinner"></div>
-    <div>Loading...</div>
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" role="alert" aria-busy="true" aria-label="Loading">
+  <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+    <p class="mt-4 text-gray-700">Loading...</p>
   </div>
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
-  window.kdsContext = {
+  window.stationDisplayContext = {
     csrfToken: "{{ frappe.session.csrf_token }}"
   };
 </script>
-<script src="/assets/restaurant_management/js/station_display.js"></script>
+<script defer src="/assets/restaurant_management/js/station_display.js"></script>
 {% endblock %}
