@@ -2,7 +2,7 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": "[{\"id\":\"wd653Rf8Lp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"qP7i2C6mRs\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
+  "content": "[{\"id\":\"px9s17dYkx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"aW2i5R5GRP\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
   "creation": "2025-05-20 06:26:00",
   "docstatus": 0,
   "icon": "restaurant",
@@ -13,7 +13,7 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Operations",
+      "label": "Master Data",
       "onboard": 0,
       "type": "Card Break"
     },
@@ -60,6 +60,31 @@
       "link_to": "POS Profile",
       "link_type": "DocType",
       "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Transaksi",
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Order",
+      "link_to": "Waiter Order",
+      "link_type": "DocType",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Payment",
+      "link_to": "Payment Entry",
+      "link_type": "DocType",
+      "onboard": 1,
       "type": "Link"
     },
     {
@@ -147,7 +172,7 @@
       "type": "Link"
     }
   ],
-  "modified": "2025-05-20 10:25:30",
+  "modified": "2025-07-05 19:00:00",
   "modified_by": "dannyaudian",
   "module": "Restaurant Management",
   "owner": "dannyaudian",
@@ -186,8 +211,10 @@
     {
       "color": "Blue",
       "doc_view": "List",
-      "label": "New Waiter Order",
+      "format": "{} Active",
+      "label": "Waiter Orders",
       "link_to": "Waiter Order",
+      "stats_filter": "[[\"Waiter Order\",\"status\",\"=\",\"Active\",false]]",
       "type": "DocType"
     },
     {
@@ -214,9 +241,11 @@
     {
       "color": "Red",
       "doc_view": "List",
-      "label": "Open POS",
-      "link_to": "point-of-sale",
-      "type": "Page"
+      "format": "{} Pending",
+      "label": "Pending Payments",
+      "link_to": "Payment Entry",
+      "stats_filter": "[[\"Payment Entry\",\"docstatus\",\"=\",\"0\",false]]",
+      "type": "DocType"
     },
     {
       "color": "Grey",
