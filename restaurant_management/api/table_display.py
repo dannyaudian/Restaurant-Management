@@ -123,14 +123,6 @@ def get_branches():
         branches = []
     
     return branches
-    """Get list of branches"""
-    branches = frappe.get_all(
-        "Branch",
-        fields=["branch_code", "name"],
-        order_by="name"
-    )
-    
-    return branches
 
 @frappe.whitelist()
 def get_table_display_config():
