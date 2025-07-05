@@ -2,7 +2,7 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": "[{\"id\":\"px9s17dYkx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"aW2i5R5GRP\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
+  "content": "[{\"id\": \"header1\", \"type\": \"header\", \"data\": {\"text\": \"<span class='h4'><b>Restaurant Management</b></span>\", \"col\": 12}}, {\"id\": \"text1\", \"type\": \"text\", \"data\": {\"text\": \"Use the shortcuts below to manage orders and monitor tables.\", \"col\": 12}}, {\"id\": \"cards1\", \"type\": \"cards\", \"data\": {\"cards\": [{\"label\": \"Waiter Order\", \"link_type\": \"DocType\", \"link_to\": \"Waiter Order\"}, {\"label\": \"Table Overview\", \"link_type\": \"URL\", \"link_to\": \"/table_display\"}, {\"label\": \"Kitchen Display\", \"link_type\": \"URL\", \"link_to\": \"/station_display\"}], \"col\": 12}}]",
   "creation": "2025-05-20 06:26:00",
   "docstatus": 0,
   "icon": "restaurant",
