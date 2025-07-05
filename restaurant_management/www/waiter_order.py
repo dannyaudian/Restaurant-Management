@@ -18,7 +18,7 @@ def get_context(context: Dict[str, Any]) -> None:
         None: The function modifies the context dict in-place
     
     Raises:
-        frappe.PageError: If there's a critical error loading the page data
+        frappe.ValidationError: If there's a critical error loading the page data
     """
     try:
         # Set page title
@@ -27,7 +27,7 @@ def get_context(context: Dict[str, Any]) -> None:
         # Fetch all branches
         all_branches = frappe.get_all(
             'Branch',
-            fields=['name', 'branch_code', 'branch_name'],
+            fields=['name', 'branch_code'],
             filters={'is_active': 1}
         )
         
@@ -50,4 +50,4 @@ def get_context(context: Dict[str, Any]) -> None:
             message=f"Error loading waiter order page: {str(e)}",
             title="Waiter Order Page Error"
         )
-        raise frappe.PageError("Unable to load waiter order page. Please check error logs.")
+        raise frappe.ValidationError("Unable to load waiter order page. Please check error logs.")

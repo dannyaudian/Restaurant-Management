@@ -24,7 +24,7 @@
     <select id="branch-selector" class="w-full md:w-64 p-2 border rounded-md">
       {% for branch in branches %}
       <option value="{{ branch.branch_code }}" {% if default_branch and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
-        {{ branch.branch_name or branch.name }}
+        {{ branch.name }}
       </option>
       {% endfor %}
     </select>
