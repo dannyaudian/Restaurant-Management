@@ -6,6 +6,7 @@ frappe.ready(() => {
     tables: [],
     items: [],
     itemGroups: [],
+    selectedBranch: null,
     selectedTable: null,
     currentOrder: {
       items: [],
@@ -23,6 +24,7 @@ frappe.ready(() => {
     navTabs: document.querySelector('.nav-tabs'),
     orderItemsContainer: document.getElementById('order-items'),
     selectedTableDisplay: document.getElementById('selected-table-display'),
+    branchSelector: document.getElementById('branch-selector'),
     sendToKitchenBtn: document.getElementById('send-to-kitchen-btn'),
     sendAdditionalBtn: document.getElementById('send-additional-btn'),
     variantModal: document.getElementById('variant-modal'),
@@ -62,6 +64,10 @@ frappe.ready(() => {
       elements.orderItemsContainer = orderItemsContainer;
     }
 
+    if (!elements.branchSelector) {
+      elements.branchSelector = document.getElementById('branch-selector');
+    }
+
     if (!elements.variantAttributes) {
       const variantAttributes = document.createElement('div');
       variantAttributes.id = 'variant-attributes';
@@ -95,6 +101,7 @@ frappe.ready(() => {
 
   async function init() {
     ensureElements();
+    state.selectedBranch = elements.branchSelector ? elements.branchSelector.value : null;
     try {
       showLoading();
       await Promise.all([
@@ -119,8 +126,11 @@ frappe.ready(() => {
         method: 'restaurant_management.api.waiter_order.get_available_tables',
         freeze: false
       });
-      
+
       state.tables = result.message || [];
+      if (state.selectedBranch) {
+        state.tables = state.tables.filter(t => t.branch_code === state.selectedBranch);
+      }
       renderTables();
     } catch (error) {
       log('error', 'Error loading tables:', error);
@@ -160,20 +170,20 @@ frappe.ready(() => {
   // Rendering functions
   const renderTables = () => {
     if (!elements.tablesContainer) return;
-    
-    // Display only tables that are in "active" state (with active orders)
-    const activeTables = state.tables.filter(table => table.current_pos_order);
-    if (!activeTables.length) {
-      elements.tablesContainer.innerHTML = '<div class="empty-message">No active orders</div>';
+
+    if (!state.tables.length) {
+      elements.tablesContainer.innerHTML = '<div class="empty-message">No tables found</div>';
       return;
     }
 
-    elements.tablesContainer.innerHTML = activeTables.map(table => {
+    elements.tablesContainer.innerHTML = state.tables.map(table => {
       const isSelected = state.selectedTable && state.selectedTable.name === table.name;
+      const status = table.current_pos_order ? 'In Progress' : 'Available';
+      const statusClass = table.current_pos_order ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800';
       return `
-        <div class="table-button ${isSelected ? 'selected' : ''}" 
-             data-table-id="${table.name}">
-          ${table.table_number || table.name}
+        <div class="table-button ${isSelected ? 'selected' : ''}" data-table-id="${table.name}">
+          <div>${table.table_number || table.name}</div>
+          <span class="badge ${statusClass} inline-block px-2 py-0.5 rounded text-xs ml-2">${status}</span>
         </div>
       `;
     }).join('');
@@ -327,6 +337,9 @@ frappe.ready(() => {
     
     // Send additional items button
     elements.sendAdditionalBtn?.addEventListener('click', handleSendAdditionalItems);
+
+    // Branch change
+    elements.branchSelector?.addEventListener('change', handleBranchChange);
     
     // Events for variant modal
     elements.cancelVariantBtn?.addEventListener('click', closeVariantModal);
@@ -381,6 +394,17 @@ frappe.ready(() => {
     // Re-render tables: now the table with the new order won't appear in the active grid
     renderTables();
     frappe.msgprint(__('New order created at Table ') + tableNo);
+  };
+
+  const handleBranchChange = async () => {
+    state.selectedBranch = elements.branchSelector ? elements.branchSelector.value : null;
+    state.selectedTable = null;
+    state.currentOrder = { items: [], sentItems: [] };
+    updateSelectedTableDisplay();
+    renderOrderItems();
+    updateActionButtons();
+    await loadTables();
+    await loadItems();
   };
 
   const handleItemSelection = (event) => {
