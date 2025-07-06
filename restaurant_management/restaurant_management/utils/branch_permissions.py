@@ -154,26 +154,34 @@ def get_allowed_branches_query(doctype, txt, searchfield, start, page_len, filte
     """
     allowed_branch_codes = get_allowed_branches_for_user()
 
-    # Build the query
+    # Build the query using placeholders to prevent SQL injection
     conditions = []
+    values = []
+
     if txt:
-        conditions.append(f"(`tabBranch`.`name` LIKE '%{txt}%' OR `tabBranch`.`branch_code` LIKE '%{txt}%')")
+        conditions.append("(`tabBranch`.`name` LIKE %s OR `tabBranch`.`branch_code` LIKE %s)")
+        like_pattern = f"%{txt}%"
+        values.extend([like_pattern, like_pattern])
 
     if allowed_branch_codes:
-        # Convert list to SQL-safe format
-        branch_codes_str = ", ".join([f"'{code}'" for code in allowed_branch_codes])
-        conditions.append(f"`tabBranch`.`branch_code` IN ({branch_codes_str})")
+        placeholders = ", ".join(["%s"] * len(allowed_branch_codes))
+        conditions.append(f"`tabBranch`.`branch_code` IN ({placeholders})")
+        values.extend(allowed_branch_codes)
 
     where_clause = " AND ".join(conditions) if conditions else "1=1"
 
-    # Execute query
-    results = frappe.db.sql(f"""
+    query = f"""
         SELECT
             `tabBranch`.`name`,
             `tabBranch`.`branch_code`
         FROM `tabBranch`
         WHERE {where_clause}
-        LIMIT {start}, {page_len}
-    """)
+        LIMIT %s, %s
+    """
+
+    values.extend([start, page_len])
+
+    # Execute query with parameterized values
+    results = frappe.db.sql(query, values)
 
     return results
