@@ -64,7 +64,7 @@
       <div class="nav-tabs flex flex-wrap mb-4 border-b"></div>
       
       <!-- Item List -->
-      <div id="items-section" class="overflow-y-auto" style="max-height: 400px;">
+      <div id="items-section" class="overflow-y-auto max-h-96">
         <ul id="item-list" class="space-y-2"></ul>
       </div>
     </div>
@@ -75,7 +75,7 @@
       <p id="selected-table-display" class="text-sm text-gray-600 mb-4">No table selected</p>
       
       <!-- Order Items List -->
-      <div id="order-section" class="overflow-y-auto" style="max-height: 300px;">
+      <div id="order-section" class="overflow-y-auto max-h-72">
         <ul id="order-items" class="space-y-2 border-t pt-4"></ul>
       </div>
       
@@ -104,6 +104,17 @@
   <div class="mt-6 flex justify-end space-x-2">
     <button id="cancel-variant-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
     <button id="add-variant-btn" class="bg-green-600 text-white px-4 py-2 rounded-md">Add to Order</button>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirm-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded-md shadow-lg w-full max-w-sm">
+    <p id="confirm-message" class="mb-4">Are you sure?</p>
+    <div class="flex justify-end space-x-2">
+      <button id="confirm-cancel" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
+      <button id="confirm-ok" class="bg-blue-600 text-white px-4 py-2 rounded-md">OK</button>
+    </div>
   </div>
 </div>
 
