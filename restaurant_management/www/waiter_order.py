@@ -27,8 +27,7 @@ def get_context(context: Dict[str, Any]) -> None:
         # Fetch all branches
         all_branches = frappe.get_all(
             'Branch',
-            fields=['name', 'branch_code'],
-            filters={'is_active': 1}
+            fields=['name', 'branch_code']
         )
         
         # Filter branches based on user permissions
