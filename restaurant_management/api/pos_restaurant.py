@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+from frappe.utils import cint
 import json
 
 
@@ -128,8 +129,8 @@ def get_items(start, page_length, price_list, item_group, pos_profile, search_va
         Items for POS
     """
     # Convert to proper types
-    start = cint(start)
-    page_length = cint(page_length)
+    start = frappe.utils.cint(start)
+    page_length = frappe.utils.cint(page_length)
     
     # Parse allowed item groups if it's a string
     if allowed_item_groups and isinstance(allowed_item_groups, str):
@@ -233,13 +234,6 @@ def update_waiter_order_status(waiter_order, status):
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), _("Error updating waiter order status"))
         return {"success": False, "message": str(e)}
-
-def cint(value):
-    """Convert value to integer"""
-    try:
-        return int(value)
-    except (ValueError, TypeError):
-        return 0
 @frappe.whitelist()
 def update_sales_order_from_waiter_order(sales_order_id, waiter_order_id):
     """
