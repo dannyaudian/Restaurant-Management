@@ -2,7 +2,7 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": "[{\"id\": \"header1\", \"type\": \"header\", \"data\": {\"text\": \"<span class='h4'><b>Restaurant Management</b></span>\", \"col\": 12}}, {\"id\": \"text1\", \"type\": \"text\", \"data\": {\"text\": \"Use the shortcuts below to manage orders and monitor tables.\", \"col\": 12}}, {\"id\": \"cards1\", \"type\": \"cards\", \"data\": {\"cards\": [{\"label\": \"Waiter Order\", \"link_type\": \"DocType\", \"link_to\": \"Waiter Order\"}, {\"label\": \"Table Overview\", \"link_type\": \"URL\", \"link_to\": \"/table_display\"}, {\"label\": \"Kitchen Display\", \"link_type\": \"URL\", \"link_to\": \"/station_display\"}], \"col\": 12}}]",
+  "content": "[{\"id\":\"header1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"spacer1\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
   "creation": "2025-05-20 06:26:00",
   "docstatus": 0,
   "icon": "restaurant",
@@ -20,19 +20,10 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Waiter Order",
-      "link_to": "Waiter Order",
+      "label": "Branch",
+      "link_to": "Branch",
       "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Kitchen Station",
-      "link_to": "Kitchen Station",
-      "link_type": "DocType",
-      "onboard": 1,
+      "onboard": 0,
       "type": "Link"
     },
     {
@@ -47,10 +38,10 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Branch",
-      "link_to": "Branch",
+      "label": "Kitchen Station",
+      "link_to": "Kitchen Station",
       "link_type": "DocType",
-      "onboard": 0,
+      "onboard": 1,
       "type": "Link"
     },
     {
@@ -72,7 +63,7 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Order",
+      "label": "Waiter Order",
       "link_to": "Waiter Order",
       "link_type": "DocType",
       "onboard": 1,
@@ -81,7 +72,7 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Payment",
+      "label": "Payment Entry",
       "link_to": "Payment Entry",
       "link_type": "DocType",
       "onboard": 1,
@@ -90,14 +81,14 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Web Interfaces",
+      "label": "Web Interface",
       "onboard": 0,
       "type": "Card Break"
     },
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Kitchen Display System",
+      "label": "Kitchen Display",
       "link_to": "/station_display",
       "link_type": "URL",
       "onboard": 1,
@@ -124,7 +115,7 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Reports",
+      "label": "Laporan",
       "onboard": 0,
       "type": "Card Break"
     },
@@ -158,7 +149,7 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Dashboards",
+      "label": "Dashboard",
       "onboard": 0,
       "type": "Card Break"
     },
@@ -172,7 +163,7 @@
       "type": "Link"
     }
   ],
-  "modified": "2025-07-05 19:00:00",
+  "modified": "2025-07-06 03:35:00",
   "modified_by": "dannyaudian",
   "module": "Restaurant Management",
   "owner": "dannyaudian",
@@ -212,7 +203,7 @@
       "color": "Blue",
       "doc_view": "List",
       "format": "{} Active",
-      "label": "Waiter Orders",
+      "label": "Active Orders",
       "link_to": "Waiter Order",
       "stats_filter": "[[\"Waiter Order\",\"status\",\"=\",\"Active\",false]]",
       "type": "DocType"
