@@ -62,9 +62,16 @@ def get_item_groups():
     return item_groups
 
 @frappe.whitelist()
-def get_item_variant_attributes(template_item_code):
-    """Get attributes for an item template"""
-    if not frappe.db.exists("Item", template_item_code):
+def get_item_variant_attributes(template_item_code: Optional[str] = None, item_code: Optional[str] = None):
+    """Get attributes for an item template.
+
+    Accepts either ``template_item_code`` or ``item_code`` as the template's
+    identifier. This now supports additional variant attributes such as
+    "Sauce" and "Side Dish" which may have been added through custom fields.
+    """
+    template_item_code = template_item_code or item_code
+
+    if not template_item_code or not frappe.db.exists("Item", template_item_code):
         frappe.throw(_("Item template not found"))
     
     # Check if item has variants
@@ -75,7 +82,7 @@ def get_item_variant_attributes(template_item_code):
     # Get attributes
     attributes = frappe.get_all(
         "Item Variant Attribute",
-        fields=["attribute", "field_name", "options"],
+        fields=["name", "attribute", "field_name", "options"],
         filters={"parent": template_item_code},
         order_by="idx"
     )
@@ -100,7 +107,7 @@ def resolve_item_variant(template_item_code, attributes):
     for variant in variants:
         variant_attributes = frappe.get_all(
             "Item Variant Attribute",
-            fields=["attribute", "attribute_value"],
+            fields=["attribute", "field_name", "attribute_value"],
             filters={"parent": variant.name}
         )
         
@@ -109,7 +116,10 @@ def resolve_item_variant(template_item_code, attributes):
         for attr, value in attributes.items():
             found = False
             for va in variant_attributes:
-                if va.attribute == attr and va.attribute_value == value:
+                if (
+                    (va.attribute == attr or va.field_name == attr)
+                    and va.attribute_value == value
+                ):
                     found = True
                     break
             
@@ -408,18 +418,19 @@ def get_active_orders(table_id: Optional[str] = None) -> List[Dict[str, Any]]:
 @frappe.whitelist()
 def get_menu_items() -> List[Dict[str, Any]]:
     """
-    Get list of menu items for waiter order screen
-    Returns both regular items and item templates that have variants
+    Get list of menu items for waiter order screen.
+
+    Only item templates (``has_variants = 1``) are returned so that the client
+    can prompt for variant options such as Sauce or Side Dish.
     """
     try:
-        # Get all sellable items that are either standalone or templates
+        # Get all sellable item templates
         items = frappe.get_all(
             "Item",
             filters={
                 "disabled": 0,
                 "is_sales_item": 1,
-                "is_stock_item": 1,
-                "has_variants": ["in", [0, 1]]  # Include both regular items and templates
+                "has_variants": 1
             },
             fields=[
                 "name as item_code", 

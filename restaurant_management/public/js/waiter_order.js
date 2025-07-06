@@ -34,6 +34,8 @@ frappe.ready(() => {
     cancelVariantBtn: document.getElementById('cancel-variant-btn'),
     addVariantBtn: document.getElementById('add-variant-btn'),
     loadingOverlay: document.getElementById('loading-overlay'),
+    sauceSelect: document.getElementById('variant-sauce'),
+    sideDishSelect: document.getElementById('variant-side-dish'),
     // New Order Elements
     newOrderBtn: document.getElementById('new-order-btn'),
     newOrderTableNumber: document.getElementById('new-order-table-number')
@@ -73,6 +75,13 @@ frappe.ready(() => {
       variantAttributes.id = 'variant-attributes';
       elements.variantModal?.appendChild(variantAttributes);
       elements.variantAttributes = variantAttributes;
+    }
+
+    if (!elements.sauceSelect) {
+      elements.sauceSelect = document.getElementById('variant-sauce');
+    }
+    if (!elements.sideDishSelect) {
+      elements.sideDishSelect = document.getElementById('variant-side-dish');
     }
   };
 
@@ -549,13 +558,20 @@ frappe.ready(() => {
   // Variant handling
   const showVariantModal = (item) => {
     if (!elements.variantItemName || !elements.modalOverlay || !elements.variantModal) return;
-    
+
     elements.variantItemName.textContent = item.item_name;
-    
+
+    if (elements.sauceSelect) {
+      elements.sauceSelect.innerHTML = '<option value="">Select Sauce</option>';
+    }
+    if (elements.sideDishSelect) {
+      elements.sideDishSelect.innerHTML = '<option value="">Select Side Dish</option>';
+    }
+
     // Get variant attributes
     frappe.call({
       method: 'restaurant_management.api.waiter_order.get_item_variant_attributes',
-      args: { item_code: item.item_code },
+      args: { template_item_code: item.item_code },
       callback: function(response) {
         if (response.message) {
           renderVariantAttributes(response.message);
@@ -570,22 +586,40 @@ frappe.ready(() => {
 
   const renderVariantAttributes = (attributes) => {
     if (!elements.variantAttributes) return;
-    
-    elements.variantAttributes.innerHTML = attributes.map(attr => {
-      const options = attr.options.split('\n').map(option => 
+
+    if (elements.sauceSelect) {
+      elements.sauceSelect.innerHTML = '<option value="">Select Sauce</option>';
+    }
+    if (elements.sideDishSelect) {
+      elements.sideDishSelect.innerHTML = '<option value="">Select Side Dish</option>';
+    }
+
+    const normalFields = [];
+
+    attributes.forEach(attr => {
+      const key = attr.field_name || attr.attribute;
+      const options = attr.options.split('\n').map(option =>
         `<option value="${option.trim()}">${option.trim()}</option>`
       ).join('');
-      
-      return `
-        <div class="form-group">
-          <label for="attr-${attr.name}">${attr.field_name}</label>
-          <select class="form-control variant-attribute" id="attr-${attr.name}" data-attribute="${attr.field_name}">
-            <option value="">Select ${attr.field_name}</option>
-            ${options}
-          </select>
-        </div>
-      `;
-    }).join('');
+
+      if ((/sauce/i).test(key) && elements.sauceSelect) {
+        elements.sauceSelect.innerHTML = `<option value="">Select Sauce</option>${options}`;
+      } else if ((/side\s*dish/i).test(key) && elements.sideDishSelect) {
+        elements.sideDishSelect.innerHTML = `<option value="">Select Side Dish</option>${options}`;
+      } else {
+        normalFields.push(`
+          <div class="form-group">
+            <label for="attr-${attr.name}">${attr.field_name}</label>
+            <select class="form-control variant-attribute" id="attr-${attr.name}" data-attribute="${attr.field_name}">
+              <option value="">Select ${attr.field_name}</option>
+              ${options}
+            </select>
+          </div>
+        `);
+      }
+    });
+
+    elements.variantAttributes.innerHTML = normalFields.join('');
   };
 
   const closeVariantModal = () => {
