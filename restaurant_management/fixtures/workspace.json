@@ -5,7 +5,7 @@
   "content": "[{\"id\":\"header1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"spacer1\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
   "creation": "2025-05-20 06:26:00",
   "docstatus": 0,
-  "icon": "restaurant",
+  "icon": "octicon octicon-utensils",
   "is_hidden": 0,
   "is_standard": 1,
   "label": "Restaurant Management",
