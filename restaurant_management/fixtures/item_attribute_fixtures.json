@@ -1,0 +1,122 @@
+[
+  {
+    "doctype": "Item Attribute",
+    "name": "Size",
+    "attribute_name": "Size",
+    "numeric_values": 0,
+    "item_attribute_values": [
+      {
+        "attribute_value": "Small",
+        "abbr": "S"
+      },
+      {
+        "attribute_value": "Medium",
+        "abbr": "M"
+      },
+      {
+        "attribute_value": "Large",
+        "abbr": "L"
+      },
+      {
+        "attribute_value": "Single",
+        "abbr": "SGL"
+      },
+      {
+        "attribute_value": "Double",
+        "abbr": "DBL"
+      }
+    ]
+  },
+  {
+    "doctype": "Item Attribute",
+    "name": "Milk Type",
+    "attribute_name": "Milk Type",
+    "numeric_values": 0,
+    "item_attribute_values": [
+      {
+        "attribute_value": "Full",
+        "abbr": "FULL"
+      },
+      {
+        "attribute_value": "Skimmed",
+        "abbr": "SKIM"
+      },
+      {
+        "attribute_value": "Almond",
+        "abbr": "ALMD"
+      },
+      {
+        "attribute_value": "Soy",
+        "abbr": "SOY"
+      },
+      {
+        "attribute_value": "Oat",
+        "abbr": "OAT"
+      }
+    ]
+  },
+  {
+    "doctype": "Item Attribute",
+    "name": "Sugar Level",
+    "attribute_name": "Sugar Level",
+    "numeric_values": 0,
+    "item_attribute_values": [
+      {
+        "attribute_value": "No Sugar",
+        "abbr": "NONE"
+      },
+      {
+        "attribute_value": "Low",
+        "abbr": "LOW"
+      },
+      {
+        "attribute_value": "Regular",
+        "abbr": "REG"
+      },
+      {
+        "attribute_value": "Extra",
+        "abbr": "XTRA"
+      }
+    ]
+  },
+  {
+    "doctype": "Item Attribute",
+    "name": "Patty Type",
+    "attribute_name": "Patty Type",
+    "numeric_values": 0,
+    "item_attribute_values": [
+      {
+        "attribute_value": "Beef",
+        "abbr": "BEEF"
+      },
+      {
+        "attribute_value": "Chicken",
+        "abbr": "CHKN"
+      },
+      {
+        "attribute_value": "Vegetarian",
+        "abbr": "VEG"
+      }
+    ]
+  },
+  {
+    "doctype": "Item Attribute",
+    "name": "Cheese",
+    "attribute_name": "Cheese",
+    "numeric_values": 0,
+    "item_attribute_values": [
+      {
+        "attribute_value": "Yes",
+        "abbr": "Y"
+      },
+      {
+        "attribute_value": "No",
+        "abbr": "N"
+      },
+      {
+        "attribute_value": "Extra",
+        "abbr": "XTRA"
+      }
+    ]
+  }
+]

@@ -1,10 +1,10 @@
 app_name = "restaurant_management"
 app_title = "Restaurant Management"
-app_publisher = "Danny Audian Pratama"
+app_publisher = "PT. Inovasi Terbaik Bangsa"
 app_description = "Restaurant Management System for ERPNext"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
-app_email = "your.email@example.com"
+app_email = "danny.a.pratama@cao-group.co.id"
 app_license = "MIT"
 
 # Web Assets
@@ -75,6 +75,12 @@ fixtures = [
     {"dt": "Onboarding", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "Onboarding Step", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "DocType", "filters": [["name", "=", "POS Allowed Item Group"]]}
+    # Add these new fixtures:
+    {"dt": "Item Attribute", "filters": [["name", "in", ["Size", "Milk Type", "Sugar Level", "Patty Type", "Cheese"]]]},
+    {"dt": "Item Group", "filters": [["name", "in", ["Beverages", "Fast Food", "Pizza", "Sides"]]]},
+    {"dt": "Kitchen Station", "filters": [["name", "in", ["BEVERAGE-STATION", "GRILL-STATION", "PIZZA-STATION", "FRIES-STATION"]]]},
+    # For the Item fixtures, using a module filter is better as there may be many items:
+    {"dt": "Item", "filters": [["item_group", "in", ["Beverages", "Fast Food", "Pizza", "Sides"]]]}
 ]
 
 # Whitelisted Methods (can be called from frontend)

@@ -1,0 +1,30 @@
+[
+  {
+    "doctype": "Item Group",
+    "name": "Beverages",
+    "item_group_name": "Beverages",
+    "parent_item_group": "All Item Groups",
+    "is_group": 0
+  },
+  {
+    "doctype": "Item Group",
+    "name": "Fast Food",
+    "item_group_name": "Fast Food",
+    "parent_item_group": "All Item Groups",
+    "is_group": 0
+  },
+  {
+    "doctype": "Item Group",
+    "name": "Pizza",
+    "item_group_name": "Pizza",
+    "parent_item_group": "All Item Groups",
+    "is_group": 0
+  },
+  {
+    "doctype": "Item Group",
+    "name": "Sides",
+    "item_group_name": "Sides",
+    "parent_item_group": "All Item Groups",
+    "is_group": 0
+  }
+]

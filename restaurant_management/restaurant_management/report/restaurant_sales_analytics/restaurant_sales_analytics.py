@@ -1,4 +1,4 @@
-# Copyright (c) 2023, Danny Audian Pratama and contributors
+# Copyright (c) 2023, PT. Inovasi Terbaik Bangsa and contributors
 # For license information, please see license.txt
 
 import frappe

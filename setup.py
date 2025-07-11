@@ -9,9 +9,9 @@ from restaurant_management import __version__ as version
 setup(
     name="restaurant_management",
     version=version,
-    description="Restaurant Management System for ERPNext",
-    author="Danny Audian Pratama",
-    author_email="your.email@example.com",
+    description="Restaurant Management System by IMOGI",
+    author="PT. Inovasi Terbaik Bangsa",
+    author_email="danny.a.pratama@cao-group.co.id",
     packages=find_packages(),
     zip_safe=False,
     include_package_data=True,

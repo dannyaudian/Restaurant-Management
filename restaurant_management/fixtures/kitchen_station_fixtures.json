@@ -1,0 +1,58 @@
+[
+  {
+    "doctype": "Kitchen Station",
+    "name": "BEVERAGE-STATION",
+    "station_name": "Beverage Station",
+    "branch": "Main Branch",
+    "branch_code": "HO",
+    "is_active": 1,
+    "printer_name": "Beverage Printer",
+    "item_groups": [
+      {
+        "item_group": "Beverages"
+      }
+    ]
+  },
+  {
+    "doctype": "Kitchen Station",
+    "name": "GRILL-STATION",
+    "station_name": "Grill Station",
+    "branch": "Main Branch",
+    "branch_code": "HO",
+    "is_active": 1,
+    "printer_name": "Grill Printer",
+    "item_groups": [
+      {
+        "item_group": "Fast Food"
+      }
+    ]
+  },
+  {
+    "doctype": "Kitchen Station",
+    "name": "PIZZA-STATION",
+    "station_name": "Pizza Station",
+    "branch": "Main Branch",
+    "branch_code": "HO",
+    "is_active": 1,
+    "printer_name": "Pizza Printer",
+    "item_groups": [
+      {
+        "item_group": "Pizza"
+      }
+    ]
+  },
+  {
+    "doctype": "Kitchen Station",
+    "name": "FRIES-STATION",
+    "station_name": "Fries Station",
+    "branch": "Main Branch",
+    "branch_code": "HO",
+    "is_active": 1,
+    "printer_name": "Fries Printer",
+    "item_groups": [
+      {
+        "item_group": "Sides"
+      }
+    ]
+  }
+]

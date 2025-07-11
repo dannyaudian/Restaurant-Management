@@ -1,0 +1,310 @@
+[
+  {
+    "doctype": "Item",
+    "name": "Regular Coffee",
+    "item_code": "RC-001",
+    "item_name": "Regular Coffee",
+    "item_group": "Beverages",
+    "stock_uom": "Nos",
+    "description": "A rich and aromatic black coffee",
+    "is_stock_item": 1,
+    "standard_rate": 15.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 1,
+    "has_variants": 0,
+    "kitchen_station": "BEVERAGE-STATION",
+    "preparation_time": 5,
+    "min_order_qty": 1,
+    "max_order_qty": 10,
+    "image": "/files/regular-coffee.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "Chicken Burger",
+    "item_code": "CB-001",
+    "item_name": "Chicken Burger",
+    "item_group": "Fast Food",
+    "stock_uom": "Nos",
+    "description": "Grilled chicken burger with fresh vegetables",
+    "is_stock_item": 1,
+    "standard_rate": 45.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 1,
+    "has_variants": 0,
+    "kitchen_station": "GRILL-STATION",
+    "preparation_time": 12,
+    "min_order_qty": 1,
+    "max_order_qty": 5,
+    "image": "/files/chicken-burger.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "Veggie Pizza",
+    "item_code": "VP-001",
+    "item_name": "Veggie Pizza",
+    "item_group": "Pizza",
+    "stock_uom": "Nos",
+    "description": "Fresh vegetable pizza with house-made sauce",
+    "is_stock_item": 1,
+    "standard_rate": 60.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 1,
+    "has_variants": 0,
+    "kitchen_station": "PIZZA-STATION",
+    "preparation_time": 20,
+    "min_order_qty": 1,
+    "max_order_qty": 3,
+    "image": "/files/veggie-pizza.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "French Fries",
+    "item_code": "FF-001",
+    "item_name": "French Fries",
+    "item_group": "Sides",
+    "stock_uom": "Nos",
+    "description": "Crispy fried potatoes with salt",
+    "is_stock_item": 1,
+    "standard_rate": 20.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 1,
+    "has_variants": 0,
+    "kitchen_station": "FRIES-STATION",
+    "preparation_time": 8,
+    "min_order_qty": 1,
+    "max_order_qty": 5,
+    "image": "/files/french-fries.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "Coffee Template",
+    "item_code": "COFFEE-TMPL",
+    "item_name": "Coffee",
+    "item_group": "Beverages",
+    "stock_uom": "Nos",
+    "description": "Coffee with customizable options",
+    "is_stock_item": 0,
+    "standard_rate": 25.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 0,
+    "has_variants": 1,
+    "variant_based_on": "Item Attribute",
+    "attributes": [
+      {
+        "attribute": "Size",
+        "numeric_values": 0,
+        "from_range": 0,
+        "to_range": 0,
+        "increment": 0
+      },
+      {
+        "attribute": "Milk Type",
+        "numeric_values": 0,
+        "from_range": 0,
+        "to_range": 0,
+        "increment": 0
+      },
+      {
+        "attribute": "Sugar Level",
+        "numeric_values": 0,
+        "from_range": 0,
+        "to_range": 0,
+        "increment": 0
+      }
+    ],
+    "kitchen_station": "BEVERAGE-STATION",
+    "preparation_time": 6,
+    "min_order_qty": 1,
+    "max_order_qty": 10,
+    "image": "/files/coffee-template.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "Latte - Small Regular Full",
+    "item_code": "COFFEE-LAT-S-REG-FULL",
+    "item_name": "Small Latte, Regular, Full Milk",
+    "item_group": "Beverages",
+    "stock_uom": "Nos",
+    "description": "Small latte with regular strength and full milk",
+    "is_stock_item": 1,
+    "standard_rate": 25.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 1,
+    "has_variants": 0,
+    "variant_of": "COFFEE-TMPL",
+    "attributes": [
+      {
+        "attribute": "Size",
+        "attribute_value": "Small"
+      },
+      {
+        "attribute": "Milk Type",
+        "attribute_value": "Full"
+      },
+      {
+        "attribute": "Sugar Level",
+        "attribute_value": "Regular"
+      }
+    ],
+    "kitchen_station": "BEVERAGE-STATION",
+    "preparation_time": 6,
+    "min_order_qty": 1,
+    "max_order_qty": 10,
+    "image": "/files/small-latte.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "Latte - Large Low Skimmed",
+    "item_code": "COFFEE-LAT-L-LOW-SKIM",
+    "item_name": "Large Latte, Low Sugar, Skimmed Milk",
+    "item_group": "Beverages",
+    "stock_uom": "Nos",
+    "description": "Large latte with low sugar and skimmed milk",
+    "is_stock_item": 1,
+    "standard_rate": 30.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 1,
+    "has_variants": 0,
+    "variant_of": "COFFEE-TMPL",
+    "attributes": [
+      {
+        "attribute": "Size",
+        "attribute_value": "Large"
+      },
+      {
+        "attribute": "Milk Type",
+        "attribute_value": "Skimmed"
+      },
+      {
+        "attribute": "Sugar Level",
+        "attribute_value": "Low"
+      }
+    ],
+    "kitchen_station": "BEVERAGE-STATION",
+    "preparation_time": 6,
+    "min_order_qty": 1,
+    "max_order_qty": 10,
+    "image": "/files/large-latte.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "Burger Template",
+    "item_code": "BURGER-TMPL",
+    "item_name": "Burger",
+    "item_group": "Fast Food",
+    "stock_uom": "Nos",
+    "description": "Customizable burger with options",
+    "is_stock_item": 0,
+    "standard_rate": 45.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 0,
+    "has_variants": 1,
+    "variant_based_on": "Item Attribute",
+    "attributes": [
+      {
+        "attribute": "Patty Type",
+        "numeric_values": 0,
+        "from_range": 0,
+        "to_range": 0,
+        "increment": 0
+      },
+      {
+        "attribute": "Size",
+        "numeric_values": 0,
+        "from_range": 0,
+        "to_range": 0,
+        "increment": 0
+      },
+      {
+        "attribute": "Cheese",
+        "numeric_values": 0,
+        "from_range": 0,
+        "to_range": 0,
+        "increment": 0
+      }
+    ],
+    "kitchen_station": "GRILL-STATION",
+    "preparation_time": 15,
+    "min_order_qty": 1,
+    "max_order_qty": 5,
+    "image": "/files/burger-template.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "Double Beef Burger with Cheese",
+    "item_code": "BURGER-DBL-BEEF-CHEESE",
+    "item_name": "Double Beef Burger with Cheese",
+    "item_group": "Fast Food",
+    "stock_uom": "Nos",
+    "description": "Double beef patty burger with cheese",
+    "is_stock_item": 1,
+    "standard_rate": 65.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 1,
+    "has_variants": 0,
+    "variant_of": "BURGER-TMPL",
+    "attributes": [
+      {
+        "attribute": "Patty Type",
+        "attribute_value": "Beef"
+      },
+      {
+        "attribute": "Size",
+        "attribute_value": "Double"
+      },
+      {
+        "attribute": "Cheese",
+        "attribute_value": "Yes"
+      }
+    ],
+    "kitchen_station": "GRILL-STATION",
+    "preparation_time": 18,
+    "min_order_qty": 1,
+    "max_order_qty": 3,
+    "image": "/files/double-beef-burger.jpg"
+  },
+  {
+    "doctype": "Item",
+    "name": "Single Chicken Burger No Cheese",
+    "item_code": "BURGER-SGL-CHKN-NOCHEESE",
+    "item_name": "Single Chicken Burger No Cheese",
+    "item_group": "Fast Food",
+    "stock_uom": "Nos",
+    "description": "Single chicken patty burger without cheese",
+    "is_stock_item": 1,
+    "standard_rate": 45.00,
+    "include_item_in_manufacturing": 0,
+    "is_sales_item": 1,
+    "is_purchase_item": 1,
+    "has_variants": 0,
+    "variant_of": "BURGER-TMPL",
+    "attributes": [
+      {
+        "attribute": "Patty Type",
+        "attribute_value": "Chicken"
+      },
+      {
+        "attribute": "Size",
+        "attribute_value": "Single"
+      },
+      {
+        "attribute": "Cheese",
+        "attribute_value": "No"
+      }
+    ],
+    "kitchen_station": "GRILL-STATION",
+    "preparation_time": 15,
+    "min_order_qty": 1,
+    "max_order_qty": 5,
+    "image": "/files/single-chicken-burger.jpg"
+  }
+]
