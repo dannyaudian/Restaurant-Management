@@ -41,6 +41,12 @@ Restaurant Management System for ERPNext
 bench start
 ```
 
+5. Import fixtures
+   ```bash
+   bench --site <your-site> migrate
+   ```
+   This step loads fixtures like the workspace and dashboard.
+
 ## Opening the Workspace
 
 Once your site is running, open ERPNext and select **Restaurant Management** from the modules list or navigate to `/app/restaurant-management`. The workspace provides quick links to common restaurant operations such as placing orders, viewing stations, and managing tables.
