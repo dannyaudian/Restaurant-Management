@@ -10,10 +10,13 @@ frappe.ready(() => {
     selectedTable: null,
     currentOrder: {
       items: [],
-      sentItems: [] // keeps track of items already sent to kitchen
+      sentItems: [], // keeps track of items already sent to kitchen
+      total_qty: 0,
+      total_amount: 0
     },
     selectedItemTemplate: null,
-    loading: false
+    loading: false,
+    itemRates: {} // Cache for item rates
   };
 
   // DOM Elements
@@ -27,6 +30,7 @@ frappe.ready(() => {
     branchSelector: document.getElementById('branch-selector'),
     sendToKitchenBtn: document.getElementById('send-to-kitchen-btn'),
     sendAdditionalBtn: document.getElementById('send-additional-btn'),
+    cancelOrderBtn: document.getElementById('cancel-order-btn'),
     variantModal: document.getElementById('variant-modal'),
     modalOverlay: document.getElementById('modal-overlay'),
     variantItemName: document.getElementById('variant-item-name'),
@@ -38,7 +42,10 @@ frappe.ready(() => {
     sideDishSelect: document.getElementById('variant-side-dish'),
     // New Order Elements
     newOrderBtn: document.getElementById('new-order-btn'),
-    newOrderTableNumber: document.getElementById('new-order-table-number')
+    newOrderTableNumber: document.getElementById('new-order-table-number'),
+    // Order Total Elements
+    orderTotalQty: document.getElementById('order-total-qty'),
+    orderTotalAmount: document.getElementById('order-total-amount')
   };
 
   // Ensure all elements exist before using them
@@ -83,6 +90,36 @@ frappe.ready(() => {
     if (!elements.sideDishSelect) {
       elements.sideDishSelect = document.getElementById('variant-side-dish');
     }
+
+    // Create total elements if they don't exist
+    if (!elements.orderTotalQty) {
+      const totalSection = document.createElement('div');
+      totalSection.className = 'order-totals';
+      totalSection.innerHTML = `
+        <div class="total-row">
+          <div>Total Quantity:</div>
+          <div id="order-total-qty">0</div>
+        </div>
+        <div class="total-row">
+          <div>Total Amount:</div>
+          <div id="order-total-amount">₹0.00</div>
+        </div>
+      `;
+      elements.orderItemsContainer?.parentNode?.appendChild(totalSection);
+      elements.orderTotalQty = document.getElementById('order-total-qty');
+      elements.orderTotalAmount = document.getElementById('order-total-amount');
+    }
+
+    // Create cancel order button if it doesn't exist
+    if (!elements.cancelOrderBtn && elements.sendToKitchenBtn) {
+      const cancelBtn = document.createElement('button');
+      cancelBtn.id = 'cancel-order-btn';
+      cancelBtn.className = 'btn btn-danger disabled-btn';
+      cancelBtn.innerHTML = 'Cancel Order';
+      cancelBtn.setAttribute('aria-label', 'Cancel current order');
+      elements.sendToKitchenBtn.parentNode.appendChild(cancelBtn);
+      elements.cancelOrderBtn = cancelBtn;
+    }
   };
 
   // Minimal logging helper
@@ -123,7 +160,7 @@ frappe.ready(() => {
       hideLoading();
     } catch (error) {
       log('error', 'Initialization error:', error);
-      frappe.throw(__('Failed to initialize waiter order page'));
+      frappe.msgprint(__('Failed to initialize waiter order page'));
       hideLoading();
     }
   }
@@ -133,17 +170,18 @@ frappe.ready(() => {
     try {
       const result = await frappe.call({
         method: 'restaurant_management.api.waiter_order.get_available_tables',
+        args: {
+          branch: state.selectedBranch,
+          available_only: true // Only get available tables
+        },
         freeze: false
       });
 
       state.tables = result.message || [];
-      if (state.selectedBranch) {
-        state.tables = state.tables.filter(t => t.branch_code === state.selectedBranch);
-      }
       renderTables();
     } catch (error) {
       log('error', 'Error loading tables:', error);
-      frappe.throw(__('Failed to load tables'));
+      frappe.msgprint(__('Failed to load tables'));
     }
   };
 
@@ -158,7 +196,7 @@ frappe.ready(() => {
       renderItems();
     } catch (error) {
       log('error', 'Error loading items:', error);
-      frappe.throw(__('Failed to load menu items'));
+      frappe.msgprint(__('Failed to load menu items'));
     }
   };
 
@@ -172,7 +210,31 @@ frappe.ready(() => {
       state.itemGroups = result.message || [];
     } catch (error) {
       log('error', 'Error loading item groups:', error);
-      frappe.throw(__('Failed to load item groups'));
+      frappe.msgprint(__('Failed to load item groups'));
+    }
+  };
+
+  // Fetch item rate from server
+  const fetchItemRate = async (itemCode) => {
+    // Return from cache if available
+    if (state.itemRates[itemCode] !== undefined) {
+      return state.itemRates[itemCode];
+    }
+    
+    try {
+      const result = await frappe.call({
+        method: 'restaurant_management.api.waiter_order.get_item_rate',
+        args: { item_code: itemCode },
+        freeze: false
+      });
+      
+      const rate = result.message || 0;
+      // Cache the rate for future use
+      state.itemRates[itemCode] = rate;
+      return rate;
+    } catch (error) {
+      log('error', 'Error fetching item rate:', error);
+      return 0;
     }
   };
 
@@ -181,17 +243,19 @@ frappe.ready(() => {
     if (!elements.tablesContainer) return;
 
     if (!state.tables.length) {
-      elements.tablesContainer.innerHTML = '<div class="empty-message">No tables found</div>';
+      elements.tablesContainer.innerHTML = '<div class="empty-message">No available tables found</div>';
       return;
     }
 
     elements.tablesContainer.innerHTML = state.tables.map(table => {
       const isSelected = state.selectedTable && state.selectedTable.name === table.name;
-      const status = table.current_pos_order ? 'In Progress' : 'Available';
-      const statusClass = table.current_pos_order ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800';
+      const status = table.is_available ? 'Available' : 'Occupied';
+      const statusClass = table.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+      const capacityDisplay = table.seating_capacity ? ` (${table.seating_capacity})` : '';
+      
       return `
-        <div class="table-button ${isSelected ? 'selected' : ''}" data-table-id="${table.name}">
-          <div>${table.table_number || table.name}</div>
+        <div class="table-button ${isSelected ? 'selected' : ''}" data-table-id="${table.name}" aria-label="Table ${table.table_number || table.name}, Status: ${status}${capacityDisplay}">
+          <div>${table.table_number || table.name}${capacityDisplay}</div>
           <span class="badge ${statusClass} inline-block px-2 py-0.5 rounded text-xs ml-2">${status}</span>
         </div>
       `;
@@ -223,10 +287,17 @@ frappe.ready(() => {
     }
 
     elements.itemsContainer.innerHTML = filteredItems.map(item => {
+      // Show price if available in cache
+      const priceDisplay = state.itemRates[item.item_code] ? 
+        `<div class="item-price">₹${formatCurrency(state.itemRates[item.item_code])}</div>` : '';
+      
       return `
-        <div class="item-button" data-item-code="${item.item_code}">
-          <div>${item.item_name}</div>
-          <small>${item.has_variants ? '(Has variants)' : ''}</small>
+        <div class="item-button" data-item-code="${item.item_code}" aria-label="Item: ${item.item_name}${item.has_variants ? ', Has variants' : ''}">
+          <div class="item-info">
+            <div>${item.item_name}</div>
+            <small>${item.has_variants ? '(Has variants)' : ''}</small>
+          </div>
+          ${priceDisplay}
         </div>
       `;
     }).join('');
@@ -236,10 +307,10 @@ frappe.ready(() => {
     if (!elements.navTabs) return;
     
     const tabsHtml = state.itemGroups.map(group => 
-      `<div class="nav-tab" data-group="${group.name}">${group.item_group_name}</div>`
+      `<div class="nav-tab" data-group="${group.name}" aria-label="Filter by ${group.item_group_name}">${group.item_group_name}</div>`
     ).join('');
     
-    elements.navTabs.innerHTML = '<div class="nav-tab active" data-group="all">All</div>' + tabsHtml;
+    elements.navTabs.innerHTML = '<div class="nav-tab active" data-group="all" aria-label="Show all items">All</div>' + tabsHtml;
   
     // Event listener for tabs
     document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -256,6 +327,7 @@ frappe.ready(() => {
     
     if (!state.currentOrder.items.length) {
       elements.orderItemsContainer.innerHTML = '<div class="empty-order-message">No items added to order</div>';
+      updateOrderTotals();
       updateActionButtons();
       return;
     }
@@ -266,51 +338,87 @@ frappe.ready(() => {
                 JSON.stringify(sent.attributes || {}) === JSON.stringify(orderItem.attributes || {})
       );
       
+      // Calculate and display amount
+      const amount = (orderItem.rate || 0) * (orderItem.qty || 0);
+      
       return `
         <div class="order-item ${isSent ? 'sent-item' : ''}" data-index="${index}">
-          <div class="order-item-name">
-            ${orderItem.item_name}
-            ${orderItem.attributes ? 
-              '<small>(' + Object.entries(orderItem.attributes).map(([k, v]) => `${k}: ${v}`).join(', ') + ')</small>' : 
-              ''}
+          <div class="order-item-details">
+            <div class="order-item-name">
+              ${orderItem.item_name}
+              ${orderItem.attributes ? 
+                '<small>(' + Object.entries(orderItem.attributes).map(([k, v]) => `${k}: ${v}`).join(', ') + ')</small>' : 
+                ''}
+            </div>
+            <div class="order-item-rate">₹${formatCurrency(orderItem.rate || 0)}</div>
           </div>
-          <div class="order-item-qty">
-            <div class="qty-btn minus">-</div>
-            <span style="margin: 0 5px;">${orderItem.qty}</span>
-            <div class="qty-btn plus">+</div>
+          <div class="order-item-actions">
+            <div class="order-item-qty">
+              <div class="qty-btn minus" aria-label="Decrease quantity">-</div>
+              <span style="margin: 0 5px;">${orderItem.qty}</span>
+              <div class="qty-btn plus" aria-label="Increase quantity">+</div>
+            </div>
+            <div class="order-item-amount">₹${formatCurrency(amount)}</div>
+            <div class="order-item-remove" aria-label="Remove item">✕</div>
           </div>
-          <div class="order-item-remove">✕</div>
         </div>
       `;
     }).join('');
 
+    updateOrderTotals();
     updateActionButtons();
+  };
+
+  const updateOrderTotals = () => {
+    // Calculate total quantity and amount
+    state.currentOrder.total_qty = state.currentOrder.items.reduce((total, item) => total + (item.qty || 0), 0);
+    state.currentOrder.total_amount = state.currentOrder.items.reduce((total, item) => {
+      return total + ((item.rate || 0) * (item.qty || 0));
+    }, 0);
+    
+    // Update display
+    if (elements.orderTotalQty) {
+      elements.orderTotalQty.textContent = state.currentOrder.total_qty;
+    }
+    
+    if (elements.orderTotalAmount) {
+      elements.orderTotalAmount.textContent = `₹${formatCurrency(state.currentOrder.total_amount)}`;
+    }
   };
 
   const updateActionButtons = () => {
     // "Send to Kitchen" button is active if a table is selected and order is not empty
-    if (!elements.sendToKitchenBtn) return;
-    
-    if (state.selectedTable && state.currentOrder.items.length > 0) {
-      elements.sendToKitchenBtn.classList.remove('disabled-btn');
-    } else {
-      elements.sendToKitchenBtn.classList.add('disabled-btn');
+    if (elements.sendToKitchenBtn) {
+      if (state.selectedTable && state.currentOrder.items.length > 0) {
+        elements.sendToKitchenBtn.classList.remove('disabled-btn');
+      } else {
+        elements.sendToKitchenBtn.classList.add('disabled-btn');
+      }
     }
 
     // "Send Additional Items" button is active if there are new items not yet sent
-    if (!elements.sendAdditionalBtn) return;
-    
-    const hasNewItems = state.currentOrder.items.some(item => 
-      !state.currentOrder.sentItems.some(
-        sent => sent.item_code === item.item_code && 
-                JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
-      )
-    );
+    if (elements.sendAdditionalBtn) {
+      const hasNewItems = state.currentOrder.items.some(item => 
+        !state.currentOrder.sentItems.some(
+          sent => sent.item_code === item.item_code && 
+                  JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
+        )
+      );
 
-    if (state.selectedTable && hasNewItems && state.currentOrder.sentItems.length > 0) {
-      elements.sendAdditionalBtn.classList.remove('disabled-btn');
-    } else {
-      elements.sendAdditionalBtn.classList.add('disabled-btn');
+      if (state.selectedTable && hasNewItems && state.currentOrder.sentItems.length > 0) {
+        elements.sendAdditionalBtn.classList.remove('disabled-btn');
+      } else {
+        elements.sendAdditionalBtn.classList.add('disabled-btn');
+      }
+    }
+    
+    // "Cancel Order" button is active if a table is selected and order is sent to kitchen
+    if (elements.cancelOrderBtn) {
+      if (state.selectedTable && state.currentOrder.sentItems.length > 0) {
+        elements.cancelOrderBtn.classList.remove('disabled-btn');
+      } else {
+        elements.cancelOrderBtn.classList.add('disabled-btn');
+      }
     }
   };
 
@@ -318,7 +426,10 @@ frappe.ready(() => {
     if (!elements.selectedTableDisplay) return;
     
     if (state.selectedTable) {
-      elements.selectedTableDisplay.textContent = `Selected Table: ${state.selectedTable.table_number || state.selectedTable.name}`;
+      const capacityDisplay = state.selectedTable.seating_capacity ? 
+        ` (${state.selectedTable.seating_capacity} seats)` : '';
+      
+      elements.selectedTableDisplay.textContent = `Selected Table: ${state.selectedTable.table_number || state.selectedTable.name}${capacityDisplay}`;
     } else {
       elements.selectedTableDisplay.textContent = 'No table selected';
     }
@@ -346,6 +457,9 @@ frappe.ready(() => {
     
     // Send additional items button
     elements.sendAdditionalBtn?.addEventListener('click', handleSendAdditionalItems);
+    
+    // Cancel order button
+    elements.cancelOrderBtn?.addEventListener('click', handleCancelOrder);
 
     // Branch change
     elements.branchSelector?.addEventListener('change', handleBranchChange);
@@ -392,23 +506,28 @@ frappe.ready(() => {
       return;
     }
     // If table is already in use, show notification
-    if (table.current_pos_order) {
+    if (!table.is_available) {
       frappe.msgprint(__('Table is not available. It already has an active order.'));
       return;
     }
-    // Mark as new order (simulating creating a new order; in a real implementation, you could call an API to create an order)
-    table.current_pos_order = {};
+    // Select the table
     state.selectedTable = table;
     updateSelectedTableDisplay();
-    // Re-render tables: now the table with the new order won't appear in the active grid
+    // Clear current order
+    state.currentOrder = { items: [], sentItems: [], total_qty: 0, total_amount: 0 };
+    renderOrderItems();
+    // Re-render tables to show selection
     renderTables();
-    frappe.msgprint(__('New order created at Table ') + tableNo);
+    frappe.show_alert({
+      message: __('Table selected. Add items to create new order.'),
+      indicator: 'green'
+    }, 3);
   };
 
   const handleBranchChange = async () => {
     state.selectedBranch = elements.branchSelector ? elements.branchSelector.value : null;
     state.selectedTable = null;
-    state.currentOrder = { items: [], sentItems: [] };
+    state.currentOrder = { items: [], sentItems: [], total_qty: 0, total_amount: 0 };
     updateSelectedTableDisplay();
     renderOrderItems();
     updateActionButtons();
@@ -416,7 +535,7 @@ frappe.ready(() => {
     await loadItems();
   };
 
-  const handleItemSelection = (event) => {
+  const handleItemSelection = async (event) => {
     const itemButton = event.target.closest('.item-button');
     if (!itemButton) return;
     
@@ -430,8 +549,18 @@ frappe.ready(() => {
       state.selectedItemTemplate = item;
       showVariantModal(item);
     } else {
-      // Add item directly to order
-      addItemToOrder(item);
+      // Fetch rate if not already cached
+      if (state.itemRates[itemCode] === undefined) {
+        const rate = await fetchItemRate(itemCode);
+        state.itemRates[itemCode] = rate;
+      }
+      
+      // Add item directly to order with rate
+      addItemToOrder({
+        item_code: itemCode,
+        item_name: item.item_name,
+        rate: state.itemRates[itemCode]
+      });
     }
   };
 
@@ -463,8 +592,17 @@ frappe.ready(() => {
   };
 
   const handleSendToKitchen = async () => {
-    if (!state.selectedTable || !state.currentOrder.items.length || 
-        !elements.sendToKitchenBtn || elements.sendToKitchenBtn.classList.contains('disabled-btn')) {
+    if (!state.selectedTable) {
+      frappe.msgprint(__('Please select a table first'));
+      return;
+    }
+    
+    if (!state.currentOrder.items.length) {
+      frappe.msgprint(__('Please add items to the order'));
+      return;
+    }
+    
+    if (!elements.sendToKitchenBtn || elements.sendToKitchenBtn.classList.contains('disabled-btn')) {
       return;
     }
     
@@ -474,7 +612,9 @@ frappe.ready(() => {
       
       const orderData = {
         table: state.selectedTable.name,
-        items: state.currentOrder.items
+        items: state.currentOrder.items,
+        total_qty: state.currentOrder.total_qty,
+        total_amount: state.currentOrder.total_amount
       };
       
       const result = await frappe.call({
@@ -491,23 +631,27 @@ frappe.ready(() => {
           message: __('Order sent to kitchen successfully'),
           indicator: 'green'
         }, 5);
-        // Refresh table list to update occupancy
+        // Refresh table list to update availability
         await loadTables();
         updateActionButtons();
       } else {
-        frappe.throw(__('Failed to send order to kitchen'));
+        frappe.msgprint(__('Failed to send order to kitchen. Please try again.'));
       }
       hideLoading();
     } catch (error) {
       log('error', 'Error sending order to kitchen:', error);
-      frappe.throw(__('Failed to send order to kitchen'));
+      frappe.msgprint(__('Failed to send order to kitchen. Error: ' + (error.message || 'Unknown error')));
       hideLoading();
     }
   };
 
   const handleSendAdditionalItems = async () => {
-    if (!state.selectedTable || 
-        !elements.sendAdditionalBtn || elements.sendAdditionalBtn.classList.contains('disabled-btn')) {
+    if (!state.selectedTable) {
+      frappe.msgprint(__('Please select a table first'));
+      return;
+    }
+    
+    if (!elements.sendAdditionalBtn || elements.sendAdditionalBtn.classList.contains('disabled-btn')) {
       return;
     }
     
@@ -518,7 +662,10 @@ frappe.ready(() => {
       )
     );
     
-    if (!newItems.length) return;
+    if (!newItems.length) {
+      frappe.msgprint(__('No new items to send'));
+      return;
+    }
     
     try {
       ensureElements();
@@ -527,7 +674,9 @@ frappe.ready(() => {
       const orderData = {
         table: state.selectedTable.name,
         items: newItems,
-        is_additional: true
+        is_additional: true,
+        total_qty: state.currentOrder.total_qty,
+        total_amount: state.currentOrder.total_amount
       };
       
       const result = await frappe.call({
@@ -545,21 +694,83 @@ frappe.ready(() => {
         }, 5);
         updateActionButtons();
       } else {
-        frappe.throw(__('Failed to send additional items to kitchen'));
+        frappe.msgprint(__('Failed to send additional items to kitchen. Please try again.'));
       }
       hideLoading();
     } catch (error) {
       log('error', 'Error sending additional items:', error);
-      frappe.throw(__('Failed to send additional items to kitchen'));
+      frappe.msgprint(__('Failed to send additional items to kitchen. Error: ' + (error.message || 'Unknown error')));
+      hideLoading();
+    }
+  };
+  
+  const handleCancelOrder = async () => {
+    if (!state.selectedTable) {
+      frappe.msgprint(__('Please select a table first'));
+      return;
+    }
+    
+    if (!elements.cancelOrderBtn || elements.cancelOrderBtn.classList.contains('disabled-btn')) {
+      return;
+    }
+    
+    // Confirm cancellation
+    if (!confirm(__('Are you sure you want to cancel this order? This action cannot be undone.'))) {
+      return;
+    }
+    
+    try {
+      ensureElements();
+      showLoading();
+      
+      const result = await frappe.call({
+        method: 'restaurant_management.api.waiter_order.cancel_order',
+        args: { 
+          table: state.selectedTable.name
+        },
+        freeze: true,
+        freeze_message: __('Cancelling order...')
+      });
+      
+      if (result.message && result.message.success) {
+        // Clear current order
+        state.currentOrder = { items: [], sentItems: [], total_qty: 0, total_amount: 0 };
+        renderOrderItems();
+        
+        frappe.show_alert({
+          message: __('Order cancelled successfully'),
+          indicator: 'green'
+        }, 5);
+        
+        // Refresh table list to update availability
+        await loadTables();
+        
+        // Reset selected table
+        state.selectedTable = null;
+        updateSelectedTableDisplay();
+        updateActionButtons();
+      } else {
+        frappe.msgprint(__('Failed to cancel order. Please try again.'));
+      }
+      hideLoading();
+    } catch (error) {
+      log('error', 'Error cancelling order:', error);
+      frappe.msgprint(__('Failed to cancel order. Error: ' + (error.message || 'Unknown error')));
       hideLoading();
     }
   };
 
   // Variant handling
-  const showVariantModal = (item) => {
+  const showVariantModal = async (item) => {
     if (!elements.variantItemName || !elements.modalOverlay || !elements.variantModal) return;
 
-    elements.variantItemName.textContent = item.item_name;
+    // Fetch rate for the template item
+    if (state.itemRates[item.item_code] === undefined) {
+      const rate = await fetchItemRate(item.item_code);
+      state.itemRates[item.item_code] = rate;
+    }
+
+    elements.variantItemName.textContent = `${item.item_name} - ₹${formatCurrency(state.itemRates[item.item_code])}`;
 
     if (elements.sauceSelect) {
       elements.sauceSelect.innerHTML = '<option value="">Select Sauce</option>';
@@ -578,7 +789,7 @@ frappe.ready(() => {
           elements.modalOverlay.style.display = 'block';
           elements.variantModal.style.display = 'block';
         } else {
-          frappe.throw(__('Failed to get variant attributes'));
+          frappe.msgprint(__('Failed to get variant attributes'));
         }
       }
     });
@@ -610,7 +821,7 @@ frappe.ready(() => {
         normalFields.push(`
           <div class="form-group">
             <label for="attr-${attr.name}">${attr.field_name}</label>
-            <select class="form-control variant-attribute" id="attr-${attr.name}" data-attribute="${attr.field_name}">
+            <select class="form-control variant-attribute" id="attr-${attr.name}" data-attribute="${attr.field_name}" aria-label="Select ${attr.field_name}">
               <option value="">Select ${attr.field_name}</option>
               ${options}
             </select>
@@ -648,7 +859,7 @@ frappe.ready(() => {
     });
     
     if (!allSelected) {
-      frappe.throw(__('Please select all variant attributes'));
+      frappe.msgprint(__('Please select all variant attributes'));
       return;
     }
     
@@ -667,20 +878,30 @@ frappe.ready(() => {
       
       if (result.message) {
         const variant = result.message;
+        
+        // Fetch rate for the variant
+        let variantRate = await fetchItemRate(variant.item_code);
+        
+        // If variant doesn't have a specific rate, use the template's rate
+        if (!variantRate && state.itemRates[state.selectedItemTemplate.item_code]) {
+          variantRate = state.itemRates[state.selectedItemTemplate.item_code];
+        }
+        
         addItemToOrder({
           item_code: variant.item_code,
           item_name: variant.item_name,
+          rate: variantRate,
           attributes: attributes
         });
         closeVariantModal();
       } else {
-        frappe.throw(__('Failed to resolve variant'));
+        frappe.msgprint(__('Failed to resolve variant. Please try again.'));
       }
       
       hideLoading();
     } catch (error) {
       log('error', 'Error resolving variant:', error);
-      frappe.throw(__('Failed to resolve variant'));
+      frappe.msgprint(__('Failed to resolve variant. Error: ' + (error.message || 'Unknown error')));
       hideLoading();
     }
   };
@@ -698,12 +919,22 @@ frappe.ready(() => {
       state.currentOrder.items.push({
         item_code: item.item_code,
         item_name: item.item_name,
+        rate: item.rate || 0,
         qty: 1,
         attributes: item.attributes
       });
     }
     
     renderOrderItems();
+  };
+
+  // Helper: Format currency for display
+  const formatCurrency = (amount) => {
+    try {
+      return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    } catch (e) {
+      return '0.00';
+    }
   };
 
   const showLoading = () => {

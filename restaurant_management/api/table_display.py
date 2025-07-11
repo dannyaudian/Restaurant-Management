@@ -1,132 +1,139 @@
 import frappe
 from frappe import _
 import json
+from frappe.utils.caching import redis_cache
 
 
 @frappe.whitelist()
-def get_table_overview(branch_code=None):
+def get_table_status(branch=None):
     """
-    Get overview of tables with active orders
+    Get status of all tables, optionally filtered by branch
     
     Args:
-        branch_code (str, optional): Filter by branch code
+        branch (str, optional): Branch docname to filter tables by
         
     Returns:
-        List of tables with order summary and items
+        List of tables with their status information
     """
-    from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user
+    # Use caching for frequent reloads
+    cache_key = f"table_status:{branch or 'all'}"
+    cached_data = frappe.cache().get_value(cache_key)
     
-    filters = {}
+    if cached_data:
+        return cached_data
     
-    # Get allowed branches for current user
-    allowed_branches = get_allowed_branches_for_user()
+    # Build filters
+    filters = {"is_active": 1}
+    if branch:
+        filters["branch"] = branch
     
-    if branch_code:
-        # If specific branch requested, check if user has access
-        if branch_code in allowed_branches:
-            filters["branch_code"] = branch_code
-        else:
-            frappe.throw(_("You don't have permission to access this branch"))
-    else:
-        # Otherwise filter by all allowed branches
-        if allowed_branches:
-            filters["branch_code"] = ["in", allowed_branches]
+    # Get branch code for cache key
+    branch_code = None
+    if branch:
+        branch_code = frappe.db.get_value("Branch", branch, "branch_code")
     
-    if branch_code:
-        filters["branch_code"] = branch_code
+    # Efficient query with join to get waiter information
+    tables = frappe.db.sql("""
+        SELECT 
+            t.name, 
+            t.table_number,
+            t.branch,
+            b.branch_code,
+            t.status,
+            t.current_pos_order,
+            t.is_active,
+            t.seating_capacity,
+            CASE WHEN t.current_pos_order IS NULL THEN 1 ELSE 0 END as is_available,
+            wo.status as order_status,
+            wo.order_time,
+            wo.waiter,
+            e.employee_name as waiter_name
+        FROM 
+            `tabTable` t
+        LEFT JOIN
+            `tabBranch` b ON t.branch = b.name
+        LEFT JOIN
+            `tabWaiter Order` wo ON t.current_pos_order = wo.name
+        LEFT JOIN
+            `tabEmployee` e ON wo.waiter = e.name
+        WHERE
+            t.is_active = 1
+            {branch_filter}
+        ORDER BY
+            t.table_number
+    """.format(
+        branch_filter=f"AND t.branch = '{branch}'" if branch else ""
+    ), as_dict=1)
     
-    # Get all tables from the branch
-    tables = frappe.get_all(
-        "Table",
-        filters=filters,
-        fields=["name", "table_number", "status", "current_pos_order", "branch_code"],
-        order_by="table_number"
-    )
-    
+    # Process results
     result = []
-    
     for table in tables:
-        # Skip tables with no current order
-        if not table.current_pos_order:
-            # Only include available tables if they don't have an order
-            if table.status == "Available":
-                result.append({
-                    "name": table.name,
-                    "table_number": table.table_number,
-                    "status": "Available",
-                    "order_id": None,
-                    "items": [],
-                    "summary": {
-                        "total_items": 0,
-                        "items_in_progress": 0,
-                        "items_ready": 0,
-                        "items_served": 0,
-                        "total_amount": 0
-                    }
-                })
-            continue
-        
-        # Check if order is paid - skip if it is
-        order_status = frappe.db.get_value("Waiter Order", table.current_pos_order, "status")
-        if order_status == "Paid":
-            continue
-        
-        # Get order items
-        items = frappe.get_all(
-            "Waiter Order Item",
-            filters={"parent": table.current_pos_order},
-            fields=["item_code", "item_name", "qty", "status", "price"]
-        )
-        
-        # Calculate summary statistics
-        total_items = sum(item.qty for item in items)
-        items_in_progress = sum(item.qty for item in items if item.status in ["Waiting", "Cooking"])
-        items_ready = sum(item.qty for item in items if item.status == "Ready")
-        items_served = sum(item.qty for item in items if item.status == "Served")
-        total_amount = sum(item.qty * item.price for item in items)
-        
-        result.append({
+        table_data = {
             "name": table.name,
             "table_number": table.table_number,
-            "status": "In Progress",
-            "order_id": table.current_pos_order,
-            "items": items,
-            "summary": {
-                "total_items": total_items,
-                "items_in_progress": items_in_progress,
-                "items_ready": items_ready,
-                "items_served": items_served,
-                "total_amount": total_amount
-            }
-        })
+            "branch": table.branch,
+            "branch_code": table.branch_code,
+            "status": table.status,
+            "is_available": bool(table.is_available),
+            "seating_capacity": table.seating_capacity,
+            "current_pos_order": table.current_pos_order
+        }
+        
+        # Add order details if available
+        if table.current_pos_order:
+            table_data.update({
+                "order_status": table.order_status,
+                "order_time": table.order_time,
+                "waiter": table.waiter,
+                "waiter_name": table.waiter_name
+            })
+        
+        result.append(table_data)
+    
+    # Cache the result for 10 seconds (short-lived to maintain freshness)
+    frappe.cache().set_value(cache_key, result, expires_in_sec=10)
     
     return result
 
 
 @frappe.whitelist()
+@redis_cache(ttl=60)
 def get_branches():
-    """Get list of branches the user has access to"""
-    from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user
+    """
+    Get list of branches the user has access to
     
-    # Get allowed branches for current user
-    allowed_branch_codes = get_allowed_branches_for_user()
-    
-    if allowed_branch_codes:
-        branches = frappe.get_all(
+    Returns:
+        List of branches with name and branch_code
+    """
+    # Check if user has specific branch permissions
+    if frappe.has_permission("Branch", "read"):
+        # Get branches based on user permissions
+        branches = frappe.get_list(
             "Branch",
-            filters={"branch_code": ["in", allowed_branch_codes]},
-            fields=["branch_code", "name"],
-            order_by="name"
+            fields=["name", "branch_name", "branch_code"],
+            order_by="branch_name",
+            as_list=0
         )
     else:
-        # If no specific branches allowed (shouldn't happen, but fallback)
-        branches = []
+        # Default to all branches if no specific permissions
+        branches = frappe.get_all(
+            "Branch",
+            fields=["name", "branch_name", "branch_code"],
+            order_by="branch_name"
+        )
     
     return branches
 
+
 @frappe.whitelist()
+@redis_cache(ttl=300)  # Cache for 5 minutes
 def get_table_display_config():
-    """Get table display configuration"""
+    """
+    Get table display configuration
+    
+    Returns:
+        Dictionary with display configuration
+    """
     config_path = frappe.get_app_path("restaurant_management", "config", "table_display.json")
     
     try:
@@ -138,10 +145,34 @@ def get_table_display_config():
         return {
             "refresh_interval": 30,
             "default_branch_code": "",
-            "status_color_map": {
-                "Waiting": "#e74c3c",
-                "Cooking": "#f39c12",
-                "Ready": "#2ecc71",
-                "Served": "#95a5a6"
+            "status_colors": {
+                "Available": "#2ecc71",  # green
+                "In Progress": "#e74c3c", # red
+                "Paid": "#3498db"        # blue
             }
         }
+
+
+@frappe.whitelist()
+def refresh_table_status(table_name=None):
+    """
+    Force refresh the table status cache
+    
+    Args:
+        table_name (str, optional): Specific table to refresh
+    
+    Returns:
+        Boolean indicating success
+    """
+    # Clear all table status caches
+    cache_keys = frappe.cache().get_keys("table_status:*")
+    for key in cache_keys:
+        frappe.cache().delete_key(key)
+    
+    # If a specific table was updated, get its branch and clear that branch's cache
+    if table_name:
+        branch = frappe.db.get_value("Table", table_name, "branch")
+        if branch:
+            frappe.cache().delete_key(f"table_status:{branch}")
+    
+    return {"success": True}

@@ -1,50 +1,86 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:station_name",
  "creation": "2023-11-01 10:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "basic_info_section",
   "station_name",
   "is_active",
   "column_break_3",
+  "branch",
   "branch_code",
+  "configuration_section",
   "printer_name",
-  "section_break_6",
+  "default_preparation_time",
+  "item_groups_section",
   "item_groups"
  ],
  "fields": [
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
   {
    "fieldname": "station_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Station Name",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1,
+   "description": "Name of the kitchen station (e.g., Hot Kitchen, Cold Kitchen, Bar)"
   },
   {
    "default": "1",
    "fieldname": "is_active",
    "fieldtype": "Check",
-   "label": "Is Active"
+   "in_list_view": 1,
+   "label": "Is Active",
+   "description": "Inactive stations won't receive orders"
   },
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "branch_code",
+   "fieldname": "branch",
    "fieldtype": "Link",
-   "Options": "branch_code",
-   "label": "Branch Code"
+   "label": "Branch",
+   "options": "Branch",
+   "in_list_view": 1,
+   "description": "Branch where this kitchen station is located"
+  },
+  {
+   "fieldname": "branch_code",
+   "fieldtype": "Data",
+   "label": "Branch Code",
+   "fetch_from": "branch.branch_code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Configuration"
   },
   {
    "fieldname": "printer_name",
    "fieldtype": "Data",
-   "label": "Printer Name"
+   "label": "Printer Name",
+   "description": "System name of the printer for automatic printing"
   },
   {
-   "fieldname": "section_break_6",
+   "fieldname": "default_preparation_time",
+   "fieldtype": "Int",
+   "label": "Default Preparation Time (mins)",
+   "default": "15",
+   "description": "Default preparation time in minutes for items at this station"
+  },
+  {
+   "fieldname": "item_groups_section",
    "fieldtype": "Section Break",
    "label": "Item Groups"
   },
@@ -52,7 +88,9 @@
    "fieldname": "item_groups",
    "fieldtype": "Table MultiSelect",
    "label": "Item Groups",
-   "options": "Kitchen Station Item Group"
+   "options": "Kitchen Station Item Group",
+   "description": "Item groups that are prepared at this station",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -61,6 +99,7 @@
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "Kitchen Station",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -95,5 +134,16 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1
+ "track_changes": 1,
+ "track_seen": 1,
+ "quick_entry": 1,
+ "search_fields": "station_name,branch",
+ "default_view": "List",
+ "list_view": {
+  "columns": [
+   "station_name",
+   "branch",
+   "is_active"
+  ]
+ }
 }

@@ -3,114 +3,37 @@ frappe.ready(function() {
   const state = {
     tables: [],
     branches: [],
-    selectedBranch: localStorage.getItem('table_overview_selected_branch') || '',
+    selectedBranch: localStorage.getItem('selected_branch') || '',
     refreshInterval: 30, // seconds
     countdownInterval: null,
     currentCount: 30,
     isLoading: false,
     config: {
       refresh_interval: 30,
-      status_color_map: {
-        'Waiting': '#e74c3c',
-        'Cooking': '#f39c12',
-        'Ready': '#2ecc71',
-        'Served': '#95a5a6'
-      },
-      default_branch_code: ''
+      status_colors: {
+        'Available': '#2ecc71', // green
+        'In Progress': '#e74c3c', // red
+        'Paid': '#3498db'        // blue
+      }
     }
   };
 
   // DOM Elements
   const elements = {
     tablesContainer: document.getElementById('tables-container'),
-    branchCodeSelect: document.getElementById('branch-code'),
+    branchSelector: document.getElementById('branch-selector'),
     refreshCountdown: document.getElementById('refresh-countdown'),
+    refreshNowBtn: document.getElementById('refresh-now-btn'),
     loadingOverlay: document.getElementById('loading-overlay')
   };
 
-  // Check if required DOM elements exist and create fallbacks if needed
-  function checkElements() {
-    // If tables container is missing, find another container or create one
-    if (!elements.tablesContainer) {
-      elements.tablesContainer = document.querySelector('.tables-grid') || 
-                                document.querySelector('.overview-content');
-      
-      // If still not found, create a fallback
-      if (!elements.tablesContainer) {
-        const container = document.createElement('div');
-        container.id = 'tables-container';
-        container.className = 'tables-grid';
-        document.body.appendChild(container);
-        elements.tablesContainer = container;
-      }
-    }
-    
-    // If branch select is missing, create a fallback
-    if (!elements.branchCodeSelect) {
-      // Try to find it by class
-      elements.branchCodeSelect = document.querySelector('.branch-select');
-      
-      if (!elements.branchCodeSelect) {
-        console.warn('Branch select dropdown not found in DOM');
-        // We won't create this as it's less critical
-      }
-    }
-    
-    // If refresh countdown is missing, create a fallback
-    if (!elements.refreshCountdown) {
-      elements.refreshCountdown = document.querySelector('#refresh-countdown');
-      
-      if (!elements.refreshCountdown) {
-        console.warn('Refresh countdown element not found in DOM');
-        // Not critical, so we won't create it
-      }
-    }
-    
-    // If loading overlay is missing, create one
-    if (!elements.loadingOverlay) {
-      const loadingOverlay = document.createElement('div');
-      loadingOverlay.id = 'loading-overlay';
-      loadingOverlay.className = 'loading-overlay';
-      loadingOverlay.style.position = 'fixed';
-      loadingOverlay.style.top = '0';
-      loadingOverlay.style.left = '0';
-      loadingOverlay.style.right = '0';
-      loadingOverlay.style.bottom = '0';
-      loadingOverlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
-      loadingOverlay.style.display = 'none';
-      loadingOverlay.style.justifyContent = 'center';
-      loadingOverlay.style.alignItems = 'center';
-      loadingOverlay.style.zIndex = '1000';
-      loadingOverlay.style.color = 'white';
-      loadingOverlay.style.fontSize = '20px';
-      
-      loadingOverlay.innerHTML = '<div class="spinner" style="border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 4px solid white; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-right: 15px;"></div><div>Loading...</div>';
-      
-      // Add spin animation if needed
-      if (!document.getElementById('spin-animation')) {
-        const style = document.createElement('style');
-        style.id = 'spin-animation';
-        style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
-        document.head.appendChild(style);
-      }
-      
-      document.body.appendChild(loadingOverlay);
-      elements.loadingOverlay = loadingOverlay;
-    }
-  }
-
-  // Initialize the Table Overview
+  // Initialize the page
   init();
 
   async function init() {
     try {
-      // First ensure all required elements exist
-      checkElements();
-      
+      ensureElements();
       showLoading();
-      
-      // Load configuration
-      await loadConfig();
       
       // Load branches
       await loadBranches();
@@ -126,88 +49,144 @@ frappe.ready(function() {
       
       hideLoading();
     } catch (error) {
-      console.error('Error initializing Table Overview:', error);
-      
-      // Show error message in a more reliable way
-      try {
-        frappe.show_alert({
-          message: __('Failed to initialize Table Overview'),
-          indicator: 'red'
-        });
-      } catch (alertError) {
-        console.error('Could not show alert:', alertError);
-        
-        // Fallback to basic alert if frappe.show_alert fails
-        try {
-          alert('Failed to initialize Table Overview');
-        } catch (e) { /* Last resort - just log it */ }
-      }
-      
+      console.error('Error initializing Table Display:', error);
+      frappe.msgprint(__('Failed to initialize Table Display'));
       hideLoading();
     }
   }
 
-  // Load configuration from server
-  async function loadConfig() {
-    try {
-      const result = await frappe.call({
-        method: 'restaurant_management.api.table_display.get_table_display_config',
-        freeze: false
-      }).catch(error => {
-        console.warn("API call failed for config:", error);
-        return { message: null }; // Return empty result on failure
-      });
-      
-      if (result && result.message) {
-        // Update config with server values
-        Object.assign(state.config, result.message);
-        
-        // Apply configuration
-        state.refreshInterval = state.config.refresh_interval || 30;
-        state.currentCount = state.refreshInterval;
-        
-        // Set default branch if configured and no user selection
-        if (!state.selectedBranch && state.config.default_branch_code) {
-          state.selectedBranch = state.config.default_branch_code;
-          try {
-            localStorage.setItem('table_overview_selected_branch', state.selectedBranch);
-          } catch (e) {
-            console.warn('Could not store branch preference in localStorage', e);
-          }
+  // Ensure all required elements exist
+  function ensureElements() {
+    if (!elements.tablesContainer) {
+      const container = document.createElement('div');
+      container.id = 'tables-container';
+      container.className = 'tables-grid';
+      document.body.appendChild(container);
+      elements.tablesContainer = container;
+    }
+    
+    if (!elements.loadingOverlay) {
+      const loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'loading-overlay';
+      loadingOverlay.className = 'loading-overlay';
+      loadingOverlay.innerHTML = '<div class="spinner"></div><div>Loading...</div>';
+      document.body.appendChild(loadingOverlay);
+      elements.loadingOverlay = loadingOverlay;
+    }
+    
+    // Add styles if not already present
+    if (!document.getElementById('table-display-styles')) {
+      const styles = document.createElement('style');
+      styles.id = 'table-display-styles';
+      styles.textContent = `
+        .tables-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 15px;
+          padding: 15px;
         }
-      }
-    } catch (error) {
-      console.error('Error loading Table Overview config:', error);
-      // Use default config values (already set in state initialization)
+        .table-card {
+          border-radius: 8px;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+          padding: 15px;
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+          position: relative;
+          overflow: hidden;
+        }
+        .table-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .table-number {
+          font-size: 1.4rem;
+          font-weight: bold;
+        }
+        .table-status {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          margin: 10px;
+        }
+        .table-info {
+          margin-top: 10px;
+          font-size: 0.9rem;
+        }
+        .table-info p {
+          margin: 5px 0;
+        }
+        .waiter-name {
+          font-style: italic;
+        }
+        .loading-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0,0,0,0.5);
+          display: none;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          color: white;
+          flex-direction: column;
+        }
+        .spinner {
+          border: 4px solid rgba(255,255,255,0.3);
+          border-radius: 50%;
+          border-top: 4px solid white;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin-bottom: 10px;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .branch-selector-container {
+          margin: 15px;
+        }
+        .refresh-container {
+          display: flex;
+          align-items: center;
+          margin: 0 15px 15px;
+          font-size: 0.9rem;
+        }
+        .capacity-indicator {
+          display: inline-block;
+          margin-left: 5px;
+          font-size: 0.8rem;
+        }
+        .empty-state {
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: 30px;
+          color: #7f8c8d;
+        }
+      `;
+      document.head.appendChild(styles);
     }
   }
 
-  // Load branches
+  // Load branches from server
   async function loadBranches() {
     try {
       const result = await frappe.call({
         method: 'restaurant_management.api.table_display.get_branches',
         freeze: false
-      }).catch(error => {
-        console.warn("API call failed for branches:", error);
-        return { message: [] }; // Return empty result on failure
       });
       
-      state.branches = result && result.message ? result.message : [];
-      renderBranchOptions();
+      state.branches = result.message || [];
+      renderBranchSelector();
     } catch (error) {
       console.error('Error loading branches:', error);
-      state.branches = []; // Set empty branches array
-      renderBranchOptions(); // Render with empty data
-      
-      try {
-        frappe.show_alert({
-          message: __('Failed to load branches'),
-          indicator: 'red'
-        });
-      } catch (e) {
-        console.warn('Could not show alert', e);
-      }
+      frappe.msgprint(__('Failed to load branches'));
+      state.branches = [];
     }
   }
 
@@ -219,127 +198,80 @@ frappe.ready(function() {
       state.isLoading = true;
       
       const result = await frappe.call({
-        method: 'restaurant_management.api.table_display.get_table_overview',
+        method: 'restaurant_management.api.table_display.get_table_status',
         args: {
-          branch_code: state.selectedBranch
+          branch: state.selectedBranch
         },
         freeze: false
-      }).catch(error => {
-        console.warn("API call failed for table data:", error);
-        return { message: [] }; // Return empty result on failure
       });
       
-      state.tables = result && result.message ? result.message : [];
+      state.tables = result.message || [];
       renderTables();
       
       state.isLoading = false;
     } catch (error) {
       console.error('Error refreshing table data:', error);
-      state.tables = []; // Set empty tables array
-      renderTables(); // Render with empty data
+      frappe.msgprint(__('Failed to load table status'));
       state.isLoading = false;
     }
   }
 
-  // Render branch options
-  function renderBranchOptions() {
-    // Safety check for the select element
-    if (!elements.branchCodeSelect) return;
+  // Render branch selector
+  function renderBranchSelector() {
+    if (!elements.branchSelector) return;
     
     let options = '<option value="">All Branches</option>';
     
-    if (state.branches && state.branches.length) {
-      state.branches.forEach(branch => {
-        if (branch && branch.branch_code) {
-          options += `<option value="${branch.branch_code}" ${state.selectedBranch === branch.branch_code ? 'selected' : ''}>${branch.name || branch.branch_code} (${branch.branch_code})</option>`;
-        }
-      });
-    }
+    state.branches.forEach(branch => {
+      options += `<option value="${branch.name}" ${state.selectedBranch === branch.name ? 'selected' : ''}>${branch.branch_name || branch.name}</option>`;
+    });
     
-    elements.branchCodeSelect.innerHTML = options;
+    elements.branchSelector.innerHTML = options;
   }
 
   // Render tables
   function renderTables() {
-    // Safety check for the container element
     if (!elements.tablesContainer) return;
     
-    if (!state.tables || !state.tables.length) {
+    if (!state.tables.length) {
       elements.tablesContainer.innerHTML = `
         <div class="empty-state">
-          No active tables found for the selected branch
+          <h3>No tables found</h3>
+          <p>No tables are available for the selected branch</p>
         </div>
       `;
       return;
     }
 
     elements.tablesContainer.innerHTML = state.tables.map(table => {
-      if (!table) return ''; // Skip invalid table objects
+      // Get status color
+      const statusColor = state.config.status_colors[table.status] || '#95a5a6'; // Default gray
       
-      // Generate summary statistics display with safe fallbacks
-      const summary = table.summary || {
-        total_items: 0,
-        items_in_progress: 0,
-        items_ready: 0,
-        items_served: 0,
-        total_amount: 0
-      };
+      // Get capacity display
+      const capacityDisplay = table.seating_capacity ? 
+        `<span class="capacity-indicator">(${table.seating_capacity} seats)</span>` : '';
       
-      const summaryStats = `
-        <div class="table-summary">
-          <div class="summary-stat">
-            <div class="stat-value">${summary.total_items || 0}</div>
-            <div class="stat-label">Total Items</div>
+      // Create waiter info if available
+      let waiterInfo = '';
+      if (table.current_pos_order) {
+        waiterInfo = `
+          <div class="table-info">
+            <p>Order: ${table.current_pos_order}</p>
+            ${table.waiter ? `<p class="waiter-name">Waiter: ${table.waiter}</p>` : ''}
+            ${table.order_time ? `<p>Since: ${formatTime(table.order_time)}</p>` : ''}
           </div>
-          <div class="summary-stat">
-            <div class="stat-value">${summary.items_in_progress || 0}</div>
-            <div class="stat-label">In Progress</div>
-          </div>
-          <div class="summary-stat">
-            <div class="stat-value">${summary.items_ready || 0}</div>
-            <div class="stat-label">Ready</div>
-          </div>
-          <div class="summary-stat">
-            <div class="stat-value">${summary.items_served || 0}</div>
-            <div class="stat-label">Served</div>
-          </div>
-        </div>
-      `;
-      
-      // Generate items list with safety checks
-      const items = table.items || [];
-      const itemsList = items.length ? 
-        items.map(item => {
-          if (!item) return ''; // Skip invalid items
-          
-          return `
-            <div class="item-row">
-              <div class="item-info">
-                <span class="item-name">${item.item_name || 'Unknown Item'}</span>
-                <span class="item-quantity">x${item.qty || 1}</span>
-              </div>
-              <div class="item-status status-${(item.status || 'waiting').toLowerCase()}">${item.status || 'Waiting'}</div>
-            </div>
-          `;
-        }).join('') : 
-        '<div class="empty-items">No items</div>';
+        `;
+      }
       
       return `
-        <div class="table-card">
-          <div class="table-header">
-            <div class="table-number">Table ${table.table_number || table.name || 'Unknown'}</div>
-            <div class="table-status status-${(table.status || 'available').toLowerCase()}">${table.status || 'Available'}</div>
+        <div class="table-card" data-table-id="${table.name}" data-order-id="${table.current_pos_order || ''}">
+          <div class="table-status" style="background-color: ${statusColor};"></div>
+          <div class="table-number">
+            Table ${table.table_number || table.name}
+            ${capacityDisplay}
           </div>
-          
-          ${summaryStats}
-          
-          <div class="table-items">
-            ${itemsList}
-          </div>
-          
-          <div class="total-amount">
-            Total: ₹${formatCurrency(summary.total_amount || 0)}
-          </div>
+          <div class="table-branch">${table.branch_code || table.branch || ''}</div>
+          ${waiterInfo}
         </div>
       `;
     }).join('');
@@ -347,16 +279,40 @@ frappe.ready(function() {
 
   // Set up event listeners
   function setupEventListeners() {
-    // Branch select change - with safety check
-    if (elements.branchCodeSelect) {
-      elements.branchCodeSelect.addEventListener('change', function() {
+    // Branch selector change
+    if (elements.branchSelector) {
+      elements.branchSelector.addEventListener('change', function() {
         state.selectedBranch = this.value;
-        try {
-          localStorage.setItem('table_overview_selected_branch', state.selectedBranch);
-        } catch (e) {
-          console.warn('Could not store branch preference in localStorage', e);
-        }
+        localStorage.setItem('selected_branch', state.selectedBranch);
         refreshTableData();
+        resetRefreshTimer();
+      });
+    }
+    
+    // Refresh now button
+    if (elements.refreshNowBtn) {
+      elements.refreshNowBtn.addEventListener('click', function() {
+        refreshTableData();
+        resetRefreshTimer();
+      });
+    }
+    
+    // Table card click - use event delegation
+    if (elements.tablesContainer) {
+      elements.tablesContainer.addEventListener('click', function(e) {
+        const tableCard = e.target.closest('.table-card');
+        if (!tableCard) return;
+        
+        const tableId = tableCard.getAttribute('data-table-id');
+        const orderId = tableCard.getAttribute('data-order-id');
+        
+        if (orderId) {
+          // If there's an active order, go to the order page
+          window.location.href = `/app/waiter-order/${orderId}`;
+        } else {
+          // If table is available, go to new order page with table pre-selected
+          window.location.href = `/app/waiter-order/new-waiter-order?table=${tableId}`;
+        }
       });
     }
   }
@@ -367,7 +323,7 @@ frappe.ready(function() {
       clearInterval(state.countdownInterval);
     }
     
-    state.currentCount = state.refreshInterval;
+    state.currentCount = state.config.refresh_interval;
     updateCountdownDisplay();
     
     state.countdownInterval = setInterval(() => {
@@ -375,13 +331,19 @@ frappe.ready(function() {
       updateCountdownDisplay();
       
       if (state.currentCount <= 0) {
-        state.currentCount = state.refreshInterval;
+        state.currentCount = state.config.refresh_interval;
         refreshTableData();
       }
     }, 1000);
   }
 
-  // Update countdown display with safety check
+  // Reset refresh timer
+  function resetRefreshTimer() {
+    state.currentCount = state.config.refresh_interval;
+    updateCountdownDisplay();
+  }
+
+  // Update countdown display
   function updateCountdownDisplay() {
     if (elements.refreshCountdown) {
       elements.refreshCountdown.textContent = state.currentCount;
@@ -389,11 +351,16 @@ frappe.ready(function() {
   }
 
   // Helper Functions
-  function formatCurrency(amount) {
+  function formatTime(datetime) {
+    if (!datetime) return '';
+    
     try {
-      return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+      const date = new Date(datetime);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
     } catch (e) {
-      return '0.00'; // Return default value if formatting fails
+      return datetime;
     }
   }
 
