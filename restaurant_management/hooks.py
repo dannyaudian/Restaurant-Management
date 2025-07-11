@@ -75,12 +75,6 @@ fixtures = [
     {"dt": "Onboarding", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "Onboarding Step", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "DocType", "filters": [["name", "=", "POS Allowed Item Group"]]}
-    # Add these new fixtures:
-    {"dt": "Item Attribute", "filters": [["name", "in", ["Size", "Milk Type", "Sugar Level", "Patty Type", "Cheese"]]]},
-    {"dt": "Item Group", "filters": [["name", "in", ["Beverages", "Fast Food", "Pizza", "Sides"]]]},
-    {"dt": "Kitchen Station", "filters": [["name", "in", ["BEVERAGE-STATION", "GRILL-STATION", "PIZZA-STATION", "FRIES-STATION"]]]},
-    # For the Item fixtures, using a module filter is better as there may be many items:
-    {"dt": "Item", "filters": [["item_group", "in", ["Beverages", "Fast Food", "Pizza", "Sides"]]]}
 ]
 
 # Whitelisted Methods (can be called from frontend)
@@ -159,3 +153,8 @@ after_install = "restaurant_management.setup.install.after_install"
 
 # App setup events
 boot_session = "restaurant_management.startup.boot_session"
+
+# Add this to hooks.py
+commands = [
+    "restaurant_management.commands.create_demo_data"
+]
