@@ -44,7 +44,9 @@ doc_events = {
     },
     "Sales Order": {
         "validate": "restaurant_management.restaurant_management.overrides.sales_order.validate_restaurant_fields",
-        "on_update_after_submit": "restaurant_management.restaurant_management.overrides.sales_order.update_restaurant_status"
+        "on_update_after_submit": "restaurant_management.restaurant_management.overrides.sales_order.update_restaurant_status",
+        "on_submit": "restaurant_management.restaurant_management.overrides.sales_order.update_waiter_order_status",
+        "on_cancel": "restaurant_management.restaurant_management.overrides.sales_order.revert_waiter_order_status"
     },
     "Payment Entry": {
         "validate": "restaurant_management.restaurant_management.overrides.payment_entry.set_branch_from_reference",
@@ -71,7 +73,8 @@ fixtures = [
     {"dt": "Dashboard Chart", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "Number Card", "filters": [["module", "=", "Restaurant Management"]]},
     {"dt": "Onboarding", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Onboarding Step", "filters": [["module", "=", "Restaurant Management"]]}
+    {"dt": "Onboarding Step", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "DocType", "filters": [["name", "=", "POS Allowed Item Group"]]}
 ]
 
 # Whitelisted Methods (can be called from frontend)
@@ -90,8 +93,10 @@ whitelisted_methods = [
     "restaurant_management.api.pos_restaurant.create_sales_order_from_waiter_order",
     "restaurant_management.api.pos_restaurant.update_sales_order_from_waiter_order",
     "restaurant_management.api.table_display.get_table_overview",
+    "restaurant_management.api.table_display.get_table_status",
     "restaurant_management.api.table_display.get_branches",
     "restaurant_management.api.table_display.get_table_display_config",
+    "restaurant_management.api.table_display.refresh_table_status",
     "restaurant_management.api.waiter_order.get_available_tables",
     "restaurant_management.api.waiter_order.get_item_templates",
     "restaurant_management.api.waiter_order.get_item_groups",
@@ -104,7 +109,9 @@ whitelisted_methods = [
     "restaurant_management.restaurant_management.utils.branch_permissions.assign_all_branches_to_user",
     "restaurant_management.restaurant_management.utils.branch_permissions.get_allowed_branches_query",
     "restaurant_management.api.waiter_order.get_menu_items",
-    "restaurant_management.api.waiter_order.get_active_orders"
+    "restaurant_management.api.waiter_order.get_active_orders",
+    "restaurant_management.api.waiter_order.get_item_rate",
+    "restaurant_management.api.waiter_order.cancel_order"
 ]
 
 # Guest Methods (can be called without login)
@@ -115,6 +122,7 @@ guest_methods = [
     "restaurant_management.api.kds_display.get_branches",
     "restaurant_management.api.kds_display.get_kds_config",
     "restaurant_management.api.table_display.get_table_overview",
+    "restaurant_management.api.table_display.get_table_status",
     "restaurant_management.api.table_display.get_branches",
     "restaurant_management.api.table_display.get_table_display_config"
 ]
@@ -131,3 +139,17 @@ website_guest_routes = [
     "station_display",
     "table_display"
 ]
+
+# DocType creation
+doctype_js = {
+    "POS Profile": "public/js/pos_profile.js",
+    "Sales Order": "public/js/sales_order.js",
+    "Sales Invoice": "public/js/sales_invoice.js",
+    "POS Invoice": "public/js/pos_invoice.js"
+}
+
+# Install
+after_install = "restaurant_management.setup.install.after_install"
+
+# App setup events
+boot_session = "restaurant_management.startup.boot_session"
