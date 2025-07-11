@@ -206,6 +206,12 @@ frappe.ready(function() {
       });
       
       state.tables = result.message || [];
+
+      // Add fallback for empty results
+    if (!state.tables.length) {
+        frappe.msgprint(__('No tables available in this branch.'));
+      }
+
       renderTables();
       
       state.isLoading = false;

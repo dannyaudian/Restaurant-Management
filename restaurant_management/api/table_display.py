@@ -176,3 +176,41 @@ def refresh_table_status(table_name=None):
             frappe.cache().delete_key(f"table_status:{branch}")
     
     return {"success": True}
+
+
+@frappe.whitelist()
+def get_table_overview(branch=None):
+    """
+    Get a list of active tables with basic information, optionally filtered by branch.
+    
+    This function is designed to be called by table_display.js to get an overview
+    of all tables for display purposes.
+    
+    Args:
+        branch (str, optional): Branch name to filter tables by
+        
+    Returns:
+        Dict containing a list of tables with their basic information
+    """
+    # Build filters
+    filters = {"is_active": 1}
+    if branch:
+        filters["branch"] = branch
+    
+    # Get all active tables with the requested fields
+    tables = frappe.get_all(
+        "Table",
+        filters=filters,
+        fields=[
+            "name", 
+            "table_number", 
+            "status", 
+            "current_pos_order as current_order", 
+            "is_active as active", 
+            "modified"
+        ],
+        order_by="table_number"
+    )
+    
+    # Return the result in the requested format
+    return {"tables": tables}

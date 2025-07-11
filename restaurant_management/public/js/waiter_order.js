@@ -181,7 +181,7 @@ frappe.ready(() => {
       renderTables();
     } catch (error) {
       log('error', 'Error loading tables:', error);
-      frappe.msgprint(__('Failed to load tables'));
+      frappe.msgprint(__('Failed to fetch waiter order data.'));
     }
   };
 
@@ -196,7 +196,7 @@ frappe.ready(() => {
       renderItems();
     } catch (error) {
       log('error', 'Error loading items:', error);
-      frappe.msgprint(__('Failed to load menu items'));
+      frappe.msgprint(__('Failed to fetch waiter order data.'));
     }
   };
 
@@ -210,7 +210,7 @@ frappe.ready(() => {
       state.itemGroups = result.message || [];
     } catch (error) {
       log('error', 'Error loading item groups:', error);
-      frappe.msgprint(__('Failed to load item groups'));
+      frappe.msgprint(__('Failed to fetch waiter order data.'));
     }
   };
 
