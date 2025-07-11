@@ -4,12 +4,12 @@
  * Station Display JS for Kitchen Display System
  */
 
-// Element references
+// Element references with 'kds-' prefix to avoid ID collisions
 const ELEMENT_IDS = {
-    queueItems: 'queue-items',
-    kitchenSelect: 'kitchen-station',
-    branchSelect: 'branch-code',
-    countdown: 'refresh-countdown',
+    queueItems: 'kds-queue-items',
+    kitchenSelect: 'kds-kitchen-station',
+    branchSelect: 'kds-branch-code',
+    countdown: 'kds-refresh-countdown',
     loading: 'kds-loading'
 };
 
@@ -47,6 +47,42 @@ function log(level, message, data) {
 }
 
 /**
+ * Create an HTML element with specified attributes
+ * @param {string} tag - Element tag name
+ * @param {Object} attrs - Element attributes
+ * @param {string|HTMLElement} [content] - Element content
+ * @returns {HTMLElement} Created element
+ */
+function createElement(tag, attrs = {}, content = '') {
+    const element = document.createElement(tag);
+    
+    Object.entries(attrs).forEach(([key, value]) => {
+        if (key === 'className') {
+            element.className = value;
+        } else if (key === 'textContent') {
+            element.textContent = value;
+        } else if (key === 'innerHTML') {
+            element.innerHTML = value;
+        } else if (key.startsWith('on') && typeof value === 'function') {
+            const eventName = key.slice(2).toLowerCase();
+            element.addEventListener(eventName, value);
+        } else {
+            element.setAttribute(key, value);
+        }
+    });
+    
+    if (content) {
+        if (typeof content === 'string') {
+            element.innerHTML = content;
+        } else if (content instanceof HTMLElement) {
+            element.appendChild(content);
+        }
+    }
+    
+    return element;
+}
+
+/**
  * Ensure all required DOM elements exist, creating fallbacks if needed
  */
 function ensureElements() {
@@ -54,8 +90,7 @@ function ensureElements() {
     const queueItems = document.getElementById(ELEMENT_IDS.queueItems);
     if (!queueItems) {
         log('warn', 'Queue items container not found, creating fallback');
-        const tbody = document.createElement('tbody');
-        tbody.id = ELEMENT_IDS.queueItems;
+        const tbody = createElement('tbody', { id: ELEMENT_IDS.queueItems });
         
         // Try to find a table to append to
         const table = document.querySelector('table');
@@ -63,24 +98,26 @@ function ensureElements() {
             table.appendChild(tbody);
         } else {
             // Create a minimal table structure
-            const table = document.createElement('table');
-            table.className = 'min-w-full divide-y divide-gray-200';
+            const thead = createElement('thead', {
+                innerHTML: `
+                    <tr>
+                        <th>Item</th>
+                        <th>Table</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                `
+            });
             
-            const thead = document.createElement('thead');
-            thead.innerHTML = `
-                <tr>
-                    <th>Item</th>
-                    <th>Table</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            `;
+            const newTable = createElement('table', {
+                className: 'min-w-full divide-y divide-gray-200'
+            });
             
-            table.appendChild(thead);
-            table.appendChild(tbody);
+            newTable.appendChild(thead);
+            newTable.appendChild(tbody);
             
-            document.body.appendChild(table);
+            document.body.appendChild(newTable);
         }
     }
     
@@ -88,10 +125,11 @@ function ensureElements() {
     const kitchenSelect = document.getElementById(ELEMENT_IDS.kitchenSelect);
     if (!kitchenSelect) {
         log('warn', 'Kitchen station select not found, creating fallback');
-        const select = document.createElement('select');
-        select.id = ELEMENT_IDS.kitchenSelect;
-        select.className = 'rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm';
-        select.innerHTML = '<option value="">All Stations</option>';
+        const select = createElement('select', {
+            id: ELEMENT_IDS.kitchenSelect,
+            className: 'rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm',
+            innerHTML: '<option value="">All Stations</option>'
+        });
         document.body.appendChild(select);
     }
     
@@ -99,10 +137,11 @@ function ensureElements() {
     const branchSelect = document.getElementById(ELEMENT_IDS.branchSelect);
     if (!branchSelect) {
         log('warn', 'Branch select not found, creating fallback');
-        const select = document.createElement('select');
-        select.id = ELEMENT_IDS.branchSelect;
-        select.className = 'rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm';
-        select.innerHTML = '<option value="">All Branches</option>';
+        const select = createElement('select', {
+            id: ELEMENT_IDS.branchSelect,
+            className: 'rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm',
+            innerHTML: '<option value="">All Branches</option>'
+        });
         document.body.appendChild(select);
     }
     
@@ -110,10 +149,11 @@ function ensureElements() {
     const countdown = document.getElementById(ELEMENT_IDS.countdown);
     if (!countdown) {
         log('warn', 'Refresh countdown not found, creating fallback');
-        const span = document.createElement('span');
-        span.id = ELEMENT_IDS.countdown;
-        span.className = 'text-sm';
-        span.textContent = state.refreshInterval;
+        const span = createElement('span', {
+            id: ELEMENT_IDS.countdown,
+            className: 'text-sm',
+            textContent: state.refreshInterval
+        });
         document.body.appendChild(span);
     }
     
@@ -121,15 +161,16 @@ function ensureElements() {
     const loading = document.getElementById(ELEMENT_IDS.loading);
     if (!loading) {
         log('warn', 'Creating loading overlay');
-        const div = document.createElement('div');
-        div.id = ELEMENT_IDS.loading;
-        div.className = 'fixed inset-0 hidden items-center justify-center bg-black/60 z-50';
-        div.innerHTML = `
-            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
-                <p class="mt-4 text-gray-700">Loading...</p>
-            </div>
-        `;
+        const div = createElement('div', {
+            id: ELEMENT_IDS.loading,
+            className: 'fixed inset-0 hidden items-center justify-center bg-black/60 z-50',
+            innerHTML: `
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+                    <p class="mt-4 text-gray-700">Loading...</p>
+                </div>
+            `
+        });
         document.body.appendChild(div);
     }
 }
@@ -184,17 +225,38 @@ function isTimeUrgent(seconds) {
 }
 
 /**
- * Load KDS configuration from server
+ * Load KDS configuration from server or localStorage if available
  * @returns {Promise<Object>} Configuration object
  */
 async function loadConfig() {
     try {
+        // Try to get config from localStorage first
+        const cachedConfig = localStorage.getItem('kds_config');
+        if (cachedConfig) {
+            try {
+                const parsedConfig = JSON.parse(cachedConfig);
+                // Check if cache is recent (less than 1 hour old)
+                if (parsedConfig.timestamp && 
+                    (Date.now() - parsedConfig.timestamp < 3600000)) {
+                    return parsedConfig.data;
+                }
+            } catch (e) {
+                log('warn', 'Failed to parse cached config', e);
+            }
+        }
+        
+        // If no valid cached config, fetch from server
         const response = await frappe.call({
             method: 'restaurant_management.api.kds_display.get_kds_config',
             args: {}
         });
         
         if (response.message) {
+            // Cache the config
+            localStorage.setItem('kds_config', JSON.stringify({
+                timestamp: Date.now(),
+                data: response.message
+            }));
             return response.message;
         }
     } catch (error) {
@@ -215,17 +277,38 @@ async function loadConfig() {
 }
 
 /**
- * Load kitchen stations from server
+ * Load kitchen stations from server or localStorage if available
  * @returns {Promise<Array>} List of kitchen stations
  */
 async function loadStations() {
     try {
+        // Try to get stations from localStorage first
+        const cachedStations = localStorage.getItem('kds_stations');
+        if (cachedStations) {
+            try {
+                const parsedStations = JSON.parse(cachedStations);
+                // Check if cache is recent (less than 1 hour old)
+                if (parsedStations.timestamp && 
+                    (Date.now() - parsedStations.timestamp < 3600000)) {
+                    return parsedStations.data;
+                }
+            } catch (e) {
+                log('warn', 'Failed to parse cached stations', e);
+            }
+        }
+        
+        // If no valid cached stations, fetch from server
         const response = await frappe.call({
             method: 'restaurant_management.api.kds_display.get_kitchen_stations',
             args: {}
         });
         
         if (response.message) {
+            // Cache the stations
+            localStorage.setItem('kds_stations', JSON.stringify({
+                timestamp: Date.now(),
+                data: response.message
+            }));
             return response.message;
         }
     } catch (error) {
@@ -236,17 +319,38 @@ async function loadStations() {
 }
 
 /**
- * Load branches from server
+ * Load branches from server or localStorage if available
  * @returns {Promise<Array>} List of branches
  */
 async function loadBranches() {
     try {
+        // Try to get branches from localStorage first
+        const cachedBranches = localStorage.getItem('kds_branches');
+        if (cachedBranches) {
+            try {
+                const parsedBranches = JSON.parse(cachedBranches);
+                // Check if cache is recent (less than 1 hour old)
+                if (parsedBranches.timestamp && 
+                    (Date.now() - parsedBranches.timestamp < 3600000)) {
+                    return parsedBranches.data;
+                }
+            } catch (e) {
+                log('warn', 'Failed to parse cached branches', e);
+            }
+        }
+        
+        // If no valid cached branches, fetch from server
         const response = await frappe.call({
             method: 'restaurant_management.api.kds_display.get_branches',
             args: {}
         });
         
         if (response.message) {
+            // Cache the branches
+            localStorage.setItem('kds_branches', JSON.stringify({
+                timestamp: Date.now(),
+                data: response.message
+            }));
             return response.message;
         }
     } catch (error) {
@@ -281,9 +385,10 @@ function populateDropdown(selectId, options, valueField, textField, selectedValu
     
     // Add new options
     options.forEach(option => {
-        const optionElement = document.createElement('option');
-        optionElement.value = option[valueField];
-        optionElement.textContent = option[textField];
+        const optionElement = createElement('option', {
+            value: option[valueField],
+            textContent: option[textField]
+        });
         selectElement.appendChild(optionElement);
     });
     
@@ -372,47 +477,50 @@ async function updateItemStatus(itemId, newStatus) {
 }
 
 /**
- * Create action button for item
- * @param {Object} item - Queue item
- * @returns {HTMLButtonElement} Action button element
- */
-function createActionButton(item) {
-    const button = document.createElement('button');
-    
-    if (item.status === 'Waiting') {
-        button.textContent = 'Start Cooking';
-        button.className = 'py-1 px-3 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm font-medium';
-        button.onclick = () => updateItemStatus(item.id, 'Cooking');
-    } else if (item.status === 'Cooking') {
-        button.textContent = 'Mark Ready';
-        button.className = 'py-1 px-3 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium';
-        button.onclick = () => updateItemStatus(item.id, 'Ready');
-    } else {
-        button.textContent = 'No Action';
-        button.className = 'py-1 px-3 bg-gray-300 text-gray-500 rounded text-sm font-medium';
-        button.disabled = true;
-    }
-    
-    return button;
-}
-
-/**
  * Get status badge element
  * @param {string} status - Item status
  * @returns {HTMLSpanElement} Status badge element
  */
 function getStatusBadge(status) {
-    const badge = document.createElement('span');
-    badge.textContent = status;
-    
     const colorMap = {
         'Waiting': 'bg-red-500',
         'Cooking': 'bg-orange-500',
         'Ready': 'bg-green-500',
     };
     
-    badge.className = `inline-block py-1 px-2 rounded text-white text-xs font-medium ${colorMap[status] || 'bg-gray-500'}`;
-    return badge;
+    return createElement('span', {
+        textContent: status,
+        className: `inline-block py-1 px-2 rounded text-white text-xs font-medium ${colorMap[status] || 'bg-gray-500'}`
+    });
+}
+
+/**
+ * Create action button for item
+ * @param {Object} item - Queue item
+ * @returns {HTMLButtonElement} Action button element
+ */
+function createActionButton(item) {
+    let buttonConfig = {
+        textContent: 'No Action',
+        className: 'py-1 px-3 bg-gray-300 text-gray-500 rounded text-sm font-medium',
+        disabled: true
+    };
+    
+    if (item.status === 'Waiting') {
+        buttonConfig = {
+            textContent: 'Start Cooking',
+            className: 'py-1 px-3 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm font-medium',
+            onClick: () => updateItemStatus(item.id, 'Cooking')
+        };
+    } else if (item.status === 'Cooking') {
+        buttonConfig = {
+            textContent: 'Mark Ready',
+            className: 'py-1 px-3 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium',
+            onClick: () => updateItemStatus(item.id, 'Ready')
+        };
+    }
+    
+    return createElement('button', buttonConfig);
 }
 
 /**
@@ -439,44 +547,41 @@ function renderQueueItems(items) {
     
     // Add new items
     items.forEach(item => {
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50';
+        // Create time in queue element
+        const timeSpan = createElement('span', {
+            textContent: formatTimeInQueue(item.time_in_queue),
+            className: isTimeUrgent(item.time_in_queue) ? 'font-medium text-red-600' : ''
+        });
         
-        // Item name
-        const nameCell = document.createElement('td');
-        nameCell.className = 'px-6 py-4 whitespace-nowrap';
-        nameCell.textContent = item.item_name;
-        row.appendChild(nameCell);
+        // Create table row
+        const row = createElement('tr', { className: 'hover:bg-gray-50' });
         
-        // Table number
-        const tableCell = document.createElement('td');
-        tableCell.className = 'px-6 py-4 whitespace-nowrap text-sm';
-        tableCell.textContent = item.table_number;
-        row.appendChild(tableCell);
+        // Add cells to row
+        row.appendChild(createElement('td', { 
+            className: 'px-6 py-4 whitespace-nowrap', 
+            textContent: item.item_name 
+        }));
         
-        // Time in queue
-        const timeCell = document.createElement('td');
-        timeCell.className = 'px-6 py-4 whitespace-nowrap text-sm';
+        row.appendChild(createElement('td', { 
+            className: 'px-6 py-4 whitespace-nowrap text-sm', 
+            textContent: item.table_number 
+        }));
         
-        const timeSpan = document.createElement('span');
-        timeSpan.textContent = formatTimeInQueue(item.time_in_queue);
-        
-        if (isTimeUrgent(item.time_in_queue)) {
-            timeSpan.className = 'font-medium text-red-600';
-        }
-        
+        const timeCell = createElement('td', { 
+            className: 'px-6 py-4 whitespace-nowrap text-sm'
+        });
         timeCell.appendChild(timeSpan);
         row.appendChild(timeCell);
         
-        // Status
-        const statusCell = document.createElement('td');
-        statusCell.className = 'px-6 py-4 whitespace-nowrap';
+        const statusCell = createElement('td', { 
+            className: 'px-6 py-4 whitespace-nowrap'
+        });
         statusCell.appendChild(getStatusBadge(item.status));
         row.appendChild(statusCell);
         
-        // Action
-        const actionCell = document.createElement('td');
-        actionCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-500';
+        const actionCell = createElement('td', { 
+            className: 'px-6 py-4 whitespace-nowrap text-sm text-gray-500'
+        });
         actionCell.appendChild(createActionButton(item));
         row.appendChild(actionCell);
         
@@ -486,9 +591,12 @@ function renderQueueItems(items) {
     // Play sound if there are any ready items and sound is enabled
     if (state.config?.enable_sound_on_ready && items.some(item => item.status === 'Ready')) {
         try {
-            readySound.play().catch(error => {
-                log('warn', 'Could not play ready sound:', error);
-            });
+            // Check if sound is currently paused before playing to prevent concurrent playback
+            if (readySound.paused) {
+                readySound.play().catch(error => {
+                    log('warn', 'Could not play ready sound:', error);
+                });
+            }
         } catch (error) {
             log('warn', 'Error playing sound:', error);
         }

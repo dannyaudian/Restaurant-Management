@@ -25,10 +25,16 @@ def get_kitchen_station_for_item(item_group: str) -> Optional[str]:
     
     for station in stations:
         # Check if this station handles the item group
+        # Adding disabled=0 filter and limit=1 for optimization
         item_groups = frappe.get_all(
             "Kitchen Station Item Group",
-            filters={"parent": station.name, "item_group": item_group},
-            fields=["item_group"]
+            filters={
+                "parent": station.name, 
+                "item_group": item_group,
+                "disabled": 0
+            },
+            fields=["item_group"],
+            limit=1
         )
         
         if item_groups:
@@ -50,18 +56,38 @@ def get_kitchen_stations_for_items(items: List[Dict[str, Any]]) -> Dict[str, Lis
     result: Dict[str, List[Dict[str, Any]]] = {}
     unassigned_items: List[Dict[str, Any]] = []
     
+    # Create a cache for item groups to avoid repeated DB calls
+    item_group_cache: Dict[str, str] = {}
+    
+    # Create a cache for station mappings to avoid repeated lookups
+    station_mapping_cache: Dict[str, Optional[str]] = {}
+    
     for item in items:
+        item_code = item.get("item_code")
         item_group = item.get("item_group")
-        if not item_group:
-            # Try to get item group if not provided
-            item_doc = frappe.get_doc("Item", item.get("item_code"))
-            item_group = item_doc.item_group if item_doc else None
+        
+        # Try to get item group from cache first if not provided in item
+        if not item_group and item_code:
+            if item_code in item_group_cache:
+                item_group = item_group_cache[item_code]
+            else:
+                # Try to get item group if not provided
+                item_group_value = frappe.db.get_value("Item", item_code, "item_group")
+                item_group = item_group_value
+                if item_group:
+                    item_group_cache[item_code] = item_group
         
         if not item_group:
             unassigned_items.append(item)
             continue
         
-        station = get_kitchen_station_for_item(item_group)
+        # Use cached station mapping if available
+        if item_group in station_mapping_cache:
+            station = station_mapping_cache[item_group]
+        else:
+            station = get_kitchen_station_for_item(item_group)
+            station_mapping_cache[item_group] = station
+        
         if station:
             if station not in result:
                 result[station] = []
