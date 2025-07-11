@@ -1,10 +1,10 @@
 app_name = "restaurant_management"
 app_title = "Restaurant Management"
-app_publisher = "PT. Inovasi Terbaik Bangsa"
+app_publisher = "Danny Audian Pratama"
 app_description = "Restaurant Management System for ERPNext"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
-app_email = "danny.a.pratama@cao-group.co.id"
+app_email = "your.email@example.com"
 app_license = "MIT"
 
 # Web Assets
@@ -154,7 +154,7 @@ after_install = "restaurant_management.setup.install.after_install"
 # App setup events
 boot_session = "restaurant_management.startup.boot_session"
 
-# Add this to hooks.py
+# Commands
 commands = [
     "restaurant_management.commands.create_demo_data"
 ]
