@@ -2,9 +2,7 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": "[{\"id\":\"header1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"spacer1\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
-  "creation": "2025-05-20 06:26:00",
-  "docstatus": 0,
+  "content": "[{\"id\":\"header1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"chart1\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Monthly Sales Trend\",\"col\":6}},{\"id\":\"chart2\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Daily Sales\",\"col\":6}},{\"id\":\"number_card1\",\"type\":\"number_card\",\"data\":{\"card_name\":\"Today's Restaurant Sales\",\"col\":6}},{\"id\":\"number_card2\",\"type\":\"number_card\",\"data\":{\"card_name\":\"Yearly Restaurant Sales\",\"col\":6}}]",
   "icon": "octicon octicon-utensils",
   "is_hidden": 0,
   "is_standard": 1,
@@ -13,7 +11,66 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Master Data",
+      "label": "POS",
+      "onboard": 1,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "POS Invoice",
+      "link_to": "POS Invoice",
+      "link_type": "DocType",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Waiter Order",
+      "link_to": "Waiter Order",
+      "link_type": "DocType",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Table",
+      "link_to": "Table",
+      "link_type": "DocType",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Kitchen",
+      "onboard": 1,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Kitchen Station",
+      "link_to": "Kitchen Station",
+      "link_type": "DocType",
+      "onboard": 1,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Kitchen Station Item Group",
+      "link_to": "Kitchen Station Item Group",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Settings",
       "onboard": 0,
       "type": "Card Break"
     },
@@ -29,156 +86,20 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Table",
-      "link_to": "Table",
+      "label": "User Branch Assignment",
+      "link_to": "User Branch Assignment",
       "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Kitchen Station",
-      "link_to": "Kitchen Station",
-      "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "POS Profile",
-      "link_to": "POS Profile",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Transaksi",
-      "onboard": 0,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Waiter Order",
-      "link_to": "Waiter Order",
-      "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Payment Entry",
-      "link_to": "Payment Entry",
-      "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Web Interface",
-      "onboard": 0,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Kitchen Display",
-      "link_to": "/station_display",
-      "link_type": "URL",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Table Overview",
-      "link_to": "/table_display",
-      "link_type": "URL",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Waiter Order Interface",
-      "link_to": "/waiter_order",
-      "link_type": "URL",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Laporan",
-      "onboard": 0,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 1,
-      "label": "Restaurant Sales Analytics",
-      "link_to": "Restaurant Sales Analytics",
-      "link_type": "Report",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 1,
-      "label": "Item Consumption Analytics",
-      "link_to": "Restaurant Item Consumption",
-      "link_type": "Report",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 1,
-      "label": "Table Turnover Analytics",
-      "link_to": "Table Turnover Analytics",
-      "link_type": "Report",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Dashboard",
-      "onboard": 0,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Restaurant Dashboard",
-      "link_to": "restaurant_dashboard",
-      "link_type": "Dashboard",
       "onboard": 0,
       "type": "Link"
     }
   ],
-  "modified": "2025-07-06 03:35:00",
-  "modified_by": "dannyaudian",
   "module": "Restaurant Management",
-  "owner": "dannyaudian",
-  "parent_page": "",
   "public": 1,
   "quick_lists": [
     {
       "document_type": "Waiter Order",
       "label": "Active Orders",
       "filter_by": "status,=,Active"
-    },
-    {
-      "document_type": "Kitchen Station",
-      "label": "Kitchen Stations",
-      "filter_by": ""
     },
     {
       "document_type": "Table",
@@ -197,7 +118,6 @@
       "role": "System Manager"
     }
   ],
-  "sequence_id": 1,
   "shortcuts": [
     {
       "color": "Blue",
@@ -228,22 +148,6 @@
       "label": "Waiter Order Interface",
       "link_to": "/waiter_order",
       "type": "URL"
-    },
-    {
-      "color": "Red",
-      "doc_view": "List",
-      "format": "{} Pending",
-      "label": "Pending Payments",
-      "link_to": "Payment Entry",
-      "stats_filter": "[[\"Payment Entry\",\"docstatus\",\"=\",\"0\",false]]",
-      "type": "DocType"
-    },
-    {
-      "color": "Grey",
-      "doc_view": "List",
-      "label": "Restaurant Dashboard",
-      "link_to": "restaurant_dashboard",
-      "type": "Dashboard"
     }
   ],
   "title": "Restaurant Management"
