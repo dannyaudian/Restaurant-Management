@@ -21,6 +21,7 @@ web_include_css = [
 
 # Override Doctype Classes
 override_doctype_class = {
+    "Item": "restaurant_management.restaurant_management.overrides.item.RestaurantItem",
     "Sales Invoice": "restaurant_management.restaurant_management.overrides.sales_invoice.RestaurantSalesInvoice",
     "POS Invoice": "restaurant_management.restaurant_management.overrides.pos_invoice.RestaurantPOSInvoice",
     "Sales Order": "restaurant_management.restaurant_management.overrides.sales_order.RestaurantSalesOrder",
