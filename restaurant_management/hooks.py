@@ -62,19 +62,9 @@ doc_events = {
     }
 }
 
-# Fixtures
+# Fixtures - only include Custom Field
 fixtures = [
-    {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Property Setter", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Workspace", "filters": [["name", "=", "Restaurant Management"]]},
-    {"dt": "Dashboard", "filters": [["name", "=", "Restaurant Management"]]},
-    {"dt": "Dashboard Chart", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Number Card", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Onboarding", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "Onboarding Step", "filters": [["module", "=", "Restaurant Management"]]},
-    {"dt": "DocType", "filters": [["name", "=", "POS Allowed Item Group"]]}
+    {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]}
 ]
 
 # Whitelisted Methods (can be called from frontend)
@@ -153,8 +143,3 @@ after_install = "restaurant_management.setup.install.after_install"
 
 # App setup events
 boot_session = "restaurant_management.startup.boot_session"
-
-# Commands
-commands = [
-    "restaurant_management.commands.create_demo_data"
-]
