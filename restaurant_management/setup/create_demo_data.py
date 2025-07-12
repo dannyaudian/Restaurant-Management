@@ -142,11 +142,25 @@ def create_item_prices():
             data = json.load(f)
 
         for item_data in data:
-            if item_data.get("doctype") == "Item" and not item_data.get("has_variants") and "standard_rate" in item_data:
+            if item_data.get("doctype") == "Item" and "standard_rate" in item_data:
                 item_code = item_data.get("item_code")
                 standard_rate = item_data.get("standard_rate")
 
-                if item_code and standard_rate:
+                if item_code and standard_rate is not None:
+                    # Check if item is a template via has_variants or is_template
+                    is_template = item_data.get("is_template")
+                    if is_template is None:
+                        is_template = item_data.get("has_variants")
+
+                    if is_template is None:
+                        is_template = frappe.db.get_value("Item", item_code, "has_variants")
+
+                    if is_template:
+                        frappe.logger().info(
+                            f"Skipping Item Price creation for template item {item_code}"
+                        )
+                        continue
+
                     create_item_price(item_code, standard_rate, default_price_list)
 
 def create_item_price(item_code, price, price_list):
