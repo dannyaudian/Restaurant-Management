@@ -71,7 +71,7 @@ def import_fixture_data():
                             existing_doc.update(doc_data)
                             existing_doc.save(ignore_permissions=True)
                             print(f"Updated {doctype}: {name}")
-    except Exception as e:
+                    except Exception as e:
                         print(f"Error creating {doctype} {name}: {str(e)}")
 
             # Now import template items
