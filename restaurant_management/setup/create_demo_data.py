@@ -14,8 +14,10 @@ def create_demo_data():
     
     # Import data from fixtures
     import_fixture_data()
+    
     # Create item prices
     create_item_prices()
+    
     # Create kitchen stations
     create_kitchen_stations()
     
@@ -80,16 +82,19 @@ def import_fixture_data():
                         try:
                             # Remove standard_rate to prevent issues
                             if "standard_rate" in doc_data:
-                                del doc_data["standard_rate"]
-
+                                doc_data_copy = doc_data.copy()
+                                del doc_data_copy["standard_rate"]
+                            else:
+                                doc_data_copy = doc_data
+                                
                             if not frappe.db.exists("Item", name):
-                                doc = frappe.get_doc(doc_data)
+                                doc = frappe.get_doc(doc_data_copy)
                                 doc.insert(ignore_permissions=True)
                                 print(f"Created template Item: {name}")
                             else:
                                 # Update existing record
                                 existing_doc = frappe.get_doc("Item", name)
-                                existing_doc.update(doc_data)
+                                existing_doc.update(doc_data_copy)
                                 existing_doc.save(ignore_permissions=True)
                                 print(f"Updated template Item: {name}")
                         except Exception as e:
@@ -105,16 +110,19 @@ def import_fixture_data():
 
                             # Remove standard_rate to prevent issues
                             if "standard_rate" in doc_data:
-                                del doc_data["standard_rate"]
-
+                                doc_data_copy = doc_data.copy()
+                                del doc_data_copy["standard_rate"]
+                            else:
+                                doc_data_copy = doc_data
+                                
                             if not frappe.db.exists("Item", name):
-                                doc = frappe.get_doc(doc_data)
+                                doc = frappe.get_doc(doc_data_copy)
                                 doc.insert(ignore_permissions=True)
                                 print(f"Created variant Item: {name}")
                             else:
                                 # Update existing record
                                 existing_doc = frappe.get_doc("Item", name)
-                                existing_doc.update(doc_data)
+                                existing_doc.update(doc_data_copy)
                                 existing_doc.save(ignore_permissions=True)
                                 print(f"Updated variant Item: {name}")
                         except Exception as e:
@@ -238,9 +246,13 @@ def create_kitchen_stations():
     for station in stations:
         existing = frappe.db.exists("Kitchen Station", {"station_name": station["station_name"]})
         if not existing:
-            doc = frappe.get_doc(station)
-            doc.insert(ignore_permissions=True)
-            print(f"Created Kitchen Station: {station['station_name']}")
+            try:
+                doc = frappe.get_doc(station)
+                doc.insert(ignore_permissions=True)
+                print(f"Created Kitchen Station: {station['station_name']}")
+            except Exception as e:
+                print(f"Error creating Kitchen Station {station['station_name']}: {str(e)}")
+
 def execute():
     """Execute the demo data creation"""
     try:
