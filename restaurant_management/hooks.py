@@ -139,7 +139,19 @@ doctype_js = {
 }
 
 # Install
-after_install = "restaurant_management.setup.install.after_install"
+
+import frappe
+
+
+def safe_after_install():
+    try:
+        from .setup.install import after_install as _after_install
+        _after_install()
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "restaurant_management.safe_after_install")
+
+
+after_install = safe_after_install
 
 # App setup events
 boot_session = "restaurant_management.startup.boot_session"
