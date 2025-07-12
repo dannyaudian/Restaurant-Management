@@ -105,9 +105,6 @@ def import_fixture_data():
                     if doc_data.get("doctype") == "Item" and doc_data.get("variant_of"):
                         name = doc_data.get("name")
                         try:
-                            # Store standard rate for later use
-                            standard_rate = doc_data.get("standard_rate")
-
                             # Remove standard_rate to prevent issues
                             if "standard_rate" in doc_data:
                                 doc_data_copy = doc_data.copy()
