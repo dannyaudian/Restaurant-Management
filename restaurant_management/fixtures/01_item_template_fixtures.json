@@ -1,7 +1,7 @@
 [
   {
     "doctype": "Item",
-    "name": "Coffee Template",
+    "name": "COFFEE-TMPL",
     "item_code": "COFFEE-TMPL",
     "item_name": "Coffee",
     "item_group": "Beverages",
@@ -45,7 +45,7 @@
   },
   {
     "doctype": "Item",
-    "name": "Burger Template",
+    "name": "BURGER-TMPL",
     "item_code": "BURGER-TMPL",
     "item_name": "Burger",
     "item_group": "Fast Food",
