@@ -4,26 +4,32 @@
     "name": "Size",
     "attribute_name": "Size",
     "numeric_values": 0,
+      "disabled": 0,
     "item_attribute_values": [
       {
         "attribute_value": "Small",
-        "abbr": "S"
+        "abbr": "S",
+        "disabled": 0
       },
       {
         "attribute_value": "Medium",
-        "abbr": "M"
+        "abbr": "M",
+        "disabled": 0
       },
       {
         "attribute_value": "Large",
-        "abbr": "L"
+        "abbr": "L",
+        "disabled": 0
       },
       {
         "attribute_value": "Single",
-        "abbr": "SGL"
+        "abbr": "SGL",
+        "disabled": 0
       },
       {
         "attribute_value": "Double",
-        "abbr": "DBL"
+        "abbr": "DBL",
+        "disabled": 0
       }
     ]
   },
@@ -32,26 +38,32 @@
     "name": "Milk Type",
     "attribute_name": "Milk Type",
     "numeric_values": 0,
+      "disabled": 0,
     "item_attribute_values": [
       {
         "attribute_value": "Full",
-        "abbr": "FULL"
+        "abbr": "FULL",
+        "disabled": 0
       },
       {
         "attribute_value": "Skimmed",
-        "abbr": "SKIM"
+        "abbr": "SKIM",
+        "disabled": 0
       },
       {
         "attribute_value": "Almond",
-        "abbr": "ALMD"
+        "abbr": "ALMD",
+        "disabled": 0
       },
       {
         "attribute_value": "Soy",
-        "abbr": "SOY"
+        "abbr": "SOY",
+        "disabled": 0
       },
       {
         "attribute_value": "Oat",
-        "abbr": "OAT"
+        "abbr": "OAT",
+        "disabled": 0
       }
     ]
   },
@@ -60,22 +72,27 @@
     "name": "Sugar Level",
     "attribute_name": "Sugar Level",
     "numeric_values": 0,
+      "disabled": 0,
     "item_attribute_values": [
       {
         "attribute_value": "No Sugar",
-        "abbr": "NONE"
+        "abbr": "NONE",
+        "disabled": 0
       },
       {
         "attribute_value": "Low",
-        "abbr": "LOW"
+        "abbr": "LOW",
+        "disabled": 0
       },
       {
         "attribute_value": "Regular",
-        "abbr": "REG"
+        "abbr": "REG",
+        "disabled": 0
       },
       {
         "attribute_value": "Extra",
-        "abbr": "XTRA"
+        "abbr": "XTRA",
+        "disabled": 0
       }
     ]
   },
@@ -84,18 +101,22 @@
     "name": "Patty Type",
     "attribute_name": "Patty Type",
     "numeric_values": 0,
+      "disabled": 0,
     "item_attribute_values": [
       {
         "attribute_value": "Beef",
-        "abbr": "BEEF"
+        "abbr": "BEEF",
+        "disabled": 0
       },
       {
         "attribute_value": "Chicken",
-        "abbr": "CHKN"
+        "abbr": "CHKN",
+        "disabled": 0
       },
       {
         "attribute_value": "Vegetarian",
-        "abbr": "VEG"
+        "abbr": "VEG",
+        "disabled": 0
       }
     ]
   },
@@ -104,18 +125,22 @@
     "name": "Cheese",
     "attribute_name": "Cheese",
     "numeric_values": 0,
+      "disabled": 0,
     "item_attribute_values": [
       {
         "attribute_value": "Yes",
-        "abbr": "Y"
+        "abbr": "Y",
+        "disabled": 0
       },
       {
         "attribute_value": "No",
-        "abbr": "N"
+        "abbr": "N",
+        "disabled": 0
       },
       {
         "attribute_value": "Extra",
-        "abbr": "XTRA"
+        "abbr": "XTRA",
+        "disabled": 0
       }
     ]
   }
