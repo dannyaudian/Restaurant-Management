@@ -38,8 +38,8 @@ Restaurant Management System for ERPNext
    ```
 4. Start the development server.
    ```bash
-bench start
-```
+   bench start
+   ```
 
 5. Import fixtures
    ```bash
