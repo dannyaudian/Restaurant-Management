@@ -155,4 +155,4 @@ def safe_after_install():
 after_install = safe_after_install
 
 # App setup events
-boot_session = "restaurant_management.startup.boot_session"
+boot_session = "restaurant_management.startup.boot_session.boot_session"
