@@ -3,6 +3,9 @@
   "name": "Restaurant Management",
   "category": "Modules",
   "content": "[{\"id\":\"header1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"chart1\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Monthly Sales Trend\",\"col\":6}},{\"id\":\"chart2\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Daily Sales\",\"col\":6}},{\"id\":\"number_card1\",\"type\":\"number_card\",\"data\":{\"card_name\":\"Today's Restaurant Sales\",\"col\":6}},{\"id\":\"number_card2\",\"type\":\"number_card\",\"data\":{\"card_name\":\"Yearly Restaurant Sales\",\"col\":6}}]",
+  "extends": null,
+  "extends_another_page": 0,
+  "for_user": "",
   "icon": "octicon octicon-utensils",
   "is_hidden": 0,
   "is_standard": 1,
@@ -94,6 +97,8 @@
     }
   ],
   "module": "Restaurant Management",
+  "pin_to_bottom": 0,
+  "pin_to_top": 0,
   "public": 1,
   "quick_lists": [
     {
@@ -107,6 +112,7 @@
       "filter_by": "status,=,Available"
     }
   ],
+  "restrict_to_domain": "",
   "roles": [
     {
       "role": "Restaurant Manager"
@@ -118,6 +124,7 @@
       "role": "System Manager"
     }
   ],
+  "sequence_id": 0,
   "shortcuts": [
     {
       "color": "Blue",
