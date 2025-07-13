@@ -69,3 +69,15 @@ Once your site is running, open ERPNext and select **Restaurant Management** fro
 3. When items are served, the waiter marks them as served from the order page.
 4. Finalize and pay the order through the POS once everything is completed.
 5. Use the **Table Display** page to monitor active orders and table status across the restaurant.
+
+## Troubleshooting
+
+Running `bench migrate` may fail if fixture values conflict with existing data.
+
+- **CannotChangeConstantError for "Is Fixed Asset"**: This occurs when a fixture
+  tries to modify a constant field such as `is_fixed_asset` on **Item**. Delete
+  the conflicting `Custom Field` or `Property Setter` and rerun `bench migrate`.
+
+If you encounter other migration errors, ensure that the values in your fixture
+JSON files match the records already present in the database, or remove the
+offending records before migrating again.
