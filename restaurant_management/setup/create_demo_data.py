@@ -27,11 +27,13 @@ def import_fixture_data():
     """Import data from fixture files"""
     print("Importing fixture data...")
 
-    # Define fixture files to import
+    # Define fixture files to import in specific order
     fixture_files = [
-        "item_attribute_fixtures.json",
-        "item_group_fixtures.json",
-        "item_fixtures.json"
+        "01_item_group_fixtures.json",
+        "02_item_attribute_fixtures.json",
+        "03_item_template_fixtures.json",
+        "04_item_variant_fixtures.json",
+        "05_item_fixtures.json",
     ]
 
     app_path = frappe.get_app_path("restaurant_management")
@@ -51,79 +53,27 @@ def import_fixture_data():
                 name = doc_data.get("name")
 
                 if doctype and name:
-                    # Skip template items first to prevent errors
-                    if doctype == "Item" and doc_data.get("has_variants") == 1:
-                        continue
+                    doc_data_copy = doc_data
 
-                    # Skip variant items first
-                    if doctype == "Item" and doc_data.get("variant_of"):
-                        continue
+                    # Remove standard_rate for template or variant items
+                    if doctype == "Item" and (
+                        doc_data.get("has_variants") == 1 or doc_data.get("variant_of")
+                    ):
+                        doc_data_copy = doc_data.copy()
+                        doc_data_copy.pop("standard_rate", None)
 
-                    # For all other records, create or update
                     try:
                         if not frappe.db.exists(doctype, name):
-                            doc = frappe.get_doc(doc_data)
+                            doc = frappe.get_doc(doc_data_copy)
                             doc.insert(ignore_permissions=True)
                             print(f"Created {doctype}: {name}")
                         else:
-                            # Update existing record
                             existing_doc = frappe.get_doc(doctype, name)
-                            existing_doc.update(doc_data)
+                            existing_doc.update(doc_data_copy)
                             existing_doc.save(ignore_permissions=True)
                             print(f"Updated {doctype}: {name}")
                     except Exception as e:
                         print(f"Error creating {doctype} {name}: {str(e)}")
-
-            # Now import template items
-            if fixture_file == "item_fixtures.json":
-                for doc_data in data:
-                    if doc_data.get("doctype") == "Item" and doc_data.get("has_variants") == 1:
-                        name = doc_data.get("name")
-                        try:
-                            # Remove standard_rate to prevent issues
-                            if "standard_rate" in doc_data:
-                                doc_data_copy = doc_data.copy()
-                                del doc_data_copy["standard_rate"]
-                            else:
-                                doc_data_copy = doc_data
-                                
-                            if not frappe.db.exists("Item", name):
-                                doc = frappe.get_doc(doc_data_copy)
-                                doc.insert(ignore_permissions=True)
-                                print(f"Created template Item: {name}")
-                            else:
-                                # Update existing record
-                                existing_doc = frappe.get_doc("Item", name)
-                                existing_doc.update(doc_data_copy)
-                                existing_doc.save(ignore_permissions=True)
-                                print(f"Updated template Item: {name}")
-                        except Exception as e:
-                            print(f"Error creating template Item {name}: {str(e)}")
-
-                # Finally import variant items
-                for doc_data in data:
-                    if doc_data.get("doctype") == "Item" and doc_data.get("variant_of"):
-                        name = doc_data.get("name")
-                        try:
-                            # Remove standard_rate to prevent issues
-                            if "standard_rate" in doc_data:
-                                doc_data_copy = doc_data.copy()
-                                del doc_data_copy["standard_rate"]
-                            else:
-                                doc_data_copy = doc_data
-                                
-                            if not frappe.db.exists("Item", name):
-                                doc = frappe.get_doc(doc_data_copy)
-                                doc.insert(ignore_permissions=True)
-                                print(f"Created variant Item: {name}")
-                            else:
-                                # Update existing record
-                                existing_doc = frappe.get_doc("Item", name)
-                                existing_doc.update(doc_data_copy)
-                                existing_doc.save(ignore_permissions=True)
-                                print(f"Updated variant Item: {name}")
-                        except Exception as e:
-                            print(f"Error creating variant Item {name}: {str(e)}")
 
 def create_item_prices():
     """Create item prices for all items"""
@@ -135,7 +85,7 @@ def create_item_prices():
         default_price_list = "Standard Selling"
 
     app_path = frappe.get_app_path("restaurant_management")
-    fixture_path = os.path.join(app_path, "fixtures", "item_fixtures.json")
+    fixture_path = os.path.join(app_path, "fixtures", "05_item_fixtures.json")
 
     if os.path.exists(fixture_path):
         with open(fixture_path, 'r') as f:
