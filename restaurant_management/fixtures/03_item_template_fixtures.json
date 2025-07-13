@@ -12,6 +12,7 @@
     "include_item_in_manufacturing": 0,
     "is_sales_item": 1,
     "is_purchase_item": 0,
+    "is_fixed_asset": 0,
     "has_variants": 1,
     "variant_based_on": "Item Attribute",
     "attributes": [
@@ -56,6 +57,7 @@
     "include_item_in_manufacturing": 0,
     "is_sales_item": 1,
     "is_purchase_item": 0,
+    "is_fixed_asset": 0,
     "has_variants": 1,
     "variant_based_on": "Item Attribute",
     "attributes": [
