@@ -45,7 +45,9 @@ bench start
    ```bash
    bench --site <your-site> migrate
    ```
-   This step loads fixtures like the workspace and dashboard.
+   This step loads fixtures like the workspace and dashboard. Fixtures are
+   processed in alphabetical order, so `00_custom_field.json` ensures that
+   all custom fields exist before later fixtures are applied.
 
 ## Opening the Workspace
 

@@ -48,7 +48,7 @@ class RestaurantSalesOrder(SalesOrder):
                     else:
                         self.notes += f"\n{waiter_order_note}"
                 
-                # Set custom field for waiter_order (this will be defined in custom_field.json)
+                # Set custom field for waiter_order (defined in 00_custom_field.json)
                 self.waiter_order = self.restaurant_waiter_order
         except Exception as e:
             frappe.log_error(frappe.get_traceback(), f"Error adding waiter order note: {str(e)}")
@@ -267,7 +267,7 @@ class CustomSalesOrder(SalesOrder):
             frappe.log_error(frappe.get_traceback(), f"Error in autoname: {str(e)}")
             super().autoname()  # Try parent method as fallback
 
-# Define custom field for sales_order.json (will be created via fixtures or custom_field.json)
+# Define custom field for sales_order.json (created via fixtures like 00_custom_field.json)
 def get_custom_fields():
     """Return the custom fields configuration for Sales Order"""
     return [
