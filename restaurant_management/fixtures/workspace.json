@@ -2,11 +2,11 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": "[{\"id\":\"header1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"chart1\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Monthly Sales Trend\",\"col\":6}},{\"id\":\"chart2\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Daily Sales\",\"col\":6}},{\"id\":\"number_card1\",\"type\":\"number_card\",\"data\":{\"card_name\":\"Today's Restaurant Sales\",\"col\":6}},{\"id\":\"number_card2\",\"type\":\"number_card\",\"data\":{\"card_name\":\"Yearly Restaurant Sales\",\"col\":6}}]",
+  "content": "[{\"id\":\"header1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span><div class=\\\"text-muted small\\\">developed by IMOGI - PT. Inovasi Terbaik Bangsa</div>\",\"col\":12}}]",
   "extends": null,
   "extends_another_page": 0,
   "for_user": "",
-  "icon": "octicon octicon-utensils",
+  "icon": "fa fa-cutlery",
   "is_hidden": 0,
   "is_standard": 1,
   "label": "Restaurant Management",
@@ -100,18 +100,7 @@
   "pin_to_bottom": 0,
   "pin_to_top": 0,
   "public": 1,
-  "quick_lists": [
-    {
-      "document_type": "Waiter Order",
-      "label": "Active Orders",
-      "filter_by": "status,=,Active"
-    },
-    {
-      "document_type": "Table",
-      "label": "Available Tables",
-      "filter_by": "status,=,Available"
-    }
-  ],
+  "quick_lists": [],
   "restrict_to_domain": "",
   "roles": [
     {
@@ -125,37 +114,6 @@
     }
   ],
   "sequence_id": 0,
-  "shortcuts": [
-    {
-      "color": "Blue",
-      "doc_view": "List",
-      "format": "{} Active",
-      "label": "Active Orders",
-      "link_to": "Waiter Order",
-      "stats_filter": "[[\"Waiter Order\",\"status\",\"=\",\"Active\",false]]",
-      "type": "DocType"
-    },
-    {
-      "color": "Green",
-      "doc_view": "",
-      "label": "Kitchen Display",
-      "link_to": "/station_display",
-      "type": "URL"
-    },
-    {
-      "color": "Yellow",
-      "doc_view": "",
-      "label": "Table Overview",
-      "link_to": "/table_display",
-      "type": "URL"
-    },
-    {
-      "color": "Purple",
-      "doc_view": "",
-      "label": "Waiter Order Interface",
-      "link_to": "/waiter_order",
-      "type": "URL"
-    }
-  ],
+  "shortcuts": [],
   "title": "Restaurant Management"
 }
