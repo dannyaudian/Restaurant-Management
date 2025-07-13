@@ -63,9 +63,17 @@ doc_events = {
     }
 }
 
-# Fixtures - only include Custom Field
+# Fixtures - include all documents defined under fixtures
 fixtures = [
-    {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]}
+    {"dt": "Custom Field", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Property Setter"},
+    {"dt": "Client Script", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Server Script", "filters": [["module", "=", "Restaurant Management"]]},
+    {"dt": "Workspace", "filters": [["module", "=", "Restaurant Management"]]},
+    "Kitchen Station",
+    "Item Group",
+    "Item Attribute",
+    "Item",
 ]
 
 # Whitelisted Methods (can be called from frontend)
