@@ -1,7 +1,7 @@
 [
   {
     "doctype": "Item",
-    "name": "Latte - Small Regular Full",
+    "name": "COFFEE-LAT-S-REG-FULL",
     "item_code": "COFFEE-LAT-S-REG-FULL",
     "item_name": "Small Latte, Regular, Full Milk",
     "item_group": "Beverages",
@@ -36,7 +36,7 @@
   },
   {
     "doctype": "Item",
-    "name": "Latte - Large Low Skimmed",
+    "name": "COFFEE-LAT-L-LOW-SKIM",
     "item_code": "COFFEE-LAT-L-LOW-SKIM",
     "item_name": "Large Latte, Low Sugar, Skimmed Milk",
     "item_group": "Beverages",
@@ -71,7 +71,7 @@
   },
   {
     "doctype": "Item",
-    "name": "Double Beef Burger with Cheese",
+    "name": "BURGER-DBL-BEEF-CHEESE",
     "item_code": "BURGER-DBL-BEEF-CHEESE",
     "item_name": "Double Beef Burger with Cheese",
     "item_group": "Fast Food",
@@ -106,7 +106,7 @@
   },
   {
     "doctype": "Item",
-    "name": "Single Chicken Burger No Cheese",
+    "name": "BURGER-SGL-CHKN-NOCHEESE",
     "item_code": "BURGER-SGL-CHKN-NOCHEESE",
     "item_name": "Single Chicken Burger No Cheese",
     "item_group": "Fast Food",
