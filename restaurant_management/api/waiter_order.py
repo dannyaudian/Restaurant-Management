@@ -116,7 +116,7 @@ def create_order(**kwargs):
             frappe.db.commit()
             
             # Update table status
-            update_table_status(table.name, waiter_order.name)
+            set_table_status(table.name, waiter_order.name)
             
             return {
                 "success": True,
@@ -419,7 +419,7 @@ def calculate_order_totals(order_doc):
     order_doc.total_amount = total_amount
 
 
-def update_table_status(table_name, order_id):
+def set_table_status(table_name, order_id):
     """
     Update table status when an order is created or updated
     
@@ -427,10 +427,10 @@ def update_table_status(table_name, order_id):
         table_name: Name of the table
         order_id: ID of the associated order
     """
-    from restaurant_management.restaurant_management.doctype.table.table import update_table_status
-    
+    from restaurant_management.restaurant_management.doctype.table.table import update_table_status as table_set_status
+
     # Update table status to In Progress and link to order
-    update_table_status(table_name, "In Progress", order_id)
+    table_set_status(table_name, "In Progress", order_id)
 
 
 def release_table(table_name):
@@ -440,10 +440,10 @@ def release_table(table_name):
     Args:
         table_name: Name of the table
     """
-    from restaurant_management.restaurant_management.doctype.table.table import update_table_status
-    
+    from restaurant_management.restaurant_management.doctype.table.table import update_table_status as table_set_status
+
     # Update table status to Available and remove order link
-    update_table_status(table_name, "Available", None)
+    table_set_status(table_name, "Available", None)
 
 
 @frappe.whitelist()
@@ -707,7 +707,7 @@ def send_order_to_kitchen(order_data):
         frappe.db.commit()
         
         # Update table status
-        update_table_status(table.name, waiter_order.name)
+        set_table_status(table.name, waiter_order.name)
         
         # Generate print format URL
         print_url = get_print_url(waiter_order.name)
