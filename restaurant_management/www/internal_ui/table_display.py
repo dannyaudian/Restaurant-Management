@@ -61,7 +61,6 @@ def get_context(context=None):
             "status",
             "branch",
             "current_pos_order",
-            "occupied_seats",
         ]
 
         for field in optional_fields:
@@ -89,7 +88,6 @@ def get_context(context=None):
             table.setdefault("status", "")
             table.setdefault("branch", None)
             table.setdefault("current_order", "")
-            table["occupied_seats"] = table.get("occupied_seats", 0)
         
         # Add data to context
         context.branches = branches
