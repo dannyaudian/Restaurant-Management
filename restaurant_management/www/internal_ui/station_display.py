@@ -117,4 +117,5 @@ def get_context(context=None):
         context.is_guest = frappe.session.user == "Guest"
         context.error_message = _("Unable to load kitchen station data. Please check error logs.")
     
+    context.no_wrapper = 1
     return context
