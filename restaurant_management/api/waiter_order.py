@@ -376,6 +376,14 @@ def add_items_to_order(order_doc, items_list):
         if not rate:
             rate = get_item_rate(item_data.get("item_code"))
         
+        # Parse variant attributes if provided
+        variant_attrs = item_data.get("variant_attributes") or item_data.get("attributes")
+        if isinstance(variant_attrs, str):
+            try:
+                variant_attrs = json.loads(variant_attrs)
+            except Exception:
+                variant_attrs = None
+
         # Add item to order
         item = order_doc.append("items", {
             "item_code": item_data.get("item_code"),
@@ -386,7 +394,8 @@ def add_items_to_order(order_doc, items_list):
             "status": "New",
             "ordered_by": frappe.session.user,
             "last_update_by": frappe.session.user,
-            "last_update_time": now_datetime()
+            "last_update_time": now_datetime(),
+            "variant_attributes": variant_attrs or None,
         })
         
         # Set amount based on rate and qty

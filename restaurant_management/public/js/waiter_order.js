@@ -334,19 +334,19 @@ frappe.ready(() => {
 
     elements.orderItemsContainer.innerHTML = state.currentOrder.items.map((orderItem, index) => {
       const isSent = state.currentOrder.sentItems.some(
-        sent => sent.item_code === orderItem.item_code && 
-                JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
+        sent => sent.item_code === orderItem.item_code &&
+                JSON.stringify(sent.variant_attributes || {}) === JSON.stringify(orderItem.variant_attributes || {})
       );
       
       // Calculate and display amount
       const amount = (orderItem.rate || 0) * (orderItem.qty || 0);
       
       // Format attributes for display
-      const attributesDisplay = orderItem.attributes ? 
-        '<div class="item-attributes">' + 
-        Object.entries(orderItem.attributes)
+      const attributesDisplay = orderItem.variant_attributes ?
+        '<div class="item-attributes">' +
+        Object.entries(orderItem.variant_attributes)
           .map(([k, v]) => `<span class="attribute-badge">${k}: ${v}</span>`)
-          .join(' ') + 
+          .join(' ') +
         '</div>' : '';
       
       return `
@@ -402,10 +402,10 @@ frappe.ready(() => {
 
     // "Send Additional Items" button is active if there are new items not yet sent
     if (elements.sendAdditionalBtn) {
-      const hasNewItems = state.currentOrder.items.some(item => 
+      const hasNewItems = state.currentOrder.items.some(item =>
         !state.currentOrder.sentItems.some(
-          sent => sent.item_code === item.item_code && 
-                  JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
+          sent => sent.item_code === item.item_code &&
+                  JSON.stringify(sent.variant_attributes || {}) === JSON.stringify(item.variant_attributes || {})
         )
       );
 
@@ -664,10 +664,10 @@ frappe.ready(() => {
       return;
     }
     
-    const newItems = state.currentOrder.items.filter(item => 
+    const newItems = state.currentOrder.items.filter(item =>
       !state.currentOrder.sentItems.some(
-        sent => sent.item_code === item.item_code && 
-                JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
+        sent => sent.item_code === item.item_code &&
+                JSON.stringify(sent.variant_attributes || {}) === JSON.stringify(item.variant_attributes || {})
       )
     );
     
@@ -913,7 +913,7 @@ frappe.ready(() => {
           item_name: displayName,
           variant_of: state.selectedItemTemplate.item_code,
           rate: variantRate,
-          attributes: attributes
+          variant_attributes: attributes
         });
         
         // Show success message
@@ -938,9 +938,9 @@ frappe.ready(() => {
   // Helper: Add item to order
   const addItemToOrder = (item) => {
     // Check if this exact item (including attributes) already exists
-    const existingItemIndex = state.currentOrder.items.findIndex(orderItem => 
-      orderItem.item_code === item.item_code && 
-      JSON.stringify(orderItem.attributes || {}) === JSON.stringify(item.attributes || {})
+    const existingItemIndex = state.currentOrder.items.findIndex(orderItem =>
+      orderItem.item_code === item.item_code &&
+      JSON.stringify(orderItem.variant_attributes || {}) === JSON.stringify(item.variant_attributes || {})
     );
     
     if (existingItemIndex !== -1) {
@@ -954,7 +954,7 @@ frappe.ready(() => {
         variant_of: item.variant_of || null,
         rate: item.rate || 0,
         qty: 1,
-        attributes: item.attributes || null
+        variant_attributes: item.variant_attributes || item.attributes || null
       });
     }
     
