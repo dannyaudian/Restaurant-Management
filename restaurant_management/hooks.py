@@ -16,7 +16,8 @@ web_include_js = [
 ]
 
 web_include_css = [
-    "/assets/restaurant_management/css/waiter_order.css"
+    "/assets/restaurant_management/css/waiter_order.css",
+    "/assets/restaurant_management/css/table_display.css",
 ]
 
 # Override Doctype Classes
