@@ -56,43 +56,55 @@
     {% if error_message %}
       <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
         <p class="text-yellow-700">{{ error_message }}</p>
+        {% if is_guest %}
+          <p class="text-yellow-700 mt-2">You are currently viewing as a guest. Some features may be limited. <a href="/login" class="text-blue-600 hover:underline">Log in</a> for full access.</p>
+        {% endif %}
       </div>
     {% endif %}
     
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-        <h2 class="text-lg font-medium text-gray-900">Order Queue</h2>
+    {% if not has_branches and not has_stations %}
+      <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-600 mb-4">No data available. Please check your configuration or permissions.</p>
+        
+        {% if is_guest %}
+        <p class="text-gray-600">
+          You're currently viewing as a guest. This page may require login for full functionality.
+          <a href="/login" class="text-blue-600 hover:underline">Log in</a>
+        </p>
+        {% endif %}
       </div>
-      
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-700 text-white">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Item</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Table</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Time</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Action</th>
-            </tr>
-          </thead>
-          <tbody id="queue-items" class="bg-white divide-y divide-gray-200">
-            {% if not has_stations and not has_branches %}
+    {% else %}
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Order Queue</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-700 text-white">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Item</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Table</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Time</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+            <tbody id="queue-items" class="bg-white divide-y divide-gray-200">
               <tr>
                 <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                  No kitchen stations or branches found. Please set up your restaurant configuration first.
+                  {% if is_guest %}
+                    As a guest user, you may need to select a branch to view data.
+                  {% else %}
+                    Loading items...
+                  {% endif %}
                 </td>
               </tr>
-            {% else %}
-              <tr>
-                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                  Loading items...
-                </td>
-              </tr>
-            {% endif %}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    {% endif %}
   </main>
   
   <!-- Footer -->
@@ -120,7 +132,8 @@
     hasStations: {{ has_stations | tojson }},
     hasBranches: {{ has_branches | tojson }},
     stationCount: {{ (kitchen_stations|length) if kitchen_stations else 0 }},
-    branchCount: {{ (branches|length) if branches else 0 }}
+    branchCount: {{ (branches|length) if branches else 0 }},
+    isGuest: {{ is_guest | tojson }}
   };
 </script>
 <script defer src="/assets/restaurant_management/js/station_display.js"></script>

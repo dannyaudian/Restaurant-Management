@@ -27,110 +27,155 @@ def validate_kds_token(token: str) -> bool:
     
     return True
 
-@frappe.whitelist()
-def get_kitchen_item_queue(kitchen_station: Optional[str] = None, branch_code: Optional[str] = None) -> List[Dict[str, Any]]:
+@frappe.whitelist(allow_guest=True)
+def get_kitchen_item_queue(kitchen_station: Optional[str] = None, branch_code: Optional[str] = None, access_token: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Get kitchen items queue broken down by quantity
     
     Args:
         kitchen_station: Filter by kitchen station
         branch_code: Filter by branch code
+        access_token: Token for guest authentication
         
     Returns:
         List of items expanded by quantity
     """
-    # Base filters for Waiter Order Item
-    filters = {"status": ["!=", "Ready"]}
-    
-    if kitchen_station:
-        filters["kitchen_station"] = kitchen_station
-    
-    # Get all matching items first (without branch filter)
-    items = frappe.get_all(
-        "Waiter Order Item",
-        filters=filters,
-        fields=[
-            "name as id",
-            "item_name",
-            "item_code",
-            "qty",
-            "status",
-            "notes",
-            "last_update_time",
-            "kitchen_station",
-            "parent as order_id",
-            "creation as order_time"
-        ],
-        order_by="creation asc",
-        ignore_permissions=True,
-        limit_page_length=0
-    )
-    
-    # Empty result - return early
-    if not items:
+    # Validate token for guest access
+    if frappe.session.user == "Guest" and not validate_guest_access(access_token):
         return []
     
-    # Filter by branch_code if specified
-    if branch_code:
-        # Get all order IDs
-        order_ids = list(set(item["order_id"] for item in items))
+    try:
+        # Base filters for Waiter Order Item
+        filters = {"status": ["!=", "Ready"]}
         
-        # Get orders with matching branch_code
-        valid_orders = frappe.get_all(
-            "Waiter Order",
-            filters={"name": ["in", order_ids], "branch_code": branch_code},
-            fields=["name"],
-            as_list=True
+        if kitchen_station:
+            filters["kitchen_station"] = kitchen_station
+        
+        # Get all matching items first (without branch filter)
+        items = frappe.get_all(
+            "Waiter Order Item",
+            filters=filters,
+            fields=[
+                "name as id",
+                "item_name",
+                "item_code",
+                "qty",
+                "status",
+                "notes",
+                "last_update_time",
+                "kitchen_station",
+                "parent as order_id",
+                "creation as order_time"
+            ],
+            order_by="creation asc",
+            ignore_permissions=True,
+            limit_page_length=0
         )
         
-        # Extract just the order names
-        valid_order_ids = [order[0] for order in valid_orders]
+        # Empty result - return early
+        if not items:
+            return []
         
-        # Filter items to only those with valid order IDs
-        items = [item for item in items if item["order_id"] in valid_order_ids]
-    
-    # Get related information (table number)
-    expanded_items = []
-    for item in items:
-        try:
-            # Get table number from parent order
-            table = frappe.db.get_value(
-                "Waiter Order", 
-                item["order_id"], 
-                ["table"], 
-                as_dict=True
+        # Filter by branch_code if specified
+        if branch_code:
+            # Get all order IDs
+            order_ids = list(set(item["order_id"] for item in items))
+            
+            # Get orders with matching branch_code
+            valid_orders = frappe.get_all(
+                "Waiter Order",
+                filters={"name": ["in", order_ids], "branch_code": branch_code},
+                fields=["name"],
+                as_list=True,
+                ignore_permissions=True
             )
             
-            if table and table.table:
-                table_number = frappe.db.get_value(
-                    "Table", 
-                    table.table, 
-                    ["table_number"]
+            # Extract just the order names
+            valid_order_ids = [order[0] for order in valid_orders]
+            
+            # Filter items to only those with valid order IDs
+            items = [item for item in items if item["order_id"] in valid_order_ids]
+        
+        # Get related information (table number)
+        expanded_items = []
+        for item in items:
+            try:
+                # Get table number from parent order
+                table = frappe.db.get_value(
+                    "Waiter Order", 
+                    item["order_id"], 
+                    ["table"], 
+                    as_dict=True
                 )
-                item["table_number"] = table_number or "Unknown"
-            else:
-                item["table_number"] = "Unknown"
-            
-            # Calculate time in queue
-            now = now_datetime()
-            order_time = item["order_time"]
-            
-            if isinstance(order_time, str):
-                order_time = datetime.fromisoformat(order_time.replace('Z', '+00:00'))
                 
-            item["time_in_queue"] = int(time_diff_in_seconds(now, order_time))
-            
-            # Expand by quantity - create separate entries for each quantity unit
-            for i in range(cint(item["qty"])):
-                expanded_item = item.copy()
-                expanded_items.append(expanded_item)
-        except Exception as e:
-            frappe.log_error(
-                f"Error processing kitchen item {item['id']}: {str(e)}", 
-                "KDS Display Error"
-            )
+                if table and table.table:
+                    table_number = frappe.db.get_value(
+                        "Table", 
+                        table.table, 
+                        ["table_number"]
+                    )
+                    item["table_number"] = table_number or "Unknown"
+                else:
+                    item["table_number"] = "Unknown"
+                
+                # Calculate time in queue
+                now = now_datetime()
+                order_time = item["order_time"]
+                
+                if isinstance(order_time, str):
+                    order_time = datetime.fromisoformat(order_time.replace('Z', '+00:00'))
+                    
+                item["time_in_queue"] = int(time_diff_in_seconds(now, order_time))
+                
+                # Expand by quantity - create separate entries for each quantity unit
+                for i in range(cint(item["qty"])):
+                    expanded_item = item.copy()
+                    expanded_items.append(expanded_item)
+            except Exception as e:
+                frappe.log_error(
+                    f"Error processing kitchen item {item.get('id', 'unknown')}: {str(e)}", 
+                    "KDS Display Error"
+                )
+        
+        return expanded_items
+    except Exception as e:
+        frappe.log_error(
+            f"Error getting kitchen items: {str(e)}", 
+            "KDS Display Error"
+        )
+        return []
+
+def validate_guest_access(access_token: Optional[str] = None) -> bool:
+    """
+    Validate guest access to KDS functions
     
-    return expanded_items
+    Args:
+        access_token: Optional access token
+        
+    Returns:
+        True if access is allowed
+    """
+    # If not guest, access is allowed
+    if frappe.session.user != "Guest":
+        return True
+        
+    # Check if public access is enabled (no token required)
+    public_access_enabled = frappe.db.get_single_value(
+        "Restaurant Settings", 
+        "enable_public_kds_access"
+    ) or False
+    
+    if public_access_enabled:
+        return True
+        
+    # Validate token if public access is not enabled
+    if access_token:
+        try:
+            return validate_kds_token(access_token)
+        except:
+            return False
+            
+    return False
 
 @frappe.whitelist(allow_guest=True)
 def update_item_status(item_id: str, new_status: str, access_token: Optional[str] = None) -> Dict[str, Any]:
@@ -146,11 +191,11 @@ def update_item_status(item_id: str, new_status: str, access_token: Optional[str
         Dictionary with success status and message
     """
     # Validate token for guest access
-    if frappe.session.user == "Guest":
-        try:
-            validate_kds_token(access_token)
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+    if frappe.session.user == "Guest" and not validate_guest_access(access_token):
+        return {
+            "success": False, 
+            "error": _("Authentication required. Please provide a valid access token.")
+        }
 
     valid_statuses = ["Waiting", "Cooking", "Ready", "Sent to Kitchen"]
     if new_status not in valid_statuses:
@@ -199,51 +244,75 @@ def update_parent_order_status(order_id: str) -> None:
     if not order_id:
         return
     
-    # Get all items in the order
-    all_items = frappe.get_all(
-        "Waiter Order Item",
-        filters={"parent": order_id},
-        fields=["status"]
-    )
-    
-    if not all_items:
-        return
+    try:
+        # Get all items in the order
+        all_items = frappe.get_all(
+            "Waiter Order Item",
+            filters={"parent": order_id},
+            fields=["status"]
+        )
         
-    # Check if all items are ready or served
-    all_ready_or_served = all(
-        item.status in ["Ready", "Served"] for item in all_items
-    )
-    
-    # Check if at least one item is ready or served
-    any_ready_or_served = any(
-        item.status in ["Ready", "Served"] for item in all_items
-    )
-    
-    # Check if all items are served
-    all_served = all(
-        item.status == "Served" for item in all_items
-    )
-    
-    # Update order status
-    if all_served:
-        frappe.db.set_value("Waiter Order", order_id, "status", "Completed")
-    elif all_ready_or_served:
-        frappe.db.set_value("Waiter Order", order_id, "status", "Ready")
-    elif any_ready_or_served:
-        frappe.db.set_value("Waiter Order", order_id, "status", "Partially Served")
+        if not all_items:
+            return
+            
+        # Check if all items are ready or served
+        all_ready_or_served = all(
+            item.status in ["Ready", "Served"] for item in all_items
+        )
+        
+        # Check if at least one item is ready or served
+        any_ready_or_served = any(
+            item.status in ["Ready", "Served"] for item in all_items
+        )
+        
+        # Check if all items are served
+        all_served = all(
+            item.status == "Served" for item in all_items
+        )
+        
+        # Update order status
+        if all_served:
+            frappe.db.set_value("Waiter Order", order_id, "status", "Completed")
+        elif all_ready_or_served:
+            frappe.db.set_value("Waiter Order", order_id, "status", "Ready")
+        elif any_ready_or_served:
+            frappe.db.set_value("Waiter Order", order_id, "status", "Partially Served")
+    except Exception as e:
+        frappe.log_error(
+            f"Error updating parent order status: {str(e)}", 
+            "KDS Update Error"
+        )
 
-@frappe.whitelist()
-def get_kitchen_stations() -> List[Dict[str, Any]]:
+@frappe.whitelist(allow_guest=True)
+def get_kitchen_stations(access_token: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Get list of kitchen stations the user has access to
     
+    Args:
+        access_token: Optional access token for guest authentication
+        
     Returns:
         List of kitchen stations
     """
     from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user
     
     try:
-        # Get allowed branches for current user
+        # Handle guest access
+        if frappe.session.user == "Guest":
+            if not validate_guest_access(access_token):
+                return []
+                
+            # For guest users, show stations marked as public
+            stations = frappe.get_all(
+                "Kitchen Station",
+                filters={"is_active": 1, "is_public": 1},  # Add is_public field to Kitchen Station DocType
+                fields=["name", "station_name", "description", "branch_code"],
+                order_by="station_name",
+                ignore_permissions=True
+            )
+            return stations
+        
+        # For logged in users, use existing logic
         allowed_branch_codes = get_allowed_branches_for_user()
         
         if allowed_branch_codes:
@@ -277,18 +346,36 @@ def get_kitchen_stations() -> List[Dict[str, Any]]:
         )
         return []
 
-@frappe.whitelist()
-def get_branches() -> List[Dict[str, Any]]:
+@frappe.whitelist(allow_guest=True)
+def get_branches(access_token: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Get list of branches the user has access to
     
+    Args:
+        access_token: Optional access token for guest authentication
+        
     Returns:
         List of branches
     """
     from restaurant_management.restaurant_management.utils.branch_permissions import get_allowed_branches_for_user
     
     try:
-        # Get allowed branches for current user
+        # Handle guest access
+        if frappe.session.user == "Guest":
+            if not validate_guest_access(access_token):
+                return []
+                
+            # For guest users, show branches marked as public
+            branches = frappe.get_all(
+                "Branch",
+                filters={"is_public": 1},  # Add is_public field to Branch DocType
+                fields=["branch_code", "name", "address"],
+                order_by="name",
+                ignore_permissions=True
+            )
+            return branches
+        
+        # For logged in users, use existing logic
         allowed_branch_codes = get_allowed_branches_for_user()
         
         if allowed_branch_codes:
@@ -317,29 +404,23 @@ def get_branches() -> List[Dict[str, Any]]:
         )
         return []
 
-@frappe.whitelist()
-def get_kds_config() -> Dict[str, Any]:
+@frappe.whitelist(allow_guest=True)
+def get_kds_config(access_token: Optional[str] = None) -> Dict[str, Any]:
     """
     Get KDS configuration
     
+    Args:
+        access_token: Optional access token for guest authentication
+        
     Returns:
         KDS configuration settings
     """
+    # Validate guest access if needed
+    if frappe.session.user == "Guest" and not validate_guest_access(access_token):
+        return get_default_kds_config()
+    
     # Default configuration
-    default_config = {
-        "refresh_interval": 10,
-        "default_kitchen_station": "",
-        "status_color_map": {
-            "Waiting": "#e74c3c",            # Red
-            "Sent to Kitchen": "#e74c3c",    # Red
-            "Cooking": "#f39c12",            # Orange
-            "Ready": "#2ecc71"               # Green
-        },
-        "enable_sound_on_ready": True,
-        "enable_sound_on_new_item": True,
-        "show_item_notes": True,
-        "auto_refresh": True
-    }
+    default_config = get_default_kds_config()
     
     try:
         # Try to get configuration from database first
@@ -395,6 +476,28 @@ def get_kds_config() -> Dict[str, Any]:
     # Return default config if all else fails
     return default_config
 
+def get_default_kds_config() -> Dict[str, Any]:
+    """
+    Get default KDS configuration
+    
+    Returns:
+        Default configuration dictionary
+    """
+    return {
+        "refresh_interval": 10,
+        "default_kitchen_station": "",
+        "status_color_map": {
+            "Waiting": "#e74c3c",            # Red
+            "Sent to Kitchen": "#e74c3c",    # Red
+            "Cooking": "#f39c12",            # Orange
+            "Ready": "#2ecc71"               # Green
+        },
+        "enable_sound_on_ready": True,
+        "enable_sound_on_new_item": True,
+        "show_item_notes": True,
+        "auto_refresh": True
+    }
+
 @frappe.whitelist(allow_guest=True)
 def get_token_status(access_token: str) -> Dict[str, Any]:
     """
@@ -417,3 +520,41 @@ def get_token_status(access_token: str) -> Dict[str, Any]:
             "success": False,
             "is_valid": False
         }
+
+@frappe.whitelist(allow_guest=True)
+def kds_items(kitchen_station: Optional[str] = None, branch_code: Optional[str] = None, access_token: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Get kitchen items for KDS display
+    
+    Args:
+        kitchen_station: Filter by kitchen station
+        branch_code: Filter by branch code
+        access_token: Token for guest authentication
+        
+    Returns:
+        List of items for KDS display
+    """
+    # Just an alias for get_kitchen_item_queue with better naming for API
+    return get_kitchen_item_queue(kitchen_station, branch_code, access_token)
+
+@frappe.whitelist(allow_guest=True)
+def check_connection(access_token: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Simple endpoint to check if KDS connection is working
+    
+    Args:
+        access_token: Optional access token for guest authentication
+        
+    Returns:
+        Status information
+    """
+    is_guest = frappe.session.user == "Guest"
+    has_access = not is_guest or validate_guest_access(access_token)
+    
+    return {
+        "success": True,
+        "timestamp": now_datetime().isoformat(),
+        "user": frappe.session.user,
+        "is_guest": is_guest,
+        "has_access": has_access
+    }

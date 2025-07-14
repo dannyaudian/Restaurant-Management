@@ -24,23 +24,31 @@ def get_context(context=None):
         # Set page title
         context.title = _("Kitchen Display")
         
-        # Make CSRF token available to JavaScript
-        context.csrf_token = getattr(frappe.session, "csrf_token", "")
+        # Make CSRF token available to JavaScript - safely handle guest users
+        context.csrf_token = getattr(frappe.session, "csrf_token", "") or ""
         
-        # Get all branches
-        branches = frappe.get_all(
-            'Branch',
-            fields=['name', 'branch_code']
-        ) or []
+        # Get all branches - safely handle errors for guest users
+        try:
+            branches = frappe.get_all(
+                'Branch',
+                fields=['name', 'branch_code']
+            ) or []
+        except frappe.PermissionError:
+            branches = []
+            context.permission_error = True
         
         # Set default branch (first available or None)
         default_branch = branches[0] if branches else None
         
-        # Get all kitchen stations
-        kitchen_stations = frappe.get_all(
-            'Kitchen Station',
-            fields=['name', 'station_name', 'branch']
-        ) or []
+        # Get all kitchen stations - safely handle errors for guest users
+        try:
+            kitchen_stations = frappe.get_all(
+                'Kitchen Station',
+                fields=['name', 'station_name', 'branch']
+            ) or []
+        except frappe.PermissionError:
+            kitchen_stations = []
+            context.permission_error = True
         
         # Add data to context
         context.branches = branches
@@ -49,6 +57,16 @@ def get_context(context=None):
         context.has_branches = bool(branches)
         context.has_stations = bool(kitchen_stations)
         context.error_message = ""
+        
+        # Add guest flag to help JavaScript handle permission-based logic
+        context.is_guest = frappe.session.user == "Guest"
+        
+        # Handle the case where data is empty
+        if not branches and not kitchen_stations:
+            if context.permission_error:
+                context.error_message = _("Permission error: You don't have access to view this data. Please contact your administrator or log in with appropriate permissions.")
+            else:
+                context.error_message = _("No branches or kitchen stations found. Please set up your restaurant configuration first.")
         
     except Exception as e:
         frappe.log_error(
@@ -61,6 +79,7 @@ def get_context(context=None):
         context.has_branches = False
         context.has_stations = False
         context.default_branch = None
+        context.is_guest = frappe.session.user == "Guest"
         context.error_message = _("Unable to load kitchen station data. Please check error logs.")
     
     return context
