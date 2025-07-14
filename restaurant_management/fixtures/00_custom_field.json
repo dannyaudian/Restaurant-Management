@@ -55,18 +55,7 @@
     "insert_after": "branch",
     "module": "Restaurant Management"
   },
-  {
-    "doctype": "Custom Field",
-    "name": "POS Profile-restaurant_settings_section",
-    "dt": "POS Profile",
-    "fieldname": "restaurant_settings_section",
-    "fieldtype": "Section Break",
-    "label": "Restaurant Settings",
-    "insert_after": "branch_code",
-    "module": "Restaurant Management",
-    "depends_on": "restaurant_mode"
-  },
-  {
+    {
     "doctype": "Custom Field",
     "name": "POS Profile-allowed_item_groups",
     "dt": "POS Profile",
@@ -74,28 +63,17 @@
     "fieldtype": "Table",
     "label": "Allowed Item Groups",
     "options": "POS Allowed Item Group",
-    "insert_after": "restaurant_settings_section",
+    "insert_after": "branch_code",
     "module": "Restaurant Management"
   },
-  {
-    "doctype": "Custom Field",
-    "name": "POS Profile-allowed_kitchen_stations",
-    "dt": "POS Profile",
-    "fieldname": "allowed_kitchen_stations",
-    "fieldtype": "Table MultiSelect",
-    "label": "Allowed Kitchen Stations",
-    "options": "Kitchen Station Item Group",
-    "insert_after": "allowed_item_groups",
-    "module": "Restaurant Management"
-  },
-  {
+    {
     "doctype": "Custom Field",
     "name": "POS Profile-allow_add_item_post_kitchen",
     "dt": "POS Profile",
     "fieldname": "allow_add_item_post_kitchen",
     "fieldtype": "Check",
     "label": "Allow Adding Items After Sent to Kitchen",
-    "insert_after": "allowed_kitchen_stations",
+    "insert_after": "allowed_item_groups",
     "module": "Restaurant Management"
   },
   {
@@ -121,18 +99,7 @@
     "insert_after": "branch",
     "module": "Restaurant Management"
   },
-  {
-    "doctype": "Custom Field",
-    "name": "Sales Invoice-restaurant_section",
-    "dt": "Sales Invoice",
-    "fieldname": "restaurant_section",
-    "fieldtype": "Section Break",
-    "label": "Restaurant Information",
-    "insert_after": "customer_name",
-    "module": "Restaurant Management",
-    "collapsible": 1
-  },
-  {
+    {
     "doctype": "Custom Field",
     "name": "Sales Invoice-restaurant_waiter_order",
     "dt": "Sales Invoice",
@@ -140,7 +107,7 @@
     "fieldtype": "Link",
     "options": "Waiter Order",
     "label": "Waiter Order",
-    "insert_after": "restaurant_section",
+    "insert_after": "customer_name",
     "module": "Restaurant Management"
   },
   {
@@ -189,18 +156,7 @@
     "insert_after": "branch",
     "module": "Restaurant Management"
   },
-  {
-    "doctype": "Custom Field",
-    "name": "Sales Order-restaurant_section",
-    "dt": "Sales Order",
-    "fieldname": "restaurant_section",
-    "fieldtype": "Section Break",
-    "label": "Restaurant Information",
-    "insert_after": "customer_name",
-    "module": "Restaurant Management",
-    "collapsible": 1
-  },
-  {
+    {
     "doctype": "Custom Field",
     "name": "Sales Order-restaurant_waiter_order",
     "dt": "Sales Order",
@@ -208,7 +164,7 @@
     "fieldtype": "Link",
     "options": "Waiter Order",
     "label": "Waiter Order",
-    "insert_after": "restaurant_section",
+    "insert_after": "customer_name",
     "module": "Restaurant Management"
   },
   {
@@ -309,18 +265,7 @@
     "insert_after": "branch",
     "module": "Restaurant Management"
   },
-  {
-    "doctype": "Custom Field",
-    "name": "POS Invoice-restaurant_section",
-    "dt": "POS Invoice",
-    "fieldname": "restaurant_section",
-    "fieldtype": "Section Break",
-    "label": "Restaurant Information",
-    "insert_after": "customer_name",
-    "module": "Restaurant Management",
-    "collapsible": 1
-  },
-  {
+    {
     "doctype": "Custom Field",
     "name": "POS Invoice-restaurant_waiter_order",
     "dt": "POS Invoice",
@@ -328,7 +273,7 @@
     "fieldtype": "Link",
     "options": "Waiter Order",
     "label": "Waiter Order",
-    "insert_after": "restaurant_section",
+    "insert_after": "customer_name",
     "module": "Restaurant Management"
   },
   {
@@ -354,35 +299,14 @@
     "read_only": 1,
     "fetch_from": "restaurant_table.table_number"
   },
-  {
-    "doctype": "Custom Field",
-    "name": "Item-branch_specific_pricing",
-    "dt": "Item",
-    "fieldname": "branch_specific_pricing",
-    "fieldtype": "Check",
-    "label": "Branch Specific Pricing",
-    "insert_after": "item_group",
-    "module": "Restaurant Management"
-  },
-  {
-    "doctype": "Custom Field",
-    "name": "User-branch_section",
-    "dt": "User",
-    "fieldname": "branch_section",
-    "fieldtype": "Section Break",
-    "label": "Branch Settings",
-    "insert_after": "time_zone",
-    "module": "Restaurant Management",
-    "collapsible": 1
-  },
-  {
+      {
     "doctype": "Custom Field",
     "name": "User-all_branches_access",
     "dt": "User",
     "fieldname": "all_branches_access",
     "fieldtype": "Check",
     "label": "Access All Branches",
-    "insert_after": "branch_section",
+    "insert_after": "time_zone",
     "module": "Restaurant Management",
     "description": "If checked, user can access all branches regardless of specific branch assignments"
   },
@@ -415,25 +339,14 @@
     "in_global_search": 1,
     "module": "Restaurant Management"
   },
-  {
-    "doctype": "Custom Field",
-    "name": "Branch-branch_settings_section",
-    "dt": "Branch",
-    "fieldname": "branch_settings_section",
-    "fieldtype": "Section Break",
-    "label": "Restaurant Settings",
-    "insert_after": "branch_code",
-    "collapsible": 0,
-    "module": "Restaurant Management"
-  },
-  {
+    {
     "doctype": "Custom Field",
     "name": "Branch-is_restaurant",
     "dt": "Branch",
     "fieldname": "is_restaurant",
     "fieldtype": "Check",
     "label": "Is Restaurant",
-    "insert_after": "branch_settings_section",
+    "insert_after": "branch_code",
     "module": "Restaurant Management"
   },
   {
