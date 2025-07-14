@@ -1,111 +1,96 @@
-{% extends "templates/web.html" %}
-
-{% block title %}Table Overview{% endblock %}
-
-{% block header %}
-{# Empty override to remove default header #}
-{% endblock %}
-
-{% block style %}
-<link rel="stylesheet" href="/assets/restaurant_management/css/table_display.css">
-{% endblock %}
-
-{% block page_content %}
-<div class="overview-container">
-  <!-- Header with filters -->
-  <div class="overview-header">
-    <div class="overview-title">Table Overview</div>
-    
-    <div class="overview-controls">
-      <div class="branch-filter">
-        <label for="branch-code">Branch:</label>
-        <select id="branch-code" class="branch-select">
-          <option value="">All Branches</option>
-          {% if branches %}
-            {% for branch in branches %}
-              <option value="{{ branch.branch_code or '' }}" {% if default_branch and branch.branch_code and default_branch.branch_code and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
-                {{ branch.name or 'Unnamed Branch' }}
-              </option>
-            {% endfor %}
-          {% endif %}
-        </select>
-      </div>
-      
-      <div class="refresh-info">
-        Auto-refresh: <span id="refresh-countdown">30</span>s
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Table Overview</title>
+  <link rel="stylesheet" href="/assets/restaurant_management/css/table_display.css">
+</head>
+<body>
+  <main class="overview-container">
+    <!-- Header with filters -->
+    <div class="overview-header">
+      <div class="overview-title">Table Overview</div>
+      <div class="overview-controls">
+        <div class="branch-filter">
+          <label for="branch-code">Branch:</label>
+          <select id="branch-code" class="branch-select">
+            <option value="">All Branches</option>
+            {% if branches %}
+              {% for branch in branches %}
+                <option value="{{ branch.branch_code or '' }}" {% if default_branch and branch.branch_code and default_branch.branch_code and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
+                  {{ branch.name or 'Unnamed Branch' }}
+                </option>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+        <div class="refresh-info">
+          Auto-refresh: <span id="refresh-countdown">30</span>s
+        </div>
       </div>
     </div>
-  </div>
-  
-  <!-- Main content with table cards -->
-  <div class="overview-content">
-    {% if error_message %}
-      <div class="alert alert-warning">
-        {{ error_message }}
-      </div>
-    {% endif %}
-    
-    <div class="tables-grid" id="tables-container">
-      {% if tables and tables|length > 0 %}
-        {% for table in tables %}
-          <div class="card table-card" data-table-id="{{ table.name or '' }}">
-            <div class="card-header table-header">
-              <div class="table-number">Table {{ table.table_number or '?' }}</div>
-              <div class="table-status status-{{ (table.status or '')|lower|replace(' ', '-') }}">{{ table.status or 'Unknown' }}</div>
-            </div>
-            
-            <div class="card-body table-summary">
-              <div class="summary-stat">
-                <div class="stat-value">{{ table.seating_capacity or 0 }}</div>
-                <div class="stat-label">Capacity</div>
+    <!-- Main content with table cards -->
+    <div class="overview-content">
+      {% if error_message %}
+        <div class="alert alert-warning">
+          {{ error_message }}
+        </div>
+      {% endif %}
+      <div class="tables-grid" id="tables-container">
+        {% if tables and tables|length > 0 %}
+          {% for table in tables %}
+            <div class="card table-card" data-table-id="{{ table.name or '' }}">
+              <div class="card-header table-header">
+                <div class="table-number">Table {{ table.table_number or '?' }}</div>
+                <div class="table-status status-{{ (table.status or '')|lower|replace(' ', '-') }}">{{ table.status or 'Unknown' }}</div>
               </div>
-              
-              <div class="summary-stat">
-                <div class="stat-value">{{ table.occupied_seats or 0 }}</div>
-                <div class="stat-label">Occupied</div>
+              <div class="card-body table-summary">
+                <div class="summary-stat">
+                  <div class="stat-value">{{ table.seating_capacity or 0 }}</div>
+                  <div class="stat-label">Capacity</div>
+                </div>
+                <div class="summary-stat">
+                  <div class="stat-value">{{ table.occupied_seats or 0 }}</div>
+                  <div class="stat-label">Occupied</div>
+                </div>
+                {% if table.branch %}
+                <div class="summary-stat">
+                  <div class="stat-value">{{ table.branch }}</div>
+                  <div class="stat-label">Branch</div>
+                </div>
+                {% endif %}
               </div>
-              
-              {% if table.branch %}
-              <div class="summary-stat">
-                <div class="stat-value">{{ table.branch }}</div>
-                <div class="stat-label">Branch</div>
+              {% if table.current_order %}
+              <div class="card-footer text-end">
+                <small class="text-muted">Order: {{ table.current_order }}</small>
               </div>
               {% endif %}
             </div>
-            
-            {% if table.current_order %}
-            <div class="card-footer text-end">
-              <small class="text-muted">Order: {{ table.current_order }}</small>
-            </div>
-            {% endif %}
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <p>No tables found. {% if not has_branches %}Please create branches and tables first.{% endif %}</p>
           </div>
-        {% endfor %}
-      {% else %}
-        <div class="empty-state">
-          <p>No tables found. {% if not has_branches %}Please create branches and tables first.{% endif %}</p>
-        </div>
-      {% endif %}
+        {% endif %}
+      </div>
     </div>
-  </div>
-  
-  <!-- Loading overlay -->
-  <div id="loading-overlay" class="loading-overlay" style="display: none;">
-    <div class="spinner"></div>
-    <div>Loading...</div>
-  </div>
-</div>
-{% endblock %}
-
-{% block script %}
-<script>
-  // Context variables made available to JavaScript
-  window.tableOverviewContext = {
-    csrfToken: "{{ csrf_token or '' }}",
-    defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
-    hasBranches: {{ has_branches | tojson }},
-    branchCount: {{ (branches|length) if branches else 0 }},
-    tableCount: {{ (tables|length) if tables else 0 }}
-  };
-</script>
-<script src="/assets/restaurant_management/js/table_display.js"></script>
-{% endblock %}
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+      <div class="spinner"></div>
+      <div>Loading...</div>
+    </div>
+  </main>
+  <script>
+    window.tableOverviewContext = {
+      csrfToken: "{{ csrf_token or '' }}",
+      defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
+      hasBranches: {{ has_branches | tojson }},
+      branchCount: {{ (branches|length) if branches else 0 }},
+      tableCount: {{ (tables|length) if tables else 0 }}
+    };
+  </script>
+  <script src="/assets/restaurant_management/js/table_display.js"></script>
+</body>
+</html>

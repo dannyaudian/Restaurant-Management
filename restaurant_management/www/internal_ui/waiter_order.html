@@ -1,150 +1,11 @@
-{% extends "templates/web.html" %}
-
-{% block title %}Waiter Order{% endblock %}
-
-{% block header %}
-{# Kosongkan header jika tidak ingin pakai default header #}
-{% endblock %}
-
-{% block page_content %}
-<!-- Loading overlay -->
-<div id="loading-overlay" class="fixed inset-0 hidden items-center justify-center bg-black/60 z-50">
-  <div class="text-white text-center">
-    <div class="spinner mb-2"></div>
-    <div>Loading...</div>
-  </div>
-</div>
-
-<!-- Main Content -->
-<div class="container mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold text-gray-900 mb-6">Waiter Order</h1>
-  
-  <!-- Error message section -->
-  {% if error_message %}
-  <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-    <p class="text-yellow-700">{{ error_message }}</p>
-  </div>
-  {% endif %}
-  
-  <!-- Branch Selection -->
-  {% if has_branches %}
-  <div class="mb-6">
-    <label for="branch-selector" class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
-    <select id="branch-selector" class="w-full md:w-64 p-2 border rounded-md">
-      {% for branch in branches %}
-      <option value="{{ branch.branch_code or '' }}" {% if default_branch and branch.branch_code and default_branch.branch_code and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
-        {{ branch.name or 'Unnamed Branch' }}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
-  {% else %}
-  <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-    <p class="text-yellow-700">No branches available. Please contact your administrator.</p>
-  </div>
-  {% endif %}
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Left Panel: Table Selection -->
-    <div class="bg-white p-4 rounded-md shadow">
-      <h2 class="text-lg font-semibold mb-4">Tables</h2>
-      <div id="tables-container" class="grid grid-cols-3 gap-2">
-        {% if has_tables %}
-          <!-- Tables will be populated dynamically by JavaScript -->
-          <div class="col-span-3 text-center text-gray-500 py-4">Loading tables...</div>
-        {% else %}
-          <div class="col-span-3 text-center text-gray-500 py-4">No tables available</div>
-        {% endif %}
-      </div>
-      
-      <!-- New Order Form -->
-      <div class="mt-6 pt-4 border-t border-gray-200">
-        <h3 class="text-md font-semibold mb-2">New Order</h3>
-        <div class="flex">
-          <input type="text" id="new-order-table-number" placeholder="Table #" class="p-2 border rounded-md mr-2 flex-1" required>
-          <button id="new-order-btn" class="bg-green-600 text-white px-4 py-2 rounded-md">
-            Create
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Middle Panel: Menu Items -->
-    <div class="bg-white p-4 rounded-md shadow">
-      <h2 class="text-lg font-semibold mb-4">Menu</h2>
-      <div class="mb-4">
-        <input type="text" id="item-search" placeholder="Search items..." class="w-full p-2 border rounded-md">
-      </div>
-      
-      <!-- Item Category Tabs -->
-      <div class="nav-tabs flex flex-wrap mb-4 border-b">
-        {% if item_groups and item_groups|length > 0 %}
-          <!-- Item groups will be populated by JavaScript -->
-        {% else %}
-          <div class="p-2 text-gray-500">No item groups available</div>
-        {% endif %}
-      </div>
-      
-      <!-- Item List -->
-      <div id="items-section" class="overflow-y-auto max-h-96">
-        <ul id="item-list" class="space-y-2">
-          <li class="empty-message">Select a category or search for items</li>
-        </ul>
-      </div>
-    </div>
-    
-    <!-- Right Panel: Current Order -->
-    <div class="bg-white p-4 rounded-md shadow">
-      <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
-      <p id="selected-table-display" class="text-sm text-gray-600 mb-4">No table selected</p>
-      
-      <!-- Order Items List -->
-      <div id="order-section" class="overflow-y-auto max-h-72">
-        <ul id="order-items" class="space-y-2 border-t pt-4">
-          <li class="empty-order-message">No items in order</li>
-        </ul>
-      </div>
-      
-      <!-- Order Actions -->
-      <div class="mt-6 space-y-2">
-        <button id="send-to-kitchen-btn" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md disabled-btn">
-          Send to Kitchen
-        </button>
-        <button id="send-additional-btn" class="w-full bg-purple-600 text-white px-4 py-2 rounded-md disabled-btn">
-          Send Additional Items
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Variant Selection Modal -->
-<div id="modal-overlay" class="fixed inset-0 hidden bg-black/50 z-40"></div>
-<div id="variant-modal" class="modal">
-    <div class="modal-content">
-        <h3 id="variant-item-name"></h3>
-        <div id="variant-attributes">
-            <!-- Dynamic attributes will be added here -->
-        </div>
-        <div class="modal-actions">
-            <button id="cancel-variant-btn" class="btn btn-secondary">Cancel</button>
-            <button id="add-variant-btn" class="btn btn-primary">Add to Order</button>
-        </div>
-    </div>
-</div>
-
-<!-- Confirmation Modal -->
-<div id="confirm-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center">
-  <div class="bg-white p-6 rounded-md shadow-lg w-full max-w-sm">
-    <p id="confirm-message" class="mb-4">Are you sure?</p>
-    <div class="flex justify-end space-x-2">
-      <button id="confirm-cancel" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
-      <button id="confirm-ok" class="bg-blue-600 text-white px-4 py-2 rounded-md">OK</button>
-    </div>
-  </div>
-</div>
-
-<style>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Waiter Order</title>
+  <style>
   .spinner {
     border: 4px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
@@ -154,17 +15,17 @@
     animation: spin 1s linear infinite;
     margin: 0 auto;
   }
-  
+
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
-  
+
   .disabled-btn {
     opacity: 0.6;
     cursor: not-allowed;
   }
-  
+
   .table-button {
     background-color: #f3f4f6;
     border: 1px solid #d1d5db;
@@ -173,12 +34,12 @@
     text-align: center;
     cursor: pointer;
   }
-  
+
   .table-button.selected {
     background-color: #dbeafe;
     border-color: #3b82f6;
   }
-  
+
   .item-button {
     background-color: #f3f4f6;
     border: 1px solid #d1d5db;
@@ -187,11 +48,11 @@
     cursor: pointer;
     margin-bottom: 0.5rem;
   }
-  
+
   .item-button:hover {
     background-color: #e5e7eb;
   }
-  
+
   .order-item {
     display: flex;
     justify-content: space-between;
@@ -200,22 +61,22 @@
     border: 1px solid #d1d5db;
     border-radius: 0.375rem;
   }
-  
+
   .order-item.sent-item {
     background-color: #f0fdf4;
     border-color: #86efac;
   }
-  
+
   .order-item-name {
     flex: 1;
   }
-  
+
   .order-item-qty {
     display: flex;
     align-items: center;
     margin-right: 1rem;
   }
-  
+
   .qty-btn {
     width: 1.5rem;
     height: 1.5rem;
@@ -226,35 +87,35 @@
     border-radius: 0.25rem;
     cursor: pointer;
   }
-  
+
   .order-item-remove {
     color: #ef4444;
     cursor: pointer;
     padding: 0 0.5rem;
   }
-  
+
   .nav-tab {
     padding: 0.5rem 1rem;
     cursor: pointer;
     border-bottom: 2px solid transparent;
   }
-  
+
   .nav-tab.active {
     border-bottom-color: #3b82f6;
     color: #3b82f6;
   }
-  
+
   .error {
     border-color: #ef4444;
   }
-  
+
   .empty-message, .empty-order-message {
     color: #6b7280;
     padding: 1rem;
     text-align: center;
     font-style: italic;
   }
-  
+
   .modal {
     display: none;
     position: fixed;
@@ -268,11 +129,11 @@
     max-width: 500px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
-  
+
   .modal-content {
     padding: 1.5rem;
   }
-  
+
   .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -281,34 +142,140 @@
     border-top: 1px solid #e5e7eb;
     padding-top: 1rem;
   }
-  
+
   .btn {
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
     font-weight: 500;
   }
-  
+
   .btn-primary {
     background-color: #3b82f6;
     color: white;
   }
-  
+
   .btn-secondary {
     background-color: #e5e7eb;
     color: #1f2937;
   }
-</style>
-{% endblock %}
-
-{% block script %}
-<script>
-  window.waiterOrderContext = {
-    csrfToken: "{{ csrf_token or '' }}",
-    defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
-    hasBranches: {{ has_branches | tojson }},
-    hasTables: {{ has_tables | tojson }},
-    userRole: "{{ user or '' }}"
-  };
-</script>
-<script type="text/javascript" src="/assets/restaurant_management/js/waiter_order.js" defer></script>
-{% endblock %}
+  </style>
+</head>
+<body>
+  <div id="loading-overlay" class="fixed inset-0 hidden items-center justify-center bg-black/60 z-50">
+    <div class="text-white text-center">
+      <div class="spinner mb-2"></div>
+      <div>Loading...</div>
+    </div>
+  </div>
+  <main class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Waiter Order</h1>
+    {% if error_message %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+      <p class="text-yellow-700">{{ error_message }}</p>
+    </div>
+    {% endif %}
+    {% if has_branches %}
+    <div class="mb-6">
+      <label for="branch-selector" class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
+      <select id="branch-selector" class="w-full md:w-64 p-2 border rounded-md">
+        {% for branch in branches %}
+        <option value="{{ branch.branch_code or '' }}" {% if default_branch and branch.branch_code and default_branch.branch_code and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
+          {{ branch.name or 'Unnamed Branch' }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    {% else %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+      <p class="text-yellow-700">No branches available. Please contact your administrator.</p>
+    </div>
+    {% endif %}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white p-4 rounded-md shadow">
+        <h2 class="text-lg font-semibold mb-4">Tables</h2>
+        <div id="tables-container" class="grid grid-cols-3 gap-2">
+          {% if has_tables %}
+            <div class="col-span-3 text-center text-gray-500 py-4">Loading tables...</div>
+          {% else %}
+            <div class="col-span-3 text-center text-gray-500 py-4">No tables available</div>
+          {% endif %}
+        </div>
+        <div class="mt-6 pt-4 border-t border-gray-200">
+          <h3 class="text-md font-semibold mb-2">New Order</h3>
+          <div class="flex">
+            <input type="text" id="new-order-table-number" placeholder="Table #" class="p-2 border rounded-md mr-2 flex-1" required>
+            <button id="new-order-btn" class="bg-green-600 text-white px-4 py-2 rounded-md">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-md shadow">
+        <h2 class="text-lg font-semibold mb-4">Menu</h2>
+        <div class="mb-4">
+          <input type="text" id="item-search" placeholder="Search items..." class="w-full p-2 border rounded-md">
+        </div>
+        <div class="nav-tabs flex flex-wrap mb-4 border-b">
+          {% if item_groups and item_groups|length > 0 %}
+          {% else %}
+            <div class="p-2 text-gray-500">No item groups available</div>
+          {% endif %}
+        </div>
+        <div id="items-section" class="overflow-y-auto max-h-96">
+          <ul id="item-list" class="space-y-2">
+            <li class="empty-message">Select a category or search for items</li>
+          </ul>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-md shadow">
+        <h2 class="text-lg font-semibold mb-2">Order Summary</h2>
+        <p id="selected-table-display" class="text-sm text-gray-600 mb-4">No table selected</p>
+        <div id="order-section" class="overflow-y-auto max-h-72">
+          <ul id="order-items" class="space-y-2 border-t pt-4">
+            <li class="empty-order-message">No items in order</li>
+          </ul>
+        </div>
+        <div class="mt-6 space-y-2">
+          <button id="send-to-kitchen-btn" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md disabled-btn">
+            Send to Kitchen
+          </button>
+          <button id="send-additional-btn" class="w-full bg-purple-600 text-white px-4 py-2 rounded-md disabled-btn">
+            Send Additional Items
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="modal-overlay" class="fixed inset-0 hidden bg-black/50 z-40"></div>
+  <div id="variant-modal" class="modal">
+      <div class="modal-content">
+          <h3 id="variant-item-name"></h3>
+          <div id="variant-attributes">
+          </div>
+          <div class="modal-actions">
+              <button id="cancel-variant-btn" class="btn btn-secondary">Cancel</button>
+              <button id="add-variant-btn" class="btn btn-primary">Add to Order</button>
+          </div>
+      </div>
+  </div>
+  <div id="confirm-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-md shadow-lg w-full max-w-sm">
+      <p id="confirm-message" class="mb-4">Are you sure?</p>
+      <div class="flex justify-end space-x-2">
+        <button id="confirm-cancel" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
+        <button id="confirm-ok" class="bg-blue-600 text-white px-4 py-2 rounded-md">OK</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.waiterOrderContext = {
+      csrfToken: "{{ csrf_token or '' }}",
+      defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
+      hasBranches: {{ has_branches | tojson }},
+      hasTables: {{ has_tables | tojson }},
+      userRole: "{{ user or '' }}"
+    };
+  </script>
+  <script type="text/javascript" src="/assets/restaurant_management/js/waiter_order.js" defer></script>
+</body>
+</html>
