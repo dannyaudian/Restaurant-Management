@@ -5,14 +5,10 @@ import frappe
 from frappe import _
 from restaurant_management.restaurant_management.utils.branch_permissions import filter_allowed_branches
 
-
-def get_context(context):
+# Redefine get_context as completely new function with clear signature
+def get_context(context=None):
     """
     Prepare context for the waiter order page.
-    
-    This function fetches branches and default values for the waiter order
-    Jinja template. It applies branch permissions filtering to ensure users
-    only see branches they have access to.
     
     Args:
         context: The context dictionary that will be passed to the template
@@ -20,6 +16,10 @@ def get_context(context):
     Returns:
         The context dictionary with added values
     """
+    # Ensure we have a context to work with
+    if context is None:
+        context = {}
+    
     try:
         # Validate user roles
         if frappe.session.user == "Guest":
