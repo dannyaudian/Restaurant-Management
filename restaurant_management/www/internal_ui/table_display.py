@@ -38,14 +38,30 @@ def get_context(context=None):
         # Set default branch (first available or None)
         default_branch = branches[0] if branches else None
         
+        # Determine available fields for the Table DocType
+        meta = frappe.get_meta("Table")
+
+        table_fields = [
+            "name",
+            "table_number",
+            "seating_capacity",
+            "status",
+            "branch",
+            "current_pos_order as current_order",
+        ]
+
+        if meta.has_field("occupied_seats"):
+            table_fields.append("occupied_seats")
+
         # Get all tables with relevant fields
         tables = frappe.get_all(
-            'Table',
-            fields=[
-                'name', 'table_number', 'seating_capacity', 'status',
-                'branch', 'current_pos_order as current_order', 'occupied_seats'
-            ]
+            "Table",
+            fields=table_fields
         ) or []
+
+        # Ensure occupied_seats exists in every table dict
+        for table in tables:
+            table["occupied_seats"] = table.get("occupied_seats", 0)
         
         # Add data to context
         context.branches = branches
