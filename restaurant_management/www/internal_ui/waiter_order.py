@@ -47,23 +47,70 @@ def get_context(context):
         context.csrf_token = frappe.session.csrf_token
         
         # --- Fetch data utama ---
-        all_branches = frappe.get_all('Branch', fields=['name', 'branch_code']) or []
+        branch_meta = frappe.get_meta("Branch")
+        branch_fields = ["name"]
+        if branch_meta.has_field("branch_code"):
+            branch_fields.append("branch_code")
+        else:
+            frappe.log_error(
+                message="'branch_code' field missing in Branch DocType",
+                title="Missing Field",
+            )
+
+        all_branches = frappe.get_all("Branch", fields=branch_fields) or []
+        for b in all_branches:
+            b.setdefault("branch_code", "")
+
         branches = filter_allowed_branches(all_branches) or []
         default_branch = branches[0] if branches else None
-        
-        tables = frappe.get_all(
-            'Table',
-            fields=[
-                'name', 'table_number', 'seating_capacity', 'status',
-                'branch', 'current_pos_order as current_order'
-            ]
-        ) or []
-        
+
+        table_meta = frappe.get_meta("Table")
+        table_fields = ["name"]
+        table_optional = [
+            "table_number",
+            "seating_capacity",
+            "status",
+            "branch",
+            "current_pos_order",
+        ]
+
+        for field in table_optional:
+            if table_meta.has_field(field):
+                if field == "current_pos_order":
+                    table_fields.append(f"{field} as current_order")
+                else:
+                    table_fields.append(field)
+            else:
+                frappe.log_error(
+                    message=f"'{field}' field missing in Table DocType",
+                    title="Missing Field",
+                )
+
+        tables = frappe.get_all("Table", fields=table_fields) or []
+        for table in tables:
+            table.setdefault("table_number", "")
+            table.setdefault("seating_capacity", 0)
+            table.setdefault("status", "")
+            table.setdefault("branch", None)
+            table.setdefault("current_order", "")
+
+        item_meta = frappe.get_meta("Item Group")
+        ig_fields = ["name"]
+        if item_meta.has_field("item_group_name"):
+            ig_fields.append("item_group_name")
+        else:
+            frappe.log_error(
+                message="'item_group_name' field missing in Item Group DocType",
+                title="Missing Field",
+            )
+
         item_groups = frappe.get_all(
-            'Item Group',
-            filters={'show_in_website': 1},
-            fields=['name', 'item_group_name']
+            "Item Group",
+            filters={"show_in_website": 1},
+            fields=ig_fields,
         ) or []
+        for ig in item_groups:
+            ig.setdefault("item_group_name", "")
         
         # --- Assign ke context, selalu ada ---
         context.branches = branches

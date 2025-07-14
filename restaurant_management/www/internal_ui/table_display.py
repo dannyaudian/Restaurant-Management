@@ -29,11 +29,24 @@ def get_context(context=None):
         # Make CSRF token available to JavaScript
         context.csrf_token = getattr(frappe.session, 'csrf_token', '')
         
+        # Fetch meta for optional fields
+        branch_meta = frappe.get_meta("Branch")
+        branch_fields = ["name"]
+        if branch_meta.has_field("branch_code"):
+            branch_fields.append("branch_code")
+        else:
+            frappe.log_error(
+                message="'branch_code' field missing in Branch DocType",
+                title="Missing Field",
+            )
+
         # Get all branches
         branches = frappe.get_all(
-            'Branch',
-            fields=['name', 'branch_code']
+            "Branch",
+            fields=branch_fields,
         ) or []
+        for b in branches:
+            b.setdefault("branch_code", "")
         
         # Set default branch (first available or None)
         default_branch = branches[0] if branches else None
@@ -41,17 +54,27 @@ def get_context(context=None):
         # Determine available fields for the Table DocType
         meta = frappe.get_meta("Table")
 
-        table_fields = [
-            "name",
+        table_fields = ["name"]
+        optional_fields = [
             "table_number",
             "seating_capacity",
             "status",
             "branch",
-            "current_pos_order as current_order",
+            "current_pos_order",
+            "occupied_seats",
         ]
 
-        if meta.has_field("occupied_seats"):
-            table_fields.append("occupied_seats")
+        for field in optional_fields:
+            if meta.has_field(field):
+                if field == "current_pos_order":
+                    table_fields.append(f"{field} as current_order")
+                else:
+                    table_fields.append(field)
+            else:
+                frappe.log_error(
+                    message=f"'{field}' field missing in Table DocType",
+                    title="Missing Field",
+                )
 
         # Get all tables with relevant fields
         tables = frappe.get_all(
@@ -59,8 +82,13 @@ def get_context(context=None):
             fields=table_fields
         ) or []
 
-        # Ensure occupied_seats exists in every table dict
+        # Provide fallback values for tables
         for table in tables:
+            table.setdefault("table_number", "")
+            table.setdefault("seating_capacity", 0)
+            table.setdefault("status", "")
+            table.setdefault("branch", None)
+            table.setdefault("current_order", "")
             table["occupied_seats"] = table.get("occupied_seats", 0)
         
         # Add data to context
