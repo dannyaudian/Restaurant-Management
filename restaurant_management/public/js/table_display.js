@@ -21,7 +21,7 @@ frappe.ready(function() {
   // DOM Elements
   const elements = {
     tablesContainer: document.getElementById('tables-container'),
-    branchSelector: document.getElementById('branch-selector'),
+    branchSelector: document.getElementById('branch-code'),
     refreshCountdown: document.getElementById('refresh-countdown'),
     refreshNowBtn: document.getElementById('refresh-now-btn'),
     loadingOverlay: document.getElementById('loading-overlay')
@@ -58,13 +58,19 @@ frappe.ready(function() {
   // Ensure all required elements exist
   function ensureElements() {
     if (!elements.tablesContainer) {
+      elements.tablesContainer = document.getElementById('tables-container');
+    }
+    if (!elements.tablesContainer) {
       const container = document.createElement('div');
       container.id = 'tables-container';
       container.className = 'tables-grid';
       document.body.appendChild(container);
       elements.tablesContainer = container;
     }
-    
+
+    if (!elements.loadingOverlay) {
+      elements.loadingOverlay = document.getElementById('loading-overlay');
+    }
     if (!elements.loadingOverlay) {
       const loadingOverlay = document.createElement('div');
       loadingOverlay.id = 'loading-overlay';
@@ -72,6 +78,10 @@ frappe.ready(function() {
       loadingOverlay.innerHTML = '<div class="spinner"></div><div>Loading...</div>';
       document.body.appendChild(loadingOverlay);
       elements.loadingOverlay = loadingOverlay;
+    }
+
+    if (!elements.branchSelector) {
+      elements.branchSelector = document.getElementById('branch-code');
     }
     
     // Add styles if not already present
@@ -148,7 +158,7 @@ frappe.ready(function() {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        .branch-selector-container {
+        .branch-code-container {
           margin: 15px;
         }
         .refresh-container {
