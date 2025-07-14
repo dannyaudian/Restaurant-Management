@@ -1,22 +1,15 @@
-{% extends "templates/web.html" %}
-
-{% block title %}Station Display{% endblock %}
-
-{% block header %}
-{# Empty override to remove default header #}
-{% endblock %}
-
-{% block head_include %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-{% endblock %}
-
-{% block page_content %}
-<div class="min-h-screen flex flex-col bg-gray-100">
-  <!-- Header -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Station Display</title>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-100">
   <header class="bg-gray-800 text-white shadow">
     <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center">
       <h1 class="text-xl font-bold">Kitchen Station Display</h1>
-      
       <div class="flex flex-wrap gap-4 items-center mt-2 sm:mt-0">
         <div class="flex items-center gap-2">
           <label for="kitchen-station" class="font-medium text-sm">Station:</label>
@@ -29,7 +22,6 @@
             {% endif %}
           </select>
         </div>
-        
         <div class="flex items-center gap-2">
           <label for="branch-code" class="font-medium text-sm">Branch:</label>
           <select id="branch-code" class="rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm">
@@ -43,15 +35,12 @@
             {% endif %}
           </select>
         </div>
-        
         <div class="text-gray-300 text-sm flex items-center">
           Auto-refresh in <span id="refresh-countdown" class="text-sm ml-1 font-medium">10</span>s
         </div>
       </div>
     </div>
   </header>
-
-  <!-- Main Content -->
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
     {% if error_message %}
       <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
@@ -61,11 +50,9 @@
         {% endif %}
       </div>
     {% endif %}
-    
     {% if not has_branches and not has_stations %}
       <div class="bg-white rounded-lg shadow p-6 text-center">
         <p class="text-gray-600 mb-4">No data available. Please check your configuration or permissions.</p>
-        
         {% if is_guest %}
         <p class="text-gray-600">
           You're currently viewing as a guest. This page may require login for full functionality.
@@ -78,7 +65,6 @@
         <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
           <h2 class="text-lg font-medium text-gray-900">Order Queue</h2>
         </div>
-        
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-700 text-white">
@@ -106,35 +92,28 @@
       </div>
     {% endif %}
   </main>
-  
-  <!-- Footer -->
   <footer class="bg-white mt-auto">
     <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
       <p class="text-sm text-gray-500 text-center">&copy; {{ frappe.utils.now_datetime().year }} Restaurant Management System</p>
     </div>
   </footer>
-  
-  <!-- Loading Overlay -->
   <div id="kds-loading" class="fixed inset-0 hidden items-center justify-center bg-black/60 z-50">
     <div class="bg-white p-6 rounded-lg shadow-lg text-center">
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
       <p class="mt-4 text-gray-700">Loading...</p>
     </div>
   </div>
-</div>
-{% endblock %}
-
-{% block script %}
-<script>
-  window.kdsContext = {
-    csrfToken: "{{ csrf_token or '' }}",
-    defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
-    hasStations: {{ has_stations | tojson }},
-    hasBranches: {{ has_branches | tojson }},
-    stationCount: {{ (kitchen_stations|length) if kitchen_stations else 0 }},
-    branchCount: {{ (branches|length) if branches else 0 }},
-    isGuest: {{ is_guest | tojson }}
-  };
-</script>
-<script defer src="/assets/restaurant_management/js/station_display.js"></script>
-{% endblock %}
+  <script>
+    window.kdsContext = {
+      csrfToken: "{{ csrf_token or '' }}",
+      defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
+      hasStations: {{ has_stations | tojson }},
+      hasBranches: {{ has_branches | tojson }},
+      stationCount: {{ (kitchen_stations|length) if kitchen_stations else 0 }},
+      branchCount: {{ (branches|length) if branches else 0 }},
+      isGuest: {{ is_guest | tojson }}
+    };
+  </script>
+  <script defer src="/assets/restaurant_management/js/station_display.js"></script>
+</body>
+</html>
