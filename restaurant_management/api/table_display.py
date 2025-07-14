@@ -33,9 +33,16 @@ def get_table_status(branch=None):
         branch_code = frappe.db.get_value("Branch", branch, "branch_code")
     
     # Efficient query with join to get waiter information
-    tables = frappe.db.sql("""
-        SELECT 
-            t.name, 
+    branch_filter = ""
+    values = []
+    if branch:
+        branch_filter = "AND t.branch = %s"
+        values.append(branch)
+
+    tables = frappe.db.sql(
+        """
+        SELECT
+            t.name,
             t.table_number,
             t.branch,
             b.branch_code,
@@ -48,7 +55,7 @@ def get_table_status(branch=None):
             wo.order_time,
             wo.waiter,
             e.employee_name as waiter_name
-        FROM 
+        FROM
             `tabTable` t
         LEFT JOIN
             `tabBranch` b ON t.branch = b.name
@@ -61,9 +68,10 @@ def get_table_status(branch=None):
             {branch_filter}
         ORDER BY
             t.table_number
-    """.format(
-        branch_filter=f"AND t.branch = '{branch}'" if branch else ""
-    ), as_dict=1)
+        """.format(branch_filter=branch_filter),
+        values,
+        as_dict=1,
+    )
     
     # Process results
     result = []
