@@ -306,7 +306,7 @@ def get_kitchen_stations(access_token: Optional[str] = None) -> List[Dict[str, A
             stations = frappe.get_all(
                 "Kitchen Station",
                 filters={"is_active": 1, "is_public": 1},  # Add is_public field to Kitchen Station DocType
-                fields=["name", "station_name", "description", "branch_code"],
+                fields=["name", "station_name", "branch_code"],
                 order_by="station_name",
                 ignore_permissions=True
             )
@@ -323,7 +323,7 @@ def get_kitchen_stations(access_token: Optional[str] = None) -> List[Dict[str, A
                     "is_active": 1,
                     "branch_code": ["in", allowed_branch_codes]
                 },
-                fields=["name", "station_name", "description", "branch_code"],
+                fields=["name", "station_name", "branch_code"],
                 order_by="station_name"
             )
         else:
@@ -332,7 +332,7 @@ def get_kitchen_stations(access_token: Optional[str] = None) -> List[Dict[str, A
                 stations = frappe.get_all(
                     "Kitchen Station",
                     filters={"is_active": 1},
-                    fields=["name", "station_name", "description", "branch_code"],
+                    fields=["name", "station_name", "branch_code"],
                     order_by="station_name"
                 )
             else:
