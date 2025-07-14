@@ -3,7 +3,7 @@
 {% block title %}Waiter Order{% endblock %}
 
 {% block header %}
-<h1 class="text-2xl font-bold text-gray-900">Waiter Order</h1>
+{# Empty override to remove default header #}
 {% endblock %}
 
 {% block page_content %}
@@ -17,6 +17,14 @@
 
 <!-- Main Content -->
 <div class="container mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Waiter Order</h1>
+  
+  {% if error_message %}
+  <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+    <p class="text-yellow-700">{{ error_message }}</p>
+  </div>
+  {% endif %}
+  
   <!-- Branch Selection -->
   {% if has_branches %}
   <div class="mb-6">
@@ -39,7 +47,14 @@
     <!-- Left Panel: Table Selection -->
     <div class="bg-white p-4 rounded-md shadow">
       <h2 class="text-lg font-semibold mb-4">Tables</h2>
-      <div id="tables-container" class="grid grid-cols-3 gap-2"></div>
+      <div id="tables-container" class="grid grid-cols-3 gap-2">
+        {% if has_tables %}
+          <!-- Tables will be populated dynamically by JavaScript -->
+          <div class="col-span-3 text-center text-gray-500 py-4">Loading tables...</div>
+        {% else %}
+          <div class="col-span-3 text-center text-gray-500 py-4">No tables available</div>
+        {% endif %}
+      </div>
       
       <!-- New Order Form -->
       <div class="mt-6 pt-4 border-t border-gray-200">
@@ -61,11 +76,19 @@
       </div>
       
       <!-- Item Category Tabs -->
-      <div class="nav-tabs flex flex-wrap mb-4 border-b"></div>
+      <div class="nav-tabs flex flex-wrap mb-4 border-b">
+        {% if item_groups %}
+          <!-- Item groups will be populated by JavaScript -->
+        {% else %}
+          <div class="p-2 text-gray-500">No item groups available</div>
+        {% endif %}
+      </div>
       
       <!-- Item List -->
       <div id="items-section" class="overflow-y-auto max-h-96">
-        <ul id="item-list" class="space-y-2"></ul>
+        <ul id="item-list" class="space-y-2">
+          <li class="empty-message">Select a category or search for items</li>
+        </ul>
       </div>
     </div>
     
@@ -76,7 +99,9 @@
       
       <!-- Order Items List -->
       <div id="order-section" class="overflow-y-auto max-h-72">
-        <ul id="order-items" class="space-y-2 border-t pt-4"></ul>
+        <ul id="order-items" class="space-y-2 border-t pt-4">
+          <li class="empty-order-message">No items in order</li>
+        </ul>
       </div>
       
       <!-- Order Actions -->
@@ -106,6 +131,7 @@
         </div>
     </div>
 </div>
+
 <!-- Confirmation Modal -->
 <div id="confirm-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center">
   <div class="bg-white p-6 rounded-md shadow-lg w-full max-w-sm">
@@ -227,9 +253,61 @@
     text-align: center;
     font-style: italic;
   }
+  
+  .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+    background-color: white;
+    border-radius: 0.5rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  
+  .modal-content {
+    padding: 1.5rem;
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+  }
+  
+  .btn-primary {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .btn-secondary {
+    background-color: #e5e7eb;
+    color: #1f2937;
+  }
 </style>
 {% endblock %}
 
 {% block script %}
+<script>
+  window.waiterOrderContext = {
+    csrfToken: "{{ csrf_token }}",
+    defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
+    hasBranches: {{ has_branches | tojson }},
+    hasTables: {{ has_tables | tojson }},
+    userRole: "{{ frappe.session.user }}"
+  };
+</script>
 <script type="text/javascript" src="/assets/restaurant_management/js/waiter_order.js" defer></script>
 {% endblock %}

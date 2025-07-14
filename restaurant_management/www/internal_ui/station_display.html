@@ -2,6 +2,10 @@
 
 {% block title %}Station Display{% endblock %}
 
+{% block header %}
+{# Empty override to remove default header #}
+{% endblock %}
+
 {% block head_include %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% endblock %}
@@ -18,6 +22,11 @@
           <label for="kitchen-station" class="font-medium text-sm">Station:</label>
           <select id="kitchen-station" class="rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm">
             <option value="">All Stations</option>
+            {% if kitchen_stations %}
+              {% for station in kitchen_stations %}
+                <option value="{{ station.name }}">{{ station.station_name }}</option>
+              {% endfor %}
+            {% endif %}
           </select>
         </div>
         
@@ -25,6 +34,13 @@
           <label for="branch-code" class="font-medium text-sm">Branch:</label>
           <select id="branch-code" class="rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm">
             <option value="">All Branches</option>
+            {% if branches %}
+              {% for branch in branches %}
+                <option value="{{ branch.branch_code }}" {% if default_branch and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
+                  {{ branch.name }}
+                </option>
+              {% endfor %}
+            {% endif %}
           </select>
         </div>
         
@@ -37,6 +53,12 @@
 
   <!-- Main Content -->
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
+    {% if error_message %}
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+        <p class="text-yellow-700">{{ error_message }}</p>
+      </div>
+    {% endif %}
+    
     <div class="bg-white rounded-lg shadow overflow-hidden">
       <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h2 class="text-lg font-medium text-gray-900">Order Queue</h2>
@@ -54,11 +76,19 @@
             </tr>
           </thead>
           <tbody id="queue-items" class="bg-white divide-y divide-gray-200">
-            <tr>
-              <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                Loading items...
-              </td>
-            </tr>
+            {% if not has_stations and not has_branches %}
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                  No kitchen stations or branches found. Please set up your restaurant configuration first.
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                  Loading items...
+                </td>
+              </tr>
+            {% endif %}
           </tbody>
         </table>
       </div>
@@ -85,7 +115,10 @@
 {% block script %}
 <script>
   window.kdsContext = {
-    csrfToken: "{{ frappe.session.csrf_token }}"
+    csrfToken: "{{ csrf_token }}",
+    defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
+    hasStations: {{ has_stations | tojson }},
+    hasBranches: {{ has_branches | tojson }}
   };
 </script>
 <script defer src="/assets/restaurant_management/js/station_display.js"></script>

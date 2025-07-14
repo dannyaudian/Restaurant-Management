@@ -5,23 +5,61 @@ import frappe
 from frappe import _
 
 
-@frappe.whitelist(allow_guest=True)
 def get_context(context):
     """
     Set up context for the restaurant table display page.
     This page is accessible by guests without login but hidden from navigation elements.
     Designed to show real-time table status without appearing in ERPNext navigation.
     """
-    # Hide this page from navigation elements and search indexing
-    context.no_index = 1
-    context.no_sidebar = 1
-    context.hide_from_menu = 1
-    context.no_breadcrumbs = 1
-    
-    # Set page title
-    context.title = _("Table Overview")
-    
-    # Make CSRF token available to JavaScript
-    context.csrf_token = frappe.session.csrf_token
+    try:
+        # Hide this page from navigation elements and search indexing
+        context.no_cache = 1
+        context.no_index = 1
+        context.no_sidebar = 1
+        context.hide_from_menu = 1
+        context.no_breadcrumbs = 1
+        context.no_sitemap = 1
+        
+        # Set page title
+        context.title = _("Table Overview")
+        
+        # Make CSRF token available to JavaScript
+        context.csrf_token = frappe.session.csrf_token
+        
+        # Get all branches
+        branches = frappe.get_all(
+            'Branch',
+            fields=['name', 'branch_code']
+        )
+        
+        # Set default branch (first available or None)
+        default_branch = branches[0] if branches else None
+        
+        # Get all tables with relevant fields
+        tables = frappe.get_all(
+            'Table',
+            fields=[
+                'name', 'table_number', 'capacity', 'status',
+                'branch', 'current_order', 'occupied_seats'
+            ]
+        )
+        
+        # Add data to context
+        context.branches = branches
+        context.default_branch = default_branch
+        context.tables = tables
+        context.has_branches = len(branches) > 0
+        
+    except Exception as e:
+        frappe.log_error(
+            message=f"Error loading table display page: {str(e)}",
+            title="Table Display Page Error"
+        )
+        # Provide minimal context in case of error to prevent page crash
+        context.branches = []
+        context.tables = []
+        context.has_branches = False
+        context.default_branch = None
+        context.error_message = _("Unable to load table data. Please check error logs.")
     
     return context
