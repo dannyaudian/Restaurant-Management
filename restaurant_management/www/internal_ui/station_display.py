@@ -5,11 +5,13 @@ import frappe
 from frappe import _
 
 
-def get_context(context):
+def get_context(context=None):
     """
     Set up context for the kitchen station display page.
     This page is accessible by guests but hidden from navigation elements.
     """
+    context = context or {}
+    
     try:
         # Hide this page from navigation elements and search indexing
         context.no_cache = 1
@@ -23,13 +25,13 @@ def get_context(context):
         context.title = _("Kitchen Display")
         
         # Make CSRF token available to JavaScript
-        context.csrf_token = frappe.session.csrf_token
+        context.csrf_token = getattr(frappe.session, "csrf_token", "")
         
         # Get all branches
         branches = frappe.get_all(
             'Branch',
             fields=['name', 'branch_code']
-        )
+        ) or []
         
         # Set default branch (first available or None)
         default_branch = branches[0] if branches else None
@@ -38,14 +40,15 @@ def get_context(context):
         kitchen_stations = frappe.get_all(
             'Kitchen Station',
             fields=['name', 'station_name', 'branch']
-        )
+        ) or []
         
         # Add data to context
         context.branches = branches
         context.default_branch = default_branch
         context.kitchen_stations = kitchen_stations
-        context.has_branches = len(branches) > 0
-        context.has_stations = len(kitchen_stations) > 0
+        context.has_branches = bool(branches)
+        context.has_stations = bool(kitchen_stations)
+        context.error_message = ""
         
     except Exception as e:
         frappe.log_error(

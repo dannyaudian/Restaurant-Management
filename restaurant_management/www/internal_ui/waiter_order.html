@@ -3,7 +3,7 @@
 {% block title %}Waiter Order{% endblock %}
 
 {% block header %}
-{# Empty override to remove default header #}
+{# Kosongkan header jika tidak ingin pakai default header #}
 {% endblock %}
 
 {% block page_content %}
@@ -19,6 +19,7 @@
 <div class="container mx-auto px-4 py-6">
   <h1 class="text-2xl font-bold text-gray-900 mb-6">Waiter Order</h1>
   
+  <!-- Error message section -->
   {% if error_message %}
   <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
     <p class="text-yellow-700">{{ error_message }}</p>
@@ -31,8 +32,8 @@
     <label for="branch-selector" class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
     <select id="branch-selector" class="w-full md:w-64 p-2 border rounded-md">
       {% for branch in branches %}
-      <option value="{{ branch.branch_code }}" {% if default_branch and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
-        {{ branch.name }}
+      <option value="{{ branch.branch_code or '' }}" {% if default_branch and branch.branch_code and default_branch.branch_code and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
+        {{ branch.name or 'Unnamed Branch' }}
       </option>
       {% endfor %}
     </select>
@@ -77,7 +78,7 @@
       
       <!-- Item Category Tabs -->
       <div class="nav-tabs flex flex-wrap mb-4 border-b">
-        {% if item_groups %}
+        {% if item_groups and item_groups|length > 0 %}
           <!-- Item groups will be populated by JavaScript -->
         {% else %}
           <div class="p-2 text-gray-500">No item groups available</div>
@@ -302,11 +303,11 @@
 {% block script %}
 <script>
   window.waiterOrderContext = {
-    csrfToken: "{{ csrf_token }}",
+    csrfToken: "{{ csrf_token or '' }}",
     defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
     hasBranches: {{ has_branches | tojson }},
     hasTables: {{ has_tables | tojson }},
-    userRole: "{{ frappe.session.user }}"
+    userRole: "{{ user or '' }}"
   };
 </script>
 <script type="text/javascript" src="/assets/restaurant_management/js/waiter_order.js" defer></script>

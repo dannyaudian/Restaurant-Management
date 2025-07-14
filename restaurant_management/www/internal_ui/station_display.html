@@ -22,9 +22,9 @@
           <label for="kitchen-station" class="font-medium text-sm">Station:</label>
           <select id="kitchen-station" class="rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm">
             <option value="">All Stations</option>
-            {% if kitchen_stations %}
+            {% if kitchen_stations and kitchen_stations|length > 0 %}
               {% for station in kitchen_stations %}
-                <option value="{{ station.name }}">{{ station.station_name }}</option>
+                <option value="{{ station.name or '' }}">{{ station.station_name or 'Unnamed Station' }}</option>
               {% endfor %}
             {% endif %}
           </select>
@@ -34,10 +34,10 @@
           <label for="branch-code" class="font-medium text-sm">Branch:</label>
           <select id="branch-code" class="rounded bg-gray-700 border-gray-600 text-white py-1 px-3 text-sm">
             <option value="">All Branches</option>
-            {% if branches %}
+            {% if branches and branches|length > 0 %}
               {% for branch in branches %}
-                <option value="{{ branch.branch_code }}" {% if default_branch and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
-                  {{ branch.name }}
+                <option value="{{ branch.branch_code or '' }}" {% if default_branch and branch.branch_code and default_branch.branch_code and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
+                  {{ branch.name or 'Unnamed Branch' }}
                 </option>
               {% endfor %}
             {% endif %}
@@ -115,10 +115,12 @@
 {% block script %}
 <script>
   window.kdsContext = {
-    csrfToken: "{{ csrf_token }}",
+    csrfToken: "{{ csrf_token or '' }}",
     defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
     hasStations: {{ has_stations | tojson }},
-    hasBranches: {{ has_branches | tojson }}
+    hasBranches: {{ has_branches | tojson }},
+    stationCount: {{ (kitchen_stations|length) if kitchen_stations else 0 }},
+    branchCount: {{ (branches|length) if branches else 0 }}
   };
 </script>
 <script defer src="/assets/restaurant_management/js/station_display.js"></script>

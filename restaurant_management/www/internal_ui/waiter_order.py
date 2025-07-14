@@ -5,8 +5,7 @@ import frappe
 from frappe import _
 from restaurant_management.restaurant_management.utils.branch_permissions import filter_allowed_branches
 
-# Redefine get_context as completely new function with clear signature
-def get_context(context=None):
+def get_context(context):
     """
     Prepare context for the waiter order page.
     
@@ -16,15 +15,12 @@ def get_context(context=None):
     Returns:
         The context dictionary with added values
     """
-    # Ensure we have a context to work with
-    if context is None:
-        context = {}
-    
     try:
-        # Validate user roles
+        # --- Cek user login ---
         if frappe.session.user == "Guest":
             frappe.throw(_("You need to be logged in to access this page"), frappe.PermissionError)
         
+        # --- Cek role ---
         user_roles = frappe.get_roles(frappe.session.user)
         allowed_roles = ["Waiter", "Restaurant Supervisor", "System Manager", "Restaurant Manager"]
         
@@ -36,7 +32,7 @@ def get_context(context=None):
                 frappe.PermissionError
             )
         
-        # Hide page from website navigation and search engines
+        # --- Hide dari search/navigation ---
         context.no_cache = 1
         context.no_sitemap = 1
         context.no_breadcrumbs = 1
@@ -50,51 +46,41 @@ def get_context(context=None):
         # Make CSRF token available to JavaScript
         context.csrf_token = frappe.session.csrf_token
         
-        # Fetch all branches
-        all_branches = frappe.get_all(
-            'Branch',
-            fields=['name', 'branch_code']
-        )
-        
-        # Filter branches based on user permissions
-        branches = filter_allowed_branches(all_branches)
-        
-        # Set default branch (first available or None)
+        # --- Fetch data utama ---
+        all_branches = frappe.get_all('Branch', fields=['name', 'branch_code']) or []
+        branches = filter_allowed_branches(all_branches) or []
         default_branch = branches[0] if branches else None
         
-        # Get all tables for initial state
         tables = frappe.get_all(
             'Table',
             fields=[
                 'name', 'table_number', 'capacity', 'status',
                 'branch', 'current_order'
             ]
-        )
+        ) or []
         
-        # Get item groups for menu categorization
         item_groups = frappe.get_all(
             'Item Group',
             filters={'show_in_website': 1},
             fields=['name', 'item_group_name']
-        )
+        ) or []
         
-        # Pass data to template context
+        # --- Assign ke context, selalu ada ---
         context.branches = branches
         context.default_branch = default_branch
         context.tables = tables
         context.item_groups = item_groups
         context.user = frappe.session.user
-        
-        # Additional useful context for the template
-        context.has_branches = len(branches) > 0
-        context.has_tables = len(tables) > 0
+        context.has_branches = bool(branches)
+        context.has_tables = bool(tables)
+        context.error_message = ""
         
     except Exception as e:
         frappe.log_error(
             message=f"Error loading waiter order page: {str(e)}",
             title="Waiter Order Page Error"
         )
-        # Provide minimal context in case of error to prevent page crash
+        # Context minimal jika error
         context.branches = []
         context.tables = []
         context.item_groups = []

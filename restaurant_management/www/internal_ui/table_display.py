@@ -5,12 +5,14 @@ import frappe
 from frappe import _
 
 
-def get_context(context):
+def get_context(context=None):
     """
     Set up context for the restaurant table display page.
     This page is accessible by guests without login but hidden from navigation elements.
     Designed to show real-time table status without appearing in ERPNext navigation.
     """
+    context = context or {}
+    
     try:
         # Hide this page from navigation elements and search indexing
         context.no_cache = 1
@@ -22,15 +24,16 @@ def get_context(context):
         
         # Set page title
         context.title = _("Table Overview")
+        context.error_message = ""
         
         # Make CSRF token available to JavaScript
-        context.csrf_token = frappe.session.csrf_token
+        context.csrf_token = getattr(frappe.session, 'csrf_token', '')
         
         # Get all branches
         branches = frappe.get_all(
             'Branch',
             fields=['name', 'branch_code']
-        )
+        ) or []
         
         # Set default branch (first available or None)
         default_branch = branches[0] if branches else None
@@ -42,13 +45,13 @@ def get_context(context):
                 'name', 'table_number', 'capacity', 'status',
                 'branch', 'current_order', 'occupied_seats'
             ]
-        )
+        ) or []
         
         # Add data to context
         context.branches = branches
         context.default_branch = default_branch
         context.tables = tables
-        context.has_branches = len(branches) > 0
+        context.has_branches = bool(branches)
         
     except Exception as e:
         frappe.log_error(

@@ -23,8 +23,8 @@
           <option value="">All Branches</option>
           {% if branches %}
             {% for branch in branches %}
-              <option value="{{ branch.branch_code }}" {% if default_branch and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
-                {{ branch.name }}
+              <option value="{{ branch.branch_code or '' }}" {% if default_branch and branch.branch_code and default_branch.branch_code and branch.branch_code == default_branch.branch_code %}selected{% endif %}>
+                {{ branch.name or 'Unnamed Branch' }}
               </option>
             {% endfor %}
           {% endif %}
@@ -46,17 +46,17 @@
     {% endif %}
     
     <div class="tables-grid" id="tables-container">
-      {% if tables %}
+      {% if tables and tables|length > 0 %}
         {% for table in tables %}
-          <div class="card table-card" data-table-id="{{ table.name }}">
+          <div class="card table-card" data-table-id="{{ table.name or '' }}">
             <div class="card-header table-header">
-              <div class="table-number">Table {{ table.table_number }}</div>
-              <div class="table-status status-{{ table.status|lower|replace(' ', '-') }}">{{ table.status }}</div>
+              <div class="table-number">Table {{ table.table_number or '?' }}</div>
+              <div class="table-status status-{{ (table.status or '')|lower|replace(' ', '-') }}">{{ table.status or 'Unknown' }}</div>
             </div>
             
             <div class="card-body table-summary">
               <div class="summary-stat">
-                <div class="stat-value">{{ table.capacity }}</div>
+                <div class="stat-value">{{ table.capacity or 0 }}</div>
                 <div class="stat-label">Capacity</div>
               </div>
               
@@ -100,8 +100,11 @@
 <script>
   // Context variables made available to JavaScript
   window.tableOverviewContext = {
-    csrfToken: "{{ csrf_token }}",
-    defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %}
+    csrfToken: "{{ csrf_token or '' }}",
+    defaultBranch: {% if default_branch %}{{ default_branch | tojson }}{% else %}null{% endif %},
+    hasBranches: {{ has_branches | tojson }},
+    branchCount: {{ (branches|length) if branches else 0 }},
+    tableCount: {{ (tables|length) if tables else 0 }}
   };
 </script>
 <script src="/assets/restaurant_management/js/table_display.js"></script>

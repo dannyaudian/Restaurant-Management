@@ -2,7 +2,7 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": "[  {    \"id\": \"header1\",    \"type\": \"header\",    \"data\": {      \"text\": \"<span class=\\\"h4\\\"><b>Restaurant Management</b></span><div class=\\\"text-muted small\\\">developed by IMOGI - PT. Inovasi Terbaik Bangsa</div>\",      \"col\": 12    }  },  {    \"id\": \"pos_section\",    \"type\": \"section\",    \"data\": {      \"title\": \"POS\",      \"columns\": 1    }  },  {    \"id\": \"pos_invoice\",    \"type\": \"link\",    \"data\": {      \"label\": \"POS Invoice\",      \"link_type\": \"DocType\",       \"link_to\": \"POS Invoice\",      \"dependencies\": \"\",      \"onboard\": 1    }  },  {    \"id\": \"waiter_order\",    \"type\": \"link\",    \"data\": {      \"label\": \"Waiter Order\",      \"link_type\": \"DocType\",       \"link_to\": \"Waiter Order\",      \"dependencies\": \"\",      \"onboard\": 1    }  },  {    \"id\": \"table\",    \"type\": \"link\",    \"data\": {      \"label\": \"Table\",      \"link_type\": \"DocType\",       \"link_to\": \"Table\",      \"dependencies\": \"\",      \"onboard\": 1    }  },  {    \"id\": \"waiter_order_ui\",    \"type\": \"link\",    \"data\": {      \"label\": \"Waiter Order UI\",      \"link_type\": \"URL\",       \"link_to\": \"/waiter-order\",      \"dependencies\": \"\",      \"onboard\": 0    }  },  {    \"id\": \"kitchen_section\",    \"type\": \"section\",    \"data\": {      \"title\": \"Kitchen\",      \"columns\": 1    }  },  {    \"id\": \"kitchen_station\",    \"type\": \"link\",    \"data\": {      \"label\": \"Kitchen Station\",      \"link_type\": \"DocType\",       \"link_to\": \"Kitchen Station\",      \"dependencies\": \"\",      \"onboard\": 1    }  },  {    \"id\": \"kitchen_station_item_group\",    \"type\": \"link\",    \"data\": {      \"label\": \"Kitchen Station Item Group\",      \"link_type\": \"DocType\",       \"link_to\": \"Kitchen Station Item Group\",      \"dependencies\": \"\",      \"onboard\": 0    }  },  {    \"id\": \"station_display\",    \"type\": \"link\",    \"data\": {      \"label\": \"Kitchen Display\",      \"link_type\": \"URL\",       \"link_to\": \"/station-display\",      \"dependencies\": \"\",      \"onboard\": 0    }  },  {    \"id\": \"display_section\",    \"type\": \"section\",    \"data\": {      \"title\": \"Display Screens\",      \"columns\": 1    }  },  {    \"id\": \"table_display\",    \"type\": \"link\",    \"data\": {      \"label\": \"Table Overview\",      \"link_type\": \"URL\",       \"link_to\": \"/table-display\",      \"dependencies\": \"\",      \"onboard\": 0    }  },  {    \"id\": \"settings_section\",    \"type\": \"section\",    \"data\": {      \"title\": \"Settings\",      \"columns\": 1    }  },  {    \"id\": \"branch\",    \"type\": \"link\",    \"data\": {      \"label\": \"Branch\",      \"link_type\": \"DocType\",       \"link_to\": \"Branch\",      \"dependencies\": \"\",      \"onboard\": 0    }  },  {    \"id\": \"user_branch_assignment\",    \"type\": \"link\",    \"data\": {      \"label\": \"User Branch Assignment\",      \"link_type\": \"DocType\",       \"link_to\": \"User Branch Assignment\",      \"dependencies\": \"\",      \"onboard\": 0    }  }]",
+  "content": "[{\"id\":\"header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Restaurant Management</b></span>\",\"col\":12}},{\"id\":\"pos_section\",\"type\":\"section\",\"data\":{\"title\":\"POS\",\"columns\":1}},{\"id\":\"pos_invoice\",\"type\":\"link\",\"data\":{\"label\":\"POS Invoice\",\"link_type\":\"DocType\",\"link_to\":\"POS Invoice\",\"dependencies\":\"\",\"onboard\":1}},{\"id\":\"kitchen_section\",\"type\":\"section\",\"data\":{\"title\":\"Kitchen\",\"columns\":1}},{\"id\":\"kitchen_station\",\"type\":\"link\",\"data\":{\"label\":\"Kitchen Station\",\"link_type\":\"DocType\",\"link_to\":\"Kitchen Station\",\"dependencies\":\"\",\"onboard\":1}},{\"id\":\"settings_section\",\"type\":\"section\",\"data\":{\"title\":\"Settings\",\"columns\":1}},{\"id\":\"branch\",\"type\":\"link\",\"data\":{\"label\":\"Branch\",\"link_type\":\"DocType\",\"link_to\":\"Branch\",\"dependencies\":\"\",\"onboard\":0}}]",
   "extends": null,
   "extends_another_page": 0,
   "for_user": "",
@@ -10,105 +10,12 @@
   "is_hidden": 0,
   "is_standard": 1,
   "label": "Restaurant Management",
-  "links": [
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "POS",
-      "onboard": 1,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "POS Invoice",
-      "link_to": "POS Invoice",
-      "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Waiter Order",
-      "link_to": "Waiter Order",
-      "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Table",
-      "link_to": "Table",
-      "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Kitchen",
-      "onboard": 1,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Kitchen Station",
-      "link_to": "Kitchen Station",
-      "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Kitchen Station Item Group",
-      "link_to": "Kitchen Station Item Group",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Settings",
-      "onboard": 0,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Branch",
-      "link_to": "Branch",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "User Branch Assignment",
-      "link_to": "User Branch Assignment",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    }
-  ],
+  "links": [],
   "module": "Restaurant Management",
   "pin_to_bottom": 0,
   "pin_to_top": 0,
   "public": 1,
-  "quick_lists": [],
-  "restrict_to_domain": "",
   "roles": [
-    {
-      "role": "Restaurant Manager"
-    },
-    {
-      "role": "Restaurant User"
-    },
     {
       "role": "System Manager"
     }
