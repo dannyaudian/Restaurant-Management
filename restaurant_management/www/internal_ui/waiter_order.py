@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from restaurant_management.restaurant_management.utils.branch_permissions import filter_allowed_branches
 
-def get_context(context):
+def get_context(context=None):
     """
     Prepare context for the waiter order page.
     
@@ -15,6 +15,7 @@ def get_context(context):
     Returns:
         The context dictionary with added values
     """
+    context = context or {}
     try:
         # --- Cek user login ---
         if frappe.session.user == "Guest":

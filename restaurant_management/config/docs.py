@@ -2,5 +2,7 @@
 Configuration for docs
 """
 
-def get_context(context):
-	context.brand_html = "Restaurant Management"
+def get_context(context=None):
+    context = context or {}
+    context["brand_html"] = "Restaurant Management"
+    return context
