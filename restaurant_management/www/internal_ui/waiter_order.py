@@ -137,4 +137,5 @@ def get_context(context=None):
         context.default_branch = None
         context.error_message = _("Unable to load waiter order page. Please check error logs.")
     
+    context.no_wrapper = 1
     return context
