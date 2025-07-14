@@ -42,8 +42,8 @@ def get_context(context=None):
         tables = frappe.get_all(
             'Table',
             fields=[
-                'name', 'table_number', 'capacity', 'status',
-                'branch', 'current_order', 'occupied_seats'
+                'name', 'table_number', 'seating_capacity', 'status',
+                'branch', 'current_pos_order as current_order', 'occupied_seats'
             ]
         ) or []
         
