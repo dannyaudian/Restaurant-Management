@@ -15,6 +15,7 @@ frappe.ready(() => {
       total_amount: 0
     },
     selectedItemTemplate: null,
+    variantAttributes: [], // Stores current variant attributes for selection
     loading: false,
     itemRates: {} // Cache for item rates
   };
@@ -38,8 +39,6 @@ frappe.ready(() => {
     cancelVariantBtn: document.getElementById('cancel-variant-btn'),
     addVariantBtn: document.getElementById('add-variant-btn'),
     loadingOverlay: document.getElementById('loading-overlay'),
-    sauceSelect: document.getElementById('variant-sauce'),
-    sideDishSelect: document.getElementById('variant-side-dish'),
     // New Order Elements
     newOrderBtn: document.getElementById('new-order-btn'),
     newOrderTableNumber: document.getElementById('new-order-table-number'),
@@ -82,13 +81,6 @@ frappe.ready(() => {
       variantAttributes.id = 'variant-attributes';
       elements.variantModal?.appendChild(variantAttributes);
       elements.variantAttributes = variantAttributes;
-    }
-
-    if (!elements.sauceSelect) {
-      elements.sauceSelect = document.getElementById('variant-sauce');
-    }
-    if (!elements.sideDishSelect) {
-      elements.sideDishSelect = document.getElementById('variant-side-dish');
     }
 
     // Create total elements if they don't exist
@@ -189,6 +181,10 @@ frappe.ready(() => {
     try {
       const result = await frappe.call({
         method: 'restaurant_management.api.waiter_order.get_menu_items',
+        args: {
+          show_variants: false, // Only show template items and standalone items
+          branch: state.selectedBranch
+        },
         freeze: false
       });
       
@@ -291,11 +287,15 @@ frappe.ready(() => {
       const priceDisplay = state.itemRates[item.item_code] ? 
         `<div class="item-price">₹${formatCurrency(state.itemRates[item.item_code])}</div>` : '';
       
+      // Add variant indicator
+      const variantIndicator = item.has_variants ? 
+        '<div class="variant-indicator"><i class="fa fa-list"></i> Has variants</div>' : '';
+      
       return `
         <div class="item-button" data-item-code="${item.item_code}" aria-label="Item: ${item.item_name}${item.has_variants ? ', Has variants' : ''}">
           <div class="item-info">
-            <div>${item.item_name}</div>
-            <small>${item.has_variants ? '(Has variants)' : ''}</small>
+            <div class="item-name">${item.item_name}</div>
+            ${variantIndicator}
           </div>
           ${priceDisplay}
         </div>
@@ -335,31 +335,35 @@ frappe.ready(() => {
     elements.orderItemsContainer.innerHTML = state.currentOrder.items.map((orderItem, index) => {
       const isSent = state.currentOrder.sentItems.some(
         sent => sent.item_code === orderItem.item_code && 
-                JSON.stringify(sent.attributes || {}) === JSON.stringify(orderItem.attributes || {})
+                JSON.stringify(sent.attributes || {}) === JSON.stringify(item.attributes || {})
       );
       
       // Calculate and display amount
       const amount = (orderItem.rate || 0) * (orderItem.qty || 0);
       
+      // Format attributes for display
+      const attributesDisplay = orderItem.attributes ? 
+        '<div class="item-attributes">' + 
+        Object.entries(orderItem.attributes)
+          .map(([k, v]) => `<span class="attribute-badge">${k}: ${v}</span>`)
+          .join(' ') + 
+        '</div>' : '';
+      
       return `
         <div class="order-item ${isSent ? 'sent-item' : ''}" data-index="${index}">
           <div class="order-item-details">
-            <div class="order-item-name">
-              ${orderItem.item_name}
-              ${orderItem.attributes ? 
-                '<small>(' + Object.entries(orderItem.attributes).map(([k, v]) => `${k}: ${v}`).join(', ') + ')</small>' : 
-                ''}
-            </div>
+            <div class="order-item-name">${orderItem.item_name}</div>
+            ${attributesDisplay}
             <div class="order-item-rate">₹${formatCurrency(orderItem.rate || 0)}</div>
           </div>
           <div class="order-item-actions">
             <div class="order-item-qty">
-              <div class="qty-btn minus" aria-label="Decrease quantity">-</div>
-              <span style="margin: 0 5px;">${orderItem.qty}</span>
-              <div class="qty-btn plus" aria-label="Increase quantity">+</div>
+              <button class="qty-btn minus" aria-label="Decrease quantity">-</button>
+              <span class="qty-value">${orderItem.qty}</span>
+              <button class="qty-btn plus" aria-label="Increase quantity">+</button>
             </div>
             <div class="order-item-amount">₹${formatCurrency(amount)}</div>
-            <div class="order-item-remove" aria-label="Remove item">✕</div>
+            <button class="order-item-remove" aria-label="Remove item">✕</button>
           </div>
         </div>
       `;
@@ -467,7 +471,12 @@ frappe.ready(() => {
     // Events for variant modal
     elements.cancelVariantBtn?.addEventListener('click', closeVariantModal);
     elements.addVariantBtn?.addEventListener('click', handleAddVariant);
-    elements.modalOverlay?.addEventListener('click', closeVariantModal);
+    elements.modalOverlay?.addEventListener('click', (e) => {
+      // Only close if clicking on the overlay itself, not the modal content
+      if (e.target === elements.modalOverlay) {
+        closeVariantModal();
+      }
+    });
   };
 
   // Handle selecting an active table (from grid)
@@ -762,7 +771,7 @@ frappe.ready(() => {
 
   // Variant handling
   const showVariantModal = async (item) => {
-    if (!elements.variantItemName || !elements.modalOverlay || !elements.variantModal) return;
+    if (!elements.variantItemName || !elements.modalOverlay || !elements.variantModal || !elements.variantAttributes) return;
 
     // Fetch rate for the template item
     if (state.itemRates[item.item_code] === undefined) {
@@ -770,67 +779,71 @@ frappe.ready(() => {
       state.itemRates[item.item_code] = rate;
     }
 
+    // Display item name with price
     elements.variantItemName.textContent = `${item.item_name} - ₹${formatCurrency(state.itemRates[item.item_code])}`;
+    
+    // Clear previous content
+    elements.variantAttributes.innerHTML = '<div class="loading-attributes">Loading variant options...</div>';
+    
+    // Show the modal
+    elements.modalOverlay.style.display = 'block';
+    elements.variantModal.style.display = 'block';
 
-    if (elements.sauceSelect) {
-      elements.sauceSelect.innerHTML = '<option value="">Select Sauce</option>';
-    }
-    if (elements.sideDishSelect) {
-      elements.sideDishSelect.innerHTML = '<option value="">Select Side Dish</option>';
-    }
-
-    // Get variant attributes
-    frappe.call({
-      method: 'restaurant_management.api.waiter_order.get_item_variant_attributes',
-      args: { template_item_code: item.item_code },
-      callback: function(response) {
-        if (response.message) {
-          renderVariantAttributes(response.message);
-          elements.modalOverlay.style.display = 'block';
-          elements.variantModal.style.display = 'block';
-        } else {
-          frappe.msgprint(__('Failed to get variant attributes'));
-        }
+    try {
+      // Get variant attributes
+      const result = await frappe.call({
+        method: 'restaurant_management.api.waiter_order.get_item_variant_attributes',
+        args: { template_item_code: item.item_code },
+        freeze: false
+      });
+      
+      if (result.message) {
+        state.variantAttributes = result.message;
+        renderVariantAttributes(result.message);
+      } else {
+        elements.variantAttributes.innerHTML = '<div class="empty-message">No variant options found</div>';
+        frappe.msgprint(__('No variant attributes found for this item'));
       }
-    });
+    } catch (error) {
+      log('error', 'Error loading variant attributes:', error);
+      elements.variantAttributes.innerHTML = '<div class="error-message">Failed to load variant options</div>';
+      frappe.msgprint(__('Failed to get variant attributes'));
+    }
   };
 
   const renderVariantAttributes = (attributes) => {
     if (!elements.variantAttributes) return;
-
-    if (elements.sauceSelect) {
-      elements.sauceSelect.innerHTML = '<option value="">Select Sauce</option>';
+    
+    // Clear previous content
+    elements.variantAttributes.innerHTML = '';
+    
+    if (!attributes || attributes.length === 0) {
+      elements.variantAttributes.innerHTML = '<div class="empty-message">No variant options found</div>';
+      return;
     }
-    if (elements.sideDishSelect) {
-      elements.sideDishSelect.innerHTML = '<option value="">Select Side Dish</option>';
-    }
 
-    const normalFields = [];
-
-    attributes.forEach(attr => {
-      const key = attr.field_name || attr.attribute;
+    // Create attribute selectors dynamically
+    const attributesHtml = attributes.map(attr => {
+      const attributeName = attr.field_name || attr.attribute;
       const options = attr.options.split('\n').map(option =>
         `<option value="${option.trim()}">${option.trim()}</option>`
       ).join('');
 
-      if ((/sauce/i).test(key) && elements.sauceSelect) {
-        elements.sauceSelect.innerHTML = `<option value="">Select Sauce</option>${options}`;
-      } else if ((/side\s*dish/i).test(key) && elements.sideDishSelect) {
-        elements.sideDishSelect.innerHTML = `<option value="">Select Side Dish</option>${options}`;
-      } else {
-        normalFields.push(`
-          <div class="form-group">
-            <label for="attr-${attr.name}">${attr.field_name}</label>
-            <select class="form-control variant-attribute" id="attr-${attr.name}" data-attribute="${attr.field_name}" aria-label="Select ${attr.field_name}">
-              <option value="">Select ${attr.field_name}</option>
-              ${options}
-            </select>
-          </div>
-        `);
-      }
-    });
+      return `
+        <div class="form-group variant-form-group">
+          <label for="attr-${attr.name}">${attributeName}</label>
+          <select class="form-control variant-attribute" 
+                  id="attr-${attr.name}" 
+                  data-attribute="${attributeName}" 
+                  aria-label="Select ${attributeName}">
+            <option value="">Select ${attributeName}</option>
+            ${options}
+          </select>
+        </div>
+      `;
+    }).join('');
 
-    elements.variantAttributes.innerHTML = normalFields.join('');
+    elements.variantAttributes.innerHTML = attributesHtml;
   };
 
   const closeVariantModal = () => {
@@ -839,6 +852,7 @@ frappe.ready(() => {
     elements.modalOverlay.style.display = 'none';
     elements.variantModal.style.display = 'none';
     state.selectedItemTemplate = null;
+    state.variantAttributes = []; // Clear variant attributes
   };
 
   const handleAddVariant = async () => {
@@ -887,15 +901,30 @@ frappe.ready(() => {
           variantRate = state.itemRates[state.selectedItemTemplate.item_code];
         }
         
+        // Create a descriptive name that includes the variant attributes
+        let displayName = variant.item_name;
+        const attributeDesc = Object.entries(attributes)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ');
+          
+        // Add the variant to the order
         addItemToOrder({
           item_code: variant.item_code,
-          item_name: variant.item_name,
+          item_name: displayName,
+          variant_of: state.selectedItemTemplate.item_code,
           rate: variantRate,
           attributes: attributes
         });
+        
+        // Show success message
+        frappe.show_alert({
+          message: __(`Added ${displayName} to order`),
+          indicator: 'green'
+        }, 3);
+        
         closeVariantModal();
       } else {
-        frappe.msgprint(__('Failed to resolve variant. Please try again.'));
+        frappe.msgprint(__('Failed to find a matching variant. Please try different options or contact support.'));
       }
       
       hideLoading();
@@ -908,23 +937,28 @@ frappe.ready(() => {
 
   // Helper: Add item to order
   const addItemToOrder = (item) => {
+    // Check if this exact item (including attributes) already exists
     const existingItemIndex = state.currentOrder.items.findIndex(orderItem => 
       orderItem.item_code === item.item_code && 
       JSON.stringify(orderItem.attributes || {}) === JSON.stringify(item.attributes || {})
     );
     
     if (existingItemIndex !== -1) {
+      // If the item already exists, increment quantity
       state.currentOrder.items[existingItemIndex].qty += 1;
     } else {
+      // Otherwise, add as a new item
       state.currentOrder.items.push({
         item_code: item.item_code,
         item_name: item.item_name,
+        variant_of: item.variant_of || null,
         rate: item.rate || 0,
         qty: 1,
-        attributes: item.attributes
+        attributes: item.attributes || null
       });
     }
     
+    // Update order display
     renderOrderItems();
   };
 

@@ -94,35 +94,18 @@
 
 <!-- Variant Selection Modal -->
 <div id="modal-overlay" class="fixed inset-0 hidden bg-black/50 z-40"></div>
-<div id="variant-modal" class="fixed hidden top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-md shadow-lg z-50 w-full max-w-md">
-  <h3 class="text-lg font-semibold mb-4">Select Options for <span id="variant-item-name"></span></h3>
-  
-  <!-- Variant Attributes Container -->
-  <div id="variant-attributes" class="mt-4"></div>
-
-  <!-- Additional fixed attributes -->
-  <div id="extra-variant-attributes" class="mt-4 space-y-4">
-    <div class="form-group">
-      <label for="variant-sauce">Sauce</label>
-      <select id="variant-sauce" class="form-control variant-attribute" data-attribute="Sauce">
-        <option value="">Select Sauce</option>
-      </select>
+<div id="variant-modal" class="modal">
+    <div class="modal-content">
+        <h3 id="variant-item-name"></h3>
+        <div id="variant-attributes">
+            <!-- Dynamic attributes will be added here -->
+        </div>
+        <div class="modal-actions">
+            <button id="cancel-variant-btn" class="btn btn-secondary">Cancel</button>
+            <button id="add-variant-btn" class="btn btn-primary">Add to Order</button>
+        </div>
     </div>
-    <div class="form-group">
-      <label for="variant-side-dish">Side Dish</label>
-      <select id="variant-side-dish" class="form-control variant-attribute" data-attribute="Side Dish">
-        <option value="">Select Side Dish</option>
-      </select>
-    </div>
-  </div>
-  
-  <!-- Modal Actions -->
-  <div class="mt-6 flex justify-end space-x-2">
-    <button id="cancel-variant-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md">Cancel</button>
-    <button id="add-variant-btn" class="bg-green-600 text-white px-4 py-2 rounded-md">Add to Order</button>
-  </div>
 </div>
-
 <!-- Confirmation Modal -->
 <div id="confirm-modal" class="fixed inset-0 hidden bg-black/50 z-50 flex items-center justify-center">
   <div class="bg-white p-6 rounded-md shadow-lg w-full max-w-sm">

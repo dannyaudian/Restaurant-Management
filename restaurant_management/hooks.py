@@ -128,15 +128,15 @@ guest_methods = [
 
 # Website routes
 website_route_rules = [
-    {"from_route": "/waiter-order", "to_route": "waiter_order"},
-    {"from_route": "/station-display", "to_route": "station_display"},
-    {"from_route": "/table-display", "to_route": "table_display"}
+    {"from_route": "/waiter-order", "to_route": "internal_ui/waiter_order", "hidden": True},
+    {"from_route": "/station-display", "to_route": "internal_ui/station_display", "hidden": True},
+    {"from_route": "/table-display", "to_route": "internal_ui/table_display", "hidden": True}
 ]
 
 # Website pages accessible without login
 website_guest_routes = [
-    "station_display",
-    "table_display"
+    "internal_ui/station_display",
+    "internal_ui/table_display"
 ]
 
 # DocType creation

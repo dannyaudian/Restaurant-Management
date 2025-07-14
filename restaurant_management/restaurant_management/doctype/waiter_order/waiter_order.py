@@ -130,3 +130,124 @@ class WaiterOrder(Document):
             if table_doc.current_pos_order == self.name:
                 logger.info(f"Order {self.name} deleted, updating table {self.table} to Available")
                 update_table_status(self.table, "Available", None)
+
+@frappe.whitelist()
+def get_menu_items(branch=None, show_variants=False):
+    """
+    Get menu items for the waiter order screen.
+    
+    Args:
+        branch: Branch code to filter items
+        show_variants: Whether to include variant items
+        
+    Returns:
+        List of menu items
+    """
+    filters = {"disabled": 0}
+    
+    # If branch is specified, filter items by branch
+    if branch:
+        # Add branch-specific filter logic here if needed
+        pass
+    
+    # If not showing variants, exclude items that are variants of other items
+    if not frappe.utils.cint(show_variants):
+        filters["variant_of"] = ["is", "not set"]
+    
+    items = frappe.get_all(
+        "Item",
+        filters=filters,
+        fields=["item_code", "item_name", "has_variants", "kitchen_station", 
+                "standard_rate", "item_group"]
+    )
+    
+    return items
+
+@frappe.whitelist()
+def get_item_variant_attributes(template_item_code):
+    """
+    Get variant attributes for a template item.
+    
+    Args:
+        template_item_code: Item code of the template
+        
+    Returns:
+        List of attribute details
+    """
+    if not template_item_code:
+        return []
+        
+    # Get item variant attributes
+    attributes = []
+    item_attributes = frappe.get_all(
+        "Item Variant Attribute",
+        filters={"parent": template_item_code},
+        fields=["attribute", "attribute_value"]
+    )
+    
+    # Get full attribute details
+    for attr in item_attributes:
+        attribute_doc = frappe.get_doc("Item Attribute", attr.attribute)
+        attributes.append({
+            "name": attribute_doc.name,
+            "field_name": attribute_doc.name,
+            "attribute": attribute_doc.name,
+            "options": "\n".join([value.attribute_value for value in attribute_doc.item_attribute_values])
+        })
+    
+    return attributes
+
+@frappe.whitelist()
+def resolve_item_variant(template_item_code, attributes):
+    """
+    Resolve a variant item based on template and attributes.
+    
+    Args:
+        template_item_code: Item code of the template
+        attributes: Dict of attribute name to value
+        
+    Returns:
+        Variant item details
+    """
+    if not template_item_code or not attributes:
+        return None
+        
+    # Convert string attributes to dict if needed
+    if isinstance(attributes, str):
+        attributes = json.loads(attributes)
+    
+    # Find matching variant
+    variants = frappe.get_all(
+        "Item",
+        filters={"variant_of": template_item_code, "disabled": 0},
+        fields=["item_code", "item_name"]
+    )
+    
+    for variant in variants:
+        # Get variant attributes
+        variant_attrs = frappe.get_all(
+            "Item Variant Attribute",
+            filters={"parent": variant.item_code},
+            fields=["attribute", "attribute_value"]
+        )
+        
+        # Check if all specified attributes match
+        matches = True
+        for attr_name, attr_value in attributes.items():
+            match_found = False
+            for v_attr in variant_attrs:
+                if v_attr.attribute == attr_name and v_attr.attribute_value == attr_value:
+                    match_found = True
+                    break
+            
+            if not match_found:
+                matches = False
+                break
+        
+        if matches:
+            return variant
+    
+    # If no exact match found, create new variant (optional)
+    # This requires additional implementation
+    
+    return None
