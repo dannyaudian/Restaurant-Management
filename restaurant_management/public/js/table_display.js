@@ -21,7 +21,7 @@ frappe.ready(function() {
   // DOM Elements
   const elements = {
     tablesContainer: document.getElementById('tables-container'),
-    branchSelector: document.getElementById('branch-code'),
+    branchSelector: document.getElementById('branch-selector'),
     refreshCountdown: document.getElementById('refresh-countdown'),
     refreshNowBtn: document.getElementById('refresh-now-btn'),
     loadingOverlay: document.getElementById('loading-overlay')
@@ -81,7 +81,7 @@ frappe.ready(function() {
     }
 
     if (!elements.branchSelector) {
-      elements.branchSelector = document.getElementById('branch-code');
+      elements.branchSelector = document.getElementById('branch-selector');
     }
     
     // Add styles if not already present
