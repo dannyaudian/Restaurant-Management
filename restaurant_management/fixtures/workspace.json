@@ -2,72 +2,7 @@
   "doctype": "Workspace",
   "name": "Restaurant Management",
   "category": "Modules",
-  "content": [
-    {
-      "id": "pos",
-      "label": "POS",
-      "icon": "fa fa-desktop",
-      "columns": 2,
-      "links": [
-        {"type": "doctype", "name": "POS Invoice"},
-        {"type": "doctype", "name": "POS Profile"},
-        {"type": "doctype", "name": "POS Opening Entry"},
-        {"type": "doctype", "name": "POS Allowed Item Group"},
-        {"type": "doctype", "name": "Waiter Order"}
-      ]
-    },
-    {
-      "id": "kitchen",
-      "label": "Kitchen",
-      "icon": "fa fa-cutlery",
-      "columns": 2,
-      "links": [
-        {"type": "doctype", "name": "Kitchen Station"},
-        {"type": "doctype", "name": "Kitchen Station Item Group"}
-      ]
-    },
-    {
-      "id": "tables",
-      "label": "Tables",
-      "icon": "fa fa-table",
-      "columns": 2,
-      "links": [
-        {"type": "doctype", "name": "Table"}
-      ]
-    },
-    {
-      "id": "inventory",
-      "label": "Inventory",
-      "icon": "fa fa-archive",
-      "columns": 2,
-      "links": [
-        {"type": "doctype", "name": "Item"},
-        {"type": "doctype", "name": "Item Group"},
-        {"type": "doctype", "name": "Item Attribute"},
-        {"type": "doctype", "name": "Item Variant"}
-      ]
-    },
-    {
-      "id": "pricing",
-      "label": "Pricing",
-      "icon": "fa fa-tag",
-      "columns": 2,
-      "links": [
-        {"type": "doctype", "name": "Item Price"},
-        {"type": "doctype", "name": "Price Condition"},
-        {"type": "doctype", "name": "Pricing Rule"}
-      ]
-    },
-    {
-      "id": "settings",
-      "label": "Settings",
-      "icon": "fa fa-cog",
-      "columns": 2,
-      "links": [
-        {"type": "doctype", "name": "User Branch Assignment"}
-      ]
-    }
-  ],
+  "content": "[{\"id\": \"pos\", \"label\": \"POS\", \"icon\": \"fa fa-desktop\", \"columns\": 2, \"links\": [{\"type\": \"doctype\", \"name\": \"POS Invoice\"}, {\"type\": \"doctype\", \"name\": \"POS Profile\"}, {\"type\": \"doctype\", \"name\": \"POS Opening Entry\"}, {\"type\": \"doctype\", \"name\": \"POS Allowed Item Group\"}, {\"type\": \"doctype\", \"name\": \"Waiter Order\"}]}, {\"id\": \"kitchen\", \"label\": \"Kitchen\", \"icon\": \"fa fa-cutlery\", \"columns\": 2, \"links\": [{\"type\": \"doctype\", \"name\": \"Kitchen Station\"}, {\"type\": \"doctype\", \"name\": \"Kitchen Station Item Group\"}]}, {\"id\": \"tables\", \"label\": \"Tables\", \"icon\": \"fa fa-table\", \"columns\": 2, \"links\": [{\"type\": \"doctype\", \"name\": \"Table\"}]}, {\"id\": \"inventory\", \"label\": \"Inventory\", \"icon\": \"fa fa-archive\", \"columns\": 2, \"links\": [{\"type\": \"doctype\", \"name\": \"Item\"}, {\"type\": \"doctype\", \"name\": \"Item Group\"}, {\"type\": \"doctype\", \"name\": \"Item Attribute\"}, {\"type\": \"doctype\", \"name\": \"Item Variant\"}]}, {\"id\": \"pricing\", \"label\": \"Pricing\", \"icon\": \"fa fa-tag\", \"columns\": 2, \"links\": [{\"type\": \"doctype\", \"name\": \"Item Price\"}, {\"type\": \"doctype\", \"name\": \"Price Condition\"}, {\"type\": \"doctype\", \"name\": \"Pricing Rule\"}]}, {\"id\": \"settings\", \"label\": \"Settings\", \"icon\": \"fa fa-cog\", \"columns\": 2, \"links\": [{\"type\": \"doctype\", \"name\": \"User Branch Assignment\"}]}]",
   "extends": null,
   "extends_another_page": 0,
   "for_user": "",
