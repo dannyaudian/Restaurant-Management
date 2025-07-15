@@ -98,7 +98,6 @@ whitelisted_methods = [
     "restaurant_management.api.table_display.get_table_display_config",
     "restaurant_management.api.table_display.refresh_table_status",
     "restaurant_management.api.waiter_order.get_available_tables",
-    "restaurant_management.api.waiter_order.get_item_templates",
     "restaurant_management.api.waiter_order.get_item_groups",
     "restaurant_management.api.waiter_order.get_item_variant_attributes",
     "restaurant_management.api.waiter_order.resolve_item_variant",
@@ -109,7 +108,6 @@ whitelisted_methods = [
     "restaurant_management.restaurant_management.utils.branch_permissions.assign_all_branches_to_user",
     "restaurant_management.restaurant_management.utils.branch_permissions.get_allowed_branches_query",
     "restaurant_management.api.waiter_order.get_menu_items",
-    "restaurant_management.api.waiter_order.get_active_orders",
     "restaurant_management.api.waiter_order.get_item_rate",
     "restaurant_management.api.waiter_order.cancel_order"
 ]
