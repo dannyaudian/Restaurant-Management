@@ -1,0 +1,122 @@
+.restaurant-table-selector {
+    margin-bottom: 15px;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.table-selector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--gray-100);
+    border-bottom: 1px solid var(--gray-300);
+}
+.table-selector-title {
+    font-weight: bold;
+    color: var(--text-color);
+}
+.table-selector-close {
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--gray-600);
+}
+.table-selector-close:hover {
+    color: var(--gray-900);
+}
+.table-selector-body {
+    padding: 15px;
+}
+.table-selector-search {
+    margin-bottom: 10px;
+}
+.table-search-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+}
+.table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+.table-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: var(--blue-100);
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 500;
+    position: relative;
+}
+.table-item:hover {
+    background-color: var(--blue-200);
+}
+.table-item.occupied {
+    background-color: var(--red-100);
+    cursor: pointer;
+}
+.table-item.selected {
+    background-color: var(--primary);
+    color: white;
+}
+.table-item-status {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+.status-available {
+    background-color: var(--green-500);
+}
+.status-in-progress {
+    background-color: var(--orange-500);
+}
+.table-indicator {
+    display: flex;
+    align-items: center;
+    background-color: var(--control-bg);
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+.table-indicator-label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+.table-indicator-value {
+    color: var(--primary);
+    font-weight: bold;
+}
+.restaurant-header-summary {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background-color: var(--control-bg);
+    border-radius: 4px;
+    margin-top: 10px;
+}
+.restaurant-summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.summary-value {
+    font-weight: bold;
+    font-size: 16px;
+}
+.summary-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
