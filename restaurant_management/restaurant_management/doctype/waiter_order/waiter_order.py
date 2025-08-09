@@ -71,7 +71,7 @@ class WaiterOrder(Document):
             if previous_status and previous_status != self.status:
                 if not is_valid_status_transition(previous_status, self.status):
                     frappe.throw(
-                        _(f"Invalid status transition from {previous_status} to {self.status}")
+                        (f"Invalid status transition from {previous_status} to {self.status}")
                     )
 
         # Update table status when order status changes to Paid
@@ -161,7 +161,7 @@ class WaiterOrder(Document):
         
         for i, item in enumerate(self.items, 1):
             if not item.qty or item.qty <= 0:
-                frappe.throw(_(
+                frappe.throw((
                     "Row {0}: Quantity must be greater than 0 for item '{1}'"
                 ).format(i, item.item_name or item.item_code))
 
@@ -176,13 +176,13 @@ class WaiterOrder(Document):
             # Check min/max order quantities if set
             min_qty = flt(item_settings.min_order_qty)
             if min_qty and item.qty < min_qty:
-                frappe.throw(_(
+                frappe.throw((
                     "Row {0}: Minimum order quantity is {1} for item '{2}'"
                 ).format(i, min_qty, item.item_name or item.item_code))
 
             max_qty = flt(item_settings.max_order_qty)
             if max_qty and item.qty > max_qty:
-                frappe.throw(_(
+                frappe.throw((
                     "Row {0}: Maximum order quantity is {1} for item '{2}'"
                 ).format(i, max_qty, item.item_name or item.item_code))
 
@@ -222,7 +222,7 @@ class WaiterOrder(Document):
                         )
 
                         if not allow_negative_stock:
-                            frappe.throw(_(
+                            frappe.throw((
                                 "Row {0}: Not enough stock for item '{1}'. "
                                 "Available quantity: {2}, Requested: {3}"
                             ).format(
@@ -239,7 +239,7 @@ class WaiterOrder(Document):
                             )
                             
                             # Show warning message to user
-                            frappe.msgprint(_(
+                            frappe.msgprint((
                                 "Warning: Stock will go negative for item '{0}'. "
                                 "Available: {1}, Requested: {2}"
                             ).format(
@@ -253,7 +253,7 @@ class WaiterOrder(Document):
                     logger.error(
                         f"Error checking stock for item {item.item_code}: {str(e)}"
                     )
-                    frappe.msgprint(_(
+                    frappe.msgprint((
                         "Warning: Could not verify stock quantity for item '{0}'. "
                         "Please check manually."
                     ).format(item.item_name or item.item_code),
