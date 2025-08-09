@@ -274,11 +274,22 @@ def get_menu_items(branch=None, show_variants=False):
         List of menu items
     """
     filters = {"disabled": 0}
-    
+
     # If branch is specified, filter items by branch
     if branch:
-        # Add branch-specific filter logic here if needed
-        pass
+        # Get items explicitly mapped to the given branch
+        branch_items = frappe.get_all(
+            "Item Branch",
+            filters={"branch": branch},
+            fields=["parent"],
+        )
+
+        # If no items are mapped to this branch, return empty list
+        if not branch_items:
+            return []
+
+        # Filter Item query to only include items available in the branch
+        filters["name"] = ["in", [d.parent for d in branch_items]]
     
     # If not showing variants, exclude items that are variants of other items
     if not frappe.utils.cint(show_variants):
