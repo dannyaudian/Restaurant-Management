@@ -4,6 +4,11 @@ from frappe.utils import now_datetime, get_url, cint, flt
 from typing import Dict, List, Any, Optional, Union
 import json
 
+from restaurant_management.order_status import (
+    VALID_STATUS_TRANSITIONS,
+    is_valid_status_transition,
+)
+
 # REST API methods
 @frappe.whitelist(methods=["POST"])
 def create_order(**kwargs):
@@ -302,9 +307,11 @@ def update_order_status(**kwargs):
         frappe.throw(_("Status is required"))
     
     # Validate status value
-    valid_statuses = ["Draft", "Confirmed", "Served", "Paid", "Cancelled"]
+    valid_statuses = list(VALID_STATUS_TRANSITIONS.keys())
     if data.status not in valid_statuses:
-        frappe.throw(_("Invalid status. Must be one of: {0}").format(", ".join(valid_statuses)))
+        frappe.throw(
+            _("Invalid status. Must be one of: {0}").format(", ".join(valid_statuses))
+        )
     
     try:
         # Get the order
@@ -313,8 +320,14 @@ def update_order_status(**kwargs):
         
         waiter_order = frappe.get_doc("Waiter Order", data.order_id)
         
-        # Update status
+        # Validate transition and update status
         old_status = waiter_order.status
+        if not is_valid_status_transition(old_status, data.status):
+            frappe.throw(
+                _(
+                    "Invalid status transition from {0} to {1}"
+                ).format(old_status, data.status)
+            )
         waiter_order.status = data.status
         
         # If status is changing to Paid or Cancelled, handle table availability
