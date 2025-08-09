@@ -33,7 +33,9 @@
    "label": "Series",
    "options": "WO-{branch_code}-.########",
    "default": "WO-{branch_code}-.########",
-   "hidden": 1
+   "reqd": 1,
+   "read_only": 1,
+   "description": "Automatic naming series using branch code"
   },
   {
    "fieldname": "order_info_section",
