@@ -8,12 +8,7 @@ app_email = "your.email@example.com"
 app_license = "MIT"
 
 # Web Assets
-web_include_js = [
-    "/assets/restaurant_management/js/waiter_order.js",
-    "/assets/restaurant_management/js/station_display.js",
-    "/assets/restaurant_management/js/table_display.js",
-    "/assets/restaurant_management/js/pos_restaurant_custom.js"
-]
+web_include_js = []
 
 web_include_css = [
     "/assets/restaurant_management/css/waiter_order.css",
