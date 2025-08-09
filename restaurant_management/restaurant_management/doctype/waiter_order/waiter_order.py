@@ -361,7 +361,7 @@ def resolve_item_variant(template_item_code, attributes):
         Variant item details
     """
     if not template_item_code or not attributes:
-    return None
+        return None
 
     # Convert string attributes to dict if needed
     if isinstance(attributes, str):
