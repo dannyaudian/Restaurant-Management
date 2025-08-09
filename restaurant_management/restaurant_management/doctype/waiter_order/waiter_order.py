@@ -3,6 +3,7 @@
 
 import frappe
 from frappe import _
+import json
 from frappe.model.document import Document
 from frappe.utils import now_datetime
 from restaurant_management.restaurant_management.doctype.table.table import (
@@ -48,31 +49,30 @@ class WaiterOrder(Document):
     
     def validate(self):
         """
-        Validate waiter order before saving:
-        - Set default values if not specified
-        - Fetch branch code from table if not specified
-        - Ensure at least one item is in the order
-        - Validate all items have qty >= 1 and item_code
-        - Validate items with variants have item_variant specified
-        - Update table status when order status changes to Paid
+        Validate waiter order item before saving:
+        - Set item_name from item_code if missing
+        - Ensure rate is set from price list if missing
+        - Validate rate is not negative
+        - Calculate amount as rate × qty
+        - Validate quantity is within allowed limits for item type
+        - Set ordered_by if not already set
+        - Always update last_update_by and last_update_time
+        - Validate status transitions
         """
-        logger = frappe.logger("waiter_order")
+        logger = frappe.logger("waiter_order_item")
         
-        # Set default values if not specified
-        if not self.order_time:
-            self.order_time = now_datetime()
+        # Validate essential fields
+        if not self.item_code:
+            frappe.throw("Item Code is required")
         
-        if not self.ordered_by:
-            self.ordered_by = frappe.session.user
+        # Fetch item details if missing
+        self.fetch_item_details()
         
-        # Fetch branch code from table if not specified
-        if not self.branch_code and self.table:
-            self.branch_code = frappe.db.get_value("Table", self.table, "branch_code")
-            logger.info(f"Setting branch code to {self.branch_code} from table {self.table}")
-            
-        # Ensure at least one item in the order
-        if not self.items or len(self.items) == 0:
-            frappe.throw("Order must contain at least one item")
+        # Validate rate is not negative
+        if self.rate is None or self.rate < 0:
+            frappe.throw((
+                "Rate cannot be negative for item '{0}'. Current rate: {1}"
+            ).format(self.item_name or self.item_code, self.rate))
         
         # Validate all order items
         self.validate_order_items()
@@ -92,6 +92,22 @@ class WaiterOrder(Document):
                 f"Order {self.name} marked as Paid, updating table {self.table}"
             )
             update_table_status(self.table, "Available", None)
+        # Validate quantity
+        self.validate_quantity()
+        
+        # Calculate amount
+        self.calculate_amount()
+        
+        # Set audit fields
+        self.set_audit_fields()
+        
+        # Validate status transitions
+        self.validate_status_transition()
+        
+        # Update parent waiter order ID
+        if hasattr(self, 'parent') and self.parent:
+            self.waiter_order_id = self.parent
+
     
     def validate_order_items(self):
         """
@@ -145,6 +161,121 @@ class WaiterOrder(Document):
             if table_doc.current_pos_order == self.name:
                 logger.info(f"Order {self.name} deleted, updating table {self.table} to Available")
                 update_table_status(self.table, "Available", None)
+
+    def validate_quantity(self):
+        """
+        Validate quantity for all order items:
+        - Check quantity is positive
+        - Validate against available stock
+        - Apply item-specific quantity limits
+        
+        Raises:
+            frappe.ValidationError: If quantity validation fails
+        """
+        logger = frappe.logger("waiter_order")
+        
+        for i, item in enumerate(self.items, 1):
+            if not item.qty or item.qty <= 0:
+                frappe.throw(_(
+                    "Row {0}: Quantity must be greater than 0 for item '{1}'"
+                ).format(i, item.item_name or item.item_code))
+
+            # Get item settings
+            item_settings = frappe.db.get_value(
+                "Item",
+                item.item_code,
+                ["is_stock_item", "min_order_qty", "max_order_qty", "item_group"],
+                as_dict=True
+            )
+
+            # Check min/max order quantities if set
+            min_qty = flt(item_settings.min_order_qty)
+            if min_qty and item.qty < min_qty:
+                frappe.throw(_(
+                    "Row {0}: Minimum order quantity is {1} for item '{2}'"
+                ).format(i, min_qty, item.item_name or item.item_code))
+
+            max_qty = flt(item_settings.max_order_qty)
+            if max_qty and item.qty > max_qty:
+                frappe.throw(_(
+                    "Row {0}: Maximum order quantity is {1} for item '{2}'"
+                ).format(i, max_qty, item.item_name or item.item_code))
+
+            # Only check stock for stock items
+            if item_settings.is_stock_item:
+                try:
+                    # Get warehouse for the branch
+                    warehouse = frappe.db.get_value(
+                        "Branch",
+                        self.branch,
+                        "default_warehouse"
+                    )
+                    
+                    if not warehouse:
+                        logger.warning(
+                            f"No default warehouse found for branch {self.branch}. "
+                            f"Stock validation skipped for item {item.item_code}"
+                        )
+                        continue
+
+                    # Get current stock quantity
+                    current_stock = frappe.db.get_value(
+                        "Bin",
+                        {
+                            "item_code": item.item_code,
+                            "warehouse": warehouse
+                        },
+                        "actual_qty"
+                    ) or 0
+
+                    # Check if enough stock is available
+                    if item.qty > current_stock:
+                        # Get stock settings
+                        allow_negative_stock = frappe.db.get_single_value(
+                            "Stock Settings",
+                            "allow_negative_stock"
+                        )
+
+                        if not allow_negative_stock:
+                            frappe.throw(_(
+                                "Row {0}: Not enough stock for item '{1}'. "
+                                "Available quantity: {2}, Requested: {3}"
+                            ).format(
+                                i,
+                                item.item_name or item.item_code,
+                                current_stock,
+                                item.qty
+                            ))
+                        else:
+                            # Log warning if allowing negative stock
+                            logger.warning(
+                                f"Negative stock will occur - Item: {item.item_code}, "
+                                f"Available: {current_stock}, Requested: {item.qty}"
+                            )
+                            
+                            # Show warning message to user
+                            frappe.msgprint(_(
+                                "Warning: Stock will go negative for item '{0}'. "
+                                "Available: {1}, Requested: {2}"
+                            ).format(
+                                item.item_name or item.item_code,
+                                current_stock,
+                                item.qty
+                            ), indicator='orange', alert=True)
+
+                except Exception as e:
+                    # Log error but don't block order
+                    logger.error(
+                        f"Error checking stock for item {item.item_code}: {str(e)}"
+                    )
+                    frappe.msgprint(_(
+                        "Warning: Could not verify stock quantity for item '{0}'. "
+                        "Please check manually."
+                    ).format(item.item_name or item.item_code),
+                        indicator='orange',
+                        alert=True
+                    )
+
 
 @frappe.whitelist()
 def get_menu_items(branch=None, show_variants=False):
