@@ -109,20 +109,24 @@ def create_order(**kwargs):
             
             # Add items to the order
             add_items_to_order(waiter_order, data.items)
-            
-            # Save the new order
-            waiter_order.insert()
-            
-            # Submit the order if auto_submit is requested
-            if data.get("auto_submit"):
-                waiter_order.status = "Confirmed"
-                waiter_order.submit()
-            
-            frappe.db.commit()
-            
-            # Update table status
-            set_table_status(table.name, waiter_order.name)
-            
+
+            try:
+                # Save the new order
+                waiter_order.insert()
+
+                # Submit the order if auto_submit is requested
+                if data.get("auto_submit"):
+                    waiter_order.status = "Confirmed"
+                    waiter_order.submit()
+
+                # Update table status
+                set_table_status(table.name, waiter_order.name)
+
+                frappe.db.commit()
+            except Exception:
+                frappe.db.rollback()
+                raise
+
             return {
                 "success": True,
                 "message": _("Order created successfully"),
@@ -720,17 +724,19 @@ def send_order_to_kitchen(order_data):
         # Set totals if provided
         if order_data.get("total_qty"):
             waiter_order.total_qty = flt(order_data.get("total_qty"))
-        
+
         if order_data.get("total_amount"):
             waiter_order.total_amount = flt(order_data.get("total_amount"))
-        
-        waiter_order.insert()
-        waiter_order.submit()
-        frappe.db.commit()
-        
-        # Update table status
-        set_table_status(table.name, waiter_order.name)
-        
+
+        try:
+            waiter_order.insert()
+            waiter_order.submit()
+            set_table_status(table.name, waiter_order.name)
+            frappe.db.commit()
+        except Exception:
+            frappe.db.rollback()
+            raise
+
         # Generate print format URL
         print_url = get_print_url(waiter_order.name)
         
