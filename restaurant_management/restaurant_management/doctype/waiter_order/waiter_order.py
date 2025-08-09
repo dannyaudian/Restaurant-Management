@@ -1,16 +1,11 @@
-# Copyright (c) 2023, PT. Inovasi Terbaik Bangsa and contributors
-# For license information, please see license.txt
-
 import frappe
-from frappe import _
 import json
 from frappe.model.document import Document
-from frappe.utils import now_datetime
-from restaurant_management.restaurant_management.doctype.table.table import (
-    update_table_status,
-)
+from frappe.model.naming import make_autoname
+from frappe.utils import now_datetime, flt
+from restaurant_management.restaurant_management.doctype.table.table import update_table_status
 from restaurant_management.order_status import is_valid_status_transition
-
+from typing import Dict, List
 
 class WaiterOrder(Document):
     """
@@ -22,58 +17,51 @@ class WaiterOrder(Document):
     """
     
     def autoname(self):
-        """Generate name using format WO-{branch_code}-{########}"""
-        if self.branch_code:
-            # Get the next number for this branch code
-            last_name = frappe.db.sql("""
-                SELECT `name` FROM `tabWaiter Order`
-                WHERE `name` LIKE 'WO-{branch_code}-%'
-                ORDER BY `name` DESC LIMIT 1
-            """.format(branch_code=self.branch_code.upper()))
-            
-            # Start counter
-            count = 1
-            
-            # If there's an existing record, extract the counter
-            if last_name:
-                # Extract the number from the last name (e.g., WO-JKT-00000001 → 1)
-                try:
-                    count = int(last_name[0][0].split('-')[-1]) + 1
-                except (IndexError, ValueError):
-                    count = 1
-            
-            # Format the new name with 8-digit counter
-            self.name = f"WO-{self.branch_code.upper()}-{count:08d}"
-        else:
+        """
+        Generate document name using the configured naming series.
+        Replaces {branch_code} with actual branch code in the series.
+        """
+        if not self.branch_code:
             frappe.throw("Branch Code is required for Waiter Order")
     
+        # Get the naming series pattern
+        series = self.naming_series or "WO-{branch_code}-.########"
+
+        # Replace branch_code placeholder with actual value
+        series = series.replace("{branch_code}", self.branch_code.upper())
+
+        # Generate the name using Frappe's autoname utility
+        self.name = make_autoname(series)
+
     def validate(self):
         """
-        Validate waiter order item before saving:
-        - Set item_name from item_code if missing
-        - Ensure rate is set from price list if missing
-        - Validate rate is not negative
-        - Calculate amount as rate × qty
-        - Validate quantity is within allowed limits for item type
-        - Set ordered_by if not already set
-        - Always update last_update_by and last_update_time
-        - Validate status transitions
+        Validate waiter order before saving.
         """
-        logger = frappe.logger("waiter_order_item")
-        
-        # Validate essential fields
-        if not self.item_code:
-            frappe.throw("Item Code is required")
-        
-        # Fetch item details if missing
-        self.fetch_item_details()
-        
-        # Validate rate is not negative
-        if self.rate is None or self.rate < 0:
-            frappe.throw((
-                "Rate cannot be negative for item '{0}'. Current rate: {1}"
-            ).format(self.item_name or self.item_code, self.rate))
-        
+        logger = frappe.logger("waiter_order")
+
+        # Set default values if not specified
+        if not self.order_time:
+            self.order_time = now_datetime()
+
+        if not self.ordered_by:
+            self.ordered_by = frappe.session.user
+
+        # Ensure branch code is set
+        if not self.branch_code and self.table:
+            self.branch_code = frappe.db.get_value("Table", self.table, "branch_code")
+            logger.info(f"Setting branch code to {self.branch_code} from table {self.table}")
+
+            # Update naming series with branch code
+            if hasattr(self, 'naming_series'):
+                self.naming_series = self.naming_series.replace(
+                    "{branch_code}",
+                    self.branch_code.upper()
+                )
+
+        # Ensure at least one item in the order
+        if not self.items or len(self.items) == 0:
+            frappe.throw("Order must contain at least one item")
+
         # Validate all order items
         self.validate_order_items()
 
@@ -88,9 +76,7 @@ class WaiterOrder(Document):
 
         # Update table status when order status changes to Paid
         if self.status == "Paid" and self.table:
-            logger.info(
-                f"Order {self.name} marked as Paid, updating table {self.table}"
-            )
+            logger.info(f"Order {self.name} marked as Paid, updating table {self.table}")
             update_table_status(self.table, "Available", None)
         # Validate quantity
         self.validate_quantity()
@@ -108,7 +94,6 @@ class WaiterOrder(Document):
         if hasattr(self, 'parent') and self.parent:
             self.waiter_order_id = self.parent
 
-    
     def validate_order_items(self):
         """
         Validate all items in the order:
@@ -276,7 +261,6 @@ class WaiterOrder(Document):
                         alert=True
                     )
 
-
 @frappe.whitelist()
 def get_menu_items(branch=None, show_variants=False):
     """
@@ -356,8 +340,8 @@ def resolve_item_variant(template_item_code, attributes):
         Variant item details
     """
     if not template_item_code or not attributes:
-        return None
-        
+    return None
+
     # Convert string attributes to dict if needed
     if isinstance(attributes, str):
         attributes = json.loads(attributes)
@@ -392,8 +376,5 @@ def resolve_item_variant(template_item_code, attributes):
         
         if matches:
             return variant
-    
-    # If no exact match found, create new variant (optional)
-    # This requires additional implementation
     
     return None
