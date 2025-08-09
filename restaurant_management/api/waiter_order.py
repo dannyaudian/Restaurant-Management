@@ -8,6 +8,10 @@ from restaurant_management.order_status import (
     VALID_STATUS_TRANSITIONS,
     is_valid_status_transition,
 )
+from restaurant_management.utils.variant import (
+    get_item_variant_attributes as _get_item_variant_attributes,
+    resolve_item_variant as _resolve_item_variant,
+)
 
 # REST API methods
 @frappe.whitelist(methods=["POST"])
@@ -620,76 +624,21 @@ def get_item_groups():
 
 @frappe.whitelist()
 def get_item_variant_attributes(template_item_code=None, item_code=None):
-    """Get attributes for an item template."""
-    template_item_code = template_item_code or item_code
-
-    if not template_item_code or not frappe.db.exists("Item", template_item_code):
-        frappe.throw(_("Item template not found"))
-    
-    # Check if item has variants
-    has_variants = frappe.db.get_value("Item", template_item_code, "has_variants")
-    if not has_variants:
-        return []
-    
-    # Get attributes
-    attributes = frappe.get_all(
-        "Item Variant Attribute",
-        fields=["name", "attribute", "field_name", "options"],
-        filters={"parent": template_item_code},
-        order_by="idx"
-    )
-    
-    return attributes
+    """API wrapper for getting variant attributes"""
+    return _get_item_variant_attributes(template_item_code, item_code)
 
 
 @frappe.whitelist()
 def resolve_item_variant(template_item_code, attributes):
-    """Resolve the appropriate variant based on selected attributes"""
-    if isinstance(attributes, str):
-        attributes = json.loads(attributes)
-    
-    if not frappe.db.exists("Item", template_item_code):
-        frappe.throw(_("Item template not found"))
-    
-    # Get all variants of this template
-    variants = frappe.get_all(
-        "Item",
-        filters={"variant_of": template_item_code, "disabled": 0}
-    )
-    
-    for variant in variants:
-        variant_attributes = frappe.get_all(
-            "Item Variant Attribute",
-            fields=["attribute", "field_name", "attribute_value"],
-            filters={"parent": variant.name}
-        )
-        
-        # Check if all selected attributes match this variant
-        match = True
-        for attr, value in attributes.items():
-            found = False
-            for va in variant_attributes:
-                if (
-                    (va.attribute == attr or va.field_name == attr)
-                    and va.attribute_value == value
-                ):
-                    found = True
-                    break
-            
-            if not found:
-                match = False
-                break
-        
-        if match:
-            # Return the matched variant
-            item = frappe.get_doc("Item", variant.name)
-            return {
-                "item_code": item.name,
-                "item_name": item.item_name,
-                "standard_rate": get_item_rate(item.name)
-            }
-    
-    frappe.throw(_("No matching variant found for selected attributes"))
+    """API wrapper to resolve variant and include pricing"""
+    variant = _resolve_item_variant(template_item_code, attributes)
+    item_code = getattr(variant, "item_code", None) or variant.get("item_code")
+    item_name = getattr(variant, "item_name", None) or variant.get("item_name")
+    return {
+        "item_code": item_code,
+        "item_name": item_name,
+        "standard_rate": get_item_rate(item_code),
+    }
 
 
 @frappe.whitelist()
