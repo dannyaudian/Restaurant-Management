@@ -695,16 +695,20 @@ def resolve_item_variant(template_item_code, attributes):
 @frappe.whitelist()
 def send_order_to_kitchen(order_data):
     """Create a new order"""
+    user = frappe.session.user
+    if user == "Guest" or not frappe.utils.has_common(["Waiter", "Restaurant Staff"], frappe.get_roles(user)):
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
     if isinstance(order_data, str):
         order_data = json.loads(order_data)
-    
+
     # Validate input
     if not order_data.get("table"):
         return {"success": False, "error": _("Table is required")}
-    
+
     if not order_data.get("items") or not isinstance(order_data.get("items"), list):
         return {"success": False, "error": _("At least one item is required")}
-    
+
     # Get table details
     table = frappe.get_doc("Table", order_data.get("table"))
     
@@ -754,13 +758,17 @@ def send_order_to_kitchen(order_data):
 @frappe.whitelist()
 def send_additional_items(order_data):
     """Send additional items to an existing order"""
+    user = frappe.session.user
+    if user == "Guest" or not frappe.utils.has_common(["Waiter", "Restaurant Staff"], frappe.get_roles(user)):
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
     if isinstance(order_data, str):
         order_data = json.loads(order_data)
-    
+
     # Validate input
     if not order_data.get("table"):
         return {"success": False, "error": _("Table is required")}
-    
+
     if not order_data.get("items") or not isinstance(order_data.get("items"), list):
         return {"success": False, "error": _("At least one item is required")}
     
@@ -803,6 +811,10 @@ def send_additional_items(order_data):
 @frappe.whitelist()
 def cancel_order(table):
     """Cancel an active order for a table"""
+    user = frappe.session.user
+    if user == "Guest" or not frappe.utils.has_common(["Waiter", "Restaurant Staff"], frappe.get_roles(user)):
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
     if not table:
         return {"success": False, "error": _("Table is required")}
     
@@ -842,9 +854,13 @@ def cancel_order(table):
 @frappe.whitelist()
 def mark_items_as_served(order_id, item_ids, all_ready=False):
     """Mark items as served"""
+    user = frappe.session.user
+    if user == "Guest" or not frappe.utils.has_common(["Waiter", "Restaurant Staff"], frappe.get_roles(user)):
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
     if isinstance(item_ids, str):
         item_ids = json.loads(item_ids)
-    
+
     if not order_id:
         return {"success": False, "error": _("Order ID is required")}
     
