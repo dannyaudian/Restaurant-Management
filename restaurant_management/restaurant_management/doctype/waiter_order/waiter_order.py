@@ -2,9 +2,13 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.utils import now_datetime
-from restaurant_management.restaurant_management.doctype.table.table import update_table_status
+from restaurant_management.restaurant_management.doctype.table.table import (
+    update_table_status,
+)
+from restaurant_management.order_status import is_valid_status_transition
 
 
 class WaiterOrder(Document):
@@ -72,10 +76,21 @@ class WaiterOrder(Document):
         
         # Validate all order items
         self.validate_order_items()
-            
+
+        # Validate status transition
+        if not self.is_new():
+            previous_status = frappe.db.get_value(self.doctype, self.name, "status")
+            if previous_status and previous_status != self.status:
+                if not is_valid_status_transition(previous_status, self.status):
+                    frappe.throw(
+                        _(f"Invalid status transition from {previous_status} to {self.status}")
+                    )
+
         # Update table status when order status changes to Paid
         if self.status == "Paid" and self.table:
-            logger.info(f"Order {self.name} marked as Paid, updating table {self.table}")
+            logger.info(
+                f"Order {self.name} marked as Paid, updating table {self.table}"
+            )
             update_table_status(self.table, "Available", None)
     
     def validate_order_items(self):
