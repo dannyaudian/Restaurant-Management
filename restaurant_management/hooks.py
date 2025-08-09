@@ -136,10 +136,10 @@ website_guest_routes = [
 
 # DocType creation
 doctype_js = {
-    "POS Profile": "public/js/pos_profile.js",
-    "Sales Order": "public/js/sales_order.js",
-    "Sales Invoice": "public/js/sales_invoice.js",
-    "POS Invoice": "public/js/pos_invoice.js"
+    "POS Profile": "restaurant_management/doctype/pos_profile/pos_profile.js",
+    "Sales Order": "restaurant_management/doctype/sales_order/sales_order.js",
+    "Sales Invoice": "restaurant_management/doctype/sales_invoice/sales_invoice.js",
+    "POS Invoice": "restaurant_management/doctype/pos_invoice/pos_invoice.js"
 }
 
 # Install
