@@ -721,16 +721,10 @@ def send_order_to_kitchen(order_data):
         waiter_order.status = "Confirmed"  # Start with Confirmed status
         waiter_order.ordered_by = frappe.session.user
         waiter_order.order_time = now_datetime()
-        
+
         # Add items
         add_items_to_order(waiter_order, order_data.get("items"))
-        
-        # Set totals if provided
-        if order_data.get("total_qty"):
-            waiter_order.total_qty = flt(order_data.get("total_qty"))
-
-        if order_data.get("total_amount"):
-            waiter_order.total_amount = flt(order_data.get("total_amount"))
+        calculate_order_totals(waiter_order)
 
         try:
             waiter_order.insert()
@@ -781,17 +775,11 @@ def send_additional_items(order_data):
         
         # Get existing order
         waiter_order = frappe.get_doc("Waiter Order", table.current_pos_order)
-        
+
         # Add new items
         add_items_to_order(waiter_order, order_data.get("items"))
-        
-        # Set totals if provided
-        if order_data.get("total_qty"):
-            waiter_order.total_qty = flt(order_data.get("total_qty"))
-        
-        if order_data.get("total_amount"):
-            waiter_order.total_amount = flt(order_data.get("total_amount"))
-        
+        calculate_order_totals(waiter_order)
+
         waiter_order.save()
         frappe.db.commit()
         
