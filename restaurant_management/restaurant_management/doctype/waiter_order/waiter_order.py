@@ -4,7 +4,7 @@ from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 from frappe.utils import now_datetime, flt
 from restaurant_management.restaurant_management.doctype.table.table import update_table_status
-from restaurant_management.order_status import is_valid_status_transition
+from restaurant_management.order_status import VALID_STATUS_TRANSITIONS
 from typing import Dict, List
 
 class WaiterOrder(Document):
@@ -64,15 +64,6 @@ class WaiterOrder(Document):
 
         # Validate all order items
         self.validate_order_items()
-
-        # Validate status transition
-        if not self.is_new():
-            previous_status = frappe.db.get_value(self.doctype, self.name, "status")
-            if previous_status and previous_status != self.status:
-                if not is_valid_status_transition(previous_status, self.status):
-                    frappe.throw(
-                        (f"Invalid status transition from {previous_status} to {self.status}")
-                    )
 
         # Update table status when order status changes to Paid
         if self.status == "Paid" and self.table:
@@ -260,6 +251,25 @@ class WaiterOrder(Document):
                         indicator='orange',
                         alert=True
                     )
+    def validate_status_transition(self):
+        """Validate that status transitions adhere to allowed workflow."""
+        if self.is_new() or not self.status:
+            return
+
+        previous_status = None
+        if hasattr(self, "_doc_before_save") and self._doc_before_save:
+            previous_status = self._doc_before_save.status
+        else:
+            previous_status = frappe.db.get_value(self.doctype, self.name, "status")
+
+        if previous_status and previous_status != self.status:
+            allowed = VALID_STATUS_TRANSITIONS.get(previous_status, [])
+            if self.status not in allowed:
+                valid_next_steps = ", ".join(allowed) or "None"
+                frappe.throw(
+                    f"Invalid status transition from '{previous_status}' to '{self.status}'. "
+                    f"Valid next steps are: {valid_next_steps}"
+                )
 
 @frappe.whitelist()
 def get_menu_items(branch=None, show_variants=False):
