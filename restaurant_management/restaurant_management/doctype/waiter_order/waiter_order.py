@@ -1,10 +1,13 @@
 import frappe
-import json
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 from frappe.utils import now_datetime, flt
 from restaurant_management.restaurant_management.doctype.table.table import update_table_status
 from restaurant_management.order_status import VALID_STATUS_TRANSITIONS
+from restaurant_management.utils.variant import (
+    get_item_variant_attributes,
+    resolve_item_variant,
+)
 from typing import Dict, List
 
 class WaiterOrder(Document):
@@ -314,88 +317,3 @@ def get_menu_items(branch=None, show_variants=False):
     
     return items
 
-@frappe.whitelist()
-def get_item_variant_attributes(template_item_code):
-    """
-    Get variant attributes for a template item.
-    
-    Args:
-        template_item_code: Item code of the template
-        
-    Returns:
-        List of attribute details
-    """
-    if not template_item_code:
-        return []
-        
-    # Get item variant attributes
-    attributes = []
-    item_attributes = frappe.get_all(
-        "Item Variant Attribute",
-        filters={"parent": template_item_code},
-        fields=["attribute", "attribute_value"]
-    )
-    
-    # Get full attribute details
-    for attr in item_attributes:
-        attribute_doc = frappe.get_doc("Item Attribute", attr.attribute)
-        attributes.append({
-            "name": attribute_doc.name,
-            "field_name": attribute_doc.name,
-            "attribute": attribute_doc.name,
-            "options": "\n".join([value.attribute_value for value in attribute_doc.item_attribute_values])
-        })
-    
-    return attributes
-
-@frappe.whitelist()
-def resolve_item_variant(template_item_code, attributes):
-    """
-    Resolve a variant item based on template and attributes.
-    
-    Args:
-        template_item_code: Item code of the template
-        attributes: Dict of attribute name to value
-        
-    Returns:
-        Variant item details
-    """
-    if not template_item_code or not attributes:
-        return None
-
-    # Convert string attributes to dict if needed
-    if isinstance(attributes, str):
-        attributes = json.loads(attributes)
-    
-    # Find matching variant
-    variants = frappe.get_all(
-        "Item",
-        filters={"variant_of": template_item_code, "disabled": 0},
-        fields=["item_code", "item_name"]
-    )
-    
-    for variant in variants:
-        # Get variant attributes
-        variant_attrs = frappe.get_all(
-            "Item Variant Attribute",
-            filters={"parent": variant.item_code},
-            fields=["attribute", "attribute_value"]
-        )
-        
-        # Check if all specified attributes match
-        matches = True
-        for attr_name, attr_value in attributes.items():
-            match_found = False
-            for v_attr in variant_attrs:
-                if v_attr.attribute == attr_name and v_attr.attribute_value == attr_value:
-                    match_found = True
-                    break
-            
-            if not match_found:
-                matches = False
-                break
-        
-        if matches:
-            return variant
-    
-    return None
